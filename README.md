@@ -74,9 +74,20 @@ one: `npx wrangler kv namespace create GRAVEYARD_KV` and paste the id in.
 | `wrangler.jsonc`             | Worker + assets + KV configuration               |
 | `vite.config.ts`             | Frontend build config (outputs to `./dist`)      |
 
+## Moderation
+
+New submissions are pre-screened by Gemini (see `moderateSubmission` in
+`src/worker.ts`). It blocks genuinely harmful content (hate, harassment, sexual
+content, doxxing, spam) while deliberately allowing the site's dark humor and
+profanity about dead projects. It fails open: if the Gemini call errors, the
+submission is allowed so users are never blocked by an outage. Rejections return
+HTTP 422 with a reason. The model is `gemini-2.5-flash` (override via the
+`GEMINI_MODEL` variable).
+
 ## Next steps
 
-- The AI endpoint uses model id `gemini-3.5-flash`. If appraisals error, confirm
-  that id is valid for your key and adjust it in `src/worker.ts`.
-- Account auth and gated submissions are not built yet; the planned next step is
-  to add them, likely migrating storage from KV to D1 at that point.
+- No user accounts yet (intentionally, to keep submission friction low). If spam
+  gets bad, options are a submission rate limit, a manual review queue, or social
+  login (Google/GitHub) via D1.
+- The AI model id is `gemini-2.5-flash`; adjust in `src/worker.ts` or via the
+  `GEMINI_MODEL` env var if needed.
