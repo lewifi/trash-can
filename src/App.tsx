@@ -269,8 +269,14 @@ export default function App() {
     }
   };
 
-  // Upvote/Like trigger
+  // Track which dumps the visitor has already mourned/flowered this session
+  const [voted, setVoted] = useState<Record<string, { like?: boolean; flower?: boolean }>>({});
+
+  // Upvote/Like trigger (one mourn + one flower per dump per session)
   const handleAction = async (id: string, type: "like" | "flower") => {
+    if (voted[id]?.[type]) return; // already counted
+    // Optimistically lock the button so it greys out immediately
+    setVoted(prev => ({ ...prev, [id]: { ...prev[id], [type]: true } }));
     try {
       const res = await fetch(`/api/dumps/${id}/like`, {
         method: "POST",
@@ -288,9 +294,13 @@ export default function App() {
         if (roomDumps.length > 0) {
           setRoomDumps(prev => prev.map(item => (item.id === id ? updated : item)));
         }
+      } else {
+        // Failed: unlock so they can retry
+        setVoted(prev => ({ ...prev, [id]: { ...prev[id], [type]: false } }));
       }
     } catch (e) {
       console.error(e);
+      setVoted(prev => ({ ...prev, [id]: { ...prev[id], [type]: false } }));
     }
   };
 
@@ -1267,18 +1277,20 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-2 pt-2">
                       <button
                         onClick={() => handleAction(selectedDump.id, "like")}
-                        className="py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-xs font-mono-tech font-bold text-gray-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        disabled={!!voted[selectedDump.id]?.like}
+                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.like ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white cursor-pointer"}`}
                       >
-                        <Flame className="w-4 h-4 text-red-400" />
-                        MOURN (+1 VOTE)
+                        <Flame className={`w-4 h-4 ${voted[selectedDump.id]?.like ? "text-gray-600" : "text-red-400"}`} />
+                        {voted[selectedDump.id]?.like ? "MOURNED \u2713" : "MOURN (+1 VOTE)"}
                       </button>
 
                       <button
                         onClick={() => handleAction(selectedDump.id, "flower")}
-                        className="py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-xs font-mono-tech font-bold text-pink-400 hover:text-pink-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        disabled={!!voted[selectedDump.id]?.flower}
+                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.flower ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-pink-400 hover:text-pink-300 cursor-pointer"}`}
                       >
-                        <Flower2 className="w-4 h-4" />
-                        LAY FLOWER ({selectedDump.flowers})
+                        <Flower2 className={`w-4 h-4 ${voted[selectedDump.id]?.flower ? "text-gray-600" : ""}`} />
+                        {voted[selectedDump.id]?.flower ? `FLOWER LAID (${selectedDump.flowers})` : `LAY FLOWER (${selectedDump.flowers})`}
                       </button>
                     </div>
 
