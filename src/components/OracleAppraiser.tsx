@@ -14,7 +14,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [techStack, setTechStack] = useState("");
   const [creator, setCreator] = useState("");
   const [emotionalTragedy, setEmotionalTragedy] = useState(5);
-  
+
   // Custom appraisal results
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AppraisalResult | null>(null);
@@ -82,7 +82,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   const handleBuryInWasteland = async () => {
     if (!name || !description) return;
-    
+
     try {
       const payload = {
         name,
@@ -140,7 +140,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             THE TRASH ORACLE
           </h3>
           <p className="text-xs text-gray-400 font-mono-tech mt-0.5">
-            AI Waste Appraiser & Diagnostics Suite (Model: Gemini 3.5 Flash)
+            AI Waste Appraiser & Diagnostics Suite
           </p>
         </div>
       </div>
