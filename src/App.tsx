@@ -454,10 +454,10 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-wider font-monument bg-gradient-to-r from-cyan-400 via-teal-200 to-red-400 bg-clip-text text-transparent">
-                  trash-can.net
+                  Glitch Graveyard
                 </span>
                 <span className="text-[10px] font-mono-tech border border-red-500/30 text-red-400 px-1.5 py-0.2 rounded uppercase animate-flicker">
-                  Glitch Graveyard
+                  trash-can.net
                 </span>
               </div>
               <p className="text-xs text-gray-500 tracking-wide">
