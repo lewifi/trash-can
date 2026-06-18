@@ -51,7 +51,18 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       });
 
       if (!response.ok) {
-        throw new Error("Waste Oracle server had an internal seizure. Retrying is advised.");
+        let serverDetail = "";
+        try {
+          const errBody = await response.json();
+          serverDetail = errBody.detail || errBody.error || "";
+        } catch {
+          /* ignore non-JSON error bodies */
+        }
+        throw new Error(
+          serverDetail
+            ? `Waste Oracle error: ${serverDetail}`
+            : "Waste Oracle server had an internal seizure. Retrying is advised."
+        );
       }
 
       const data = await response.json();
