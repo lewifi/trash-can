@@ -13,3 +13,6 @@ coverage/
 
 # Generated Worker types
 worker-configuration.d.ts
+
+# Lockfile is generated at build time (CI runs npm install)
+package-lock.json
