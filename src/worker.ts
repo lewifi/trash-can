@@ -6,6 +6,7 @@ type Bindings = {
   ASSETS: Fetcher;
   GRAVEYARD_KV: KVNamespace;
   GEMINI_API_KEY: string;
+  GEMINI_MODEL?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -212,8 +213,9 @@ Respond strictly in a valid JSON format with the following keys and data types:
 
 Ensure the response is clean, formatted as JSON, and contains no raw markdown, backticks, or comments around it other than the raw JSON output. Do not mention any API restrictions. Make it full of personality!`;
 
+    const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
     const response = await aiClient.models.generateContent({
-      model: "gemini-3.5-flash",
+      model,
       contents: prompt,
     });
 
@@ -237,9 +239,13 @@ Ensure the response is clean, formatted as JSON, and contains no raw markdown, b
       });
     }
   } catch (err: any) {
-    console.error("Gemini API Error:", err);
+    const detail = String(err?.message || err);
+    console.error("Gemini API Error:", detail);
     return c.json(
-      { error: "The AI consultant is currently mourning a dead script. Please try calling later." },
+      {
+        error: "The AI consultant is currently mourning a dead script. Please try calling later.",
+        detail,
+      },
       500
     );
   }
