@@ -22,7 +22,7 @@
   ],
   "vars": {
     "ADMIN_EMAIL": "lewi.hirvela@gmail.com",
-    "ACCESS_TEAM_DOMAIN": "REPLACE_WITH_your-team.cloudflareaccess.com",
+    "ACCESS_TEAM_DOMAIN": "me-2a4.cloudflareaccess.com",
     "ACCESS_AUD": ""
   },
   "observability": {
