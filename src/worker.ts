@@ -1,16 +1,16 @@
-import { Hono } from 'hono';
-import { handle } from 'hono/cloudflare-pages';
+import { Hono } from "hono";
 import { GoogleGenAI } from "@google/genai";
-import { DeadProject, INITIAL_DUMPS } from '../../src/server/initial-data';
+import { DeadProject, INITIAL_DUMPS } from "./server/initial-data";
 
 type Bindings = {
+  ASSETS: Fetcher;
   GRAVEYARD_KV: KVNamespace;
   GEMINI_API_KEY: string;
 };
 
-const app = new Hono<{ Bindings: Bindings }>().basePath('/api');
+const app = new Hono<{ Bindings: Bindings }>();
 
-// In-memory fallback for local development if KV namespace is not bound or configured
+// In-memory fallback for local dev if KV is not bound
 let memoryDumps: DeadProject[] = [...INITIAL_DUMPS];
 
 async function loadGraveyardData(kv: KVNamespace | undefined): Promise<DeadProject[]> {
@@ -25,6 +25,7 @@ async function loadGraveyardData(kv: KVNamespace | undefined): Promise<DeadProje
     }
     // If KV is bound but empty, seed it with INITIAL_DUMPS
     await kv.put("graveyard_dumps", JSON.stringify(INITIAL_DUMPS));
+    return [...INITIAL_DUMPS];
   }
   return memoryDumps;
 }
@@ -37,33 +38,27 @@ async function saveGraveyardData(kv: KVNamespace | undefined, data: DeadProject[
   }
 }
 
-// AI Client instantiation helper
-let ai: GoogleGenAI | null = null;
-function getAIClient(apiKey: string | undefined) {
-  if (ai) return ai;
+function getAIClient(apiKey: string | undefined): GoogleGenAI | null {
   if (apiKey && apiKey !== "MY_GEMINI_API_KEY") {
-    ai = new GoogleGenAI({
+    return new GoogleGenAI({
       apiKey,
       httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
+        headers: { "User-Agent": "aistudio-build" },
       },
     });
-    return ai;
   }
   return null;
 }
 
 // API: Get all dumps (public/unlocked)
-app.get('/dumps', async (c) => {
+app.get("/api/dumps", async (c) => {
   const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
-  const publicDumps = data.filter(d => !d.isPrivate);
+  const publicDumps = data.filter((d) => !d.isPrivate);
   return c.json(publicDumps);
 });
 
 // API: Dump a project
-app.post('/dumps', async (c) => {
+app.post("/api/dumps", async (c) => {
   const body = await c.req.json();
   const {
     name,
@@ -79,15 +74,15 @@ app.post('/dumps', async (c) => {
     isPrivate,
     roomPassword,
     roomName,
-    imageUrl
+    imageUrl,
   } = body;
 
   if (!name || !description) {
     return c.json({ error: "Name and Description are required and cannot be empty." }, 400);
   }
 
-  const finalLat = latitude !== undefined ? Number(latitude) : (Math.random() * 120 - 60);
-  const finalLng = longitude !== undefined ? Number(longitude) : (Math.random() * 320 - 160);
+  const finalLat = latitude !== undefined ? Number(latitude) : Math.random() * 120 - 60;
+  const finalLng = longitude !== undefined ? Number(longitude) : Math.random() * 320 - 160;
 
   const newDump: DeadProject = {
     id: "dump-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
@@ -108,7 +103,7 @@ app.post('/dumps', async (c) => {
     roomPassword: roomPassword ? String(roomPassword) : undefined,
     roomName: roomName ? String(roomName) : undefined,
     imageUrl: imageUrl ? String(imageUrl) : undefined,
-    diagnosticScore: Math.floor(Math.random() * 35) + 65
+    diagnosticScore: Math.floor(Math.random() * 35) + 65,
   };
 
   const currentData = await loadGraveyardData(c.env.GRAVEYARD_KV);
@@ -119,13 +114,13 @@ app.post('/dumps', async (c) => {
 });
 
 // API: Like a dump (upvote/memorialize)
-app.post('/dumps/:id/like', async (c) => {
-  const id = c.req.param('id');
+app.post("/api/dumps/:id/like", async (c) => {
+  const id = c.req.param("id");
   const body = await c.req.json();
   const { type } = body; // 'like' or 'flower'
 
   const currentData = await loadGraveyardData(c.env.GRAVEYARD_KV);
-  const index = currentData.findIndex(item => item.id === id);
+  const index = currentData.findIndex((item) => item.id === id);
 
   if (index === -1) {
     return c.json({ error: "Cemetery vault not found." }, 404);
@@ -142,13 +137,13 @@ app.post('/dumps/:id/like', async (c) => {
 });
 
 // API: Team venting pressure-valve rooms
-app.get('/rooms/:roomName', async (c) => {
-  const roomName = c.req.param('roomName');
-  const password = c.req.query('password');
+app.get("/api/rooms/:roomName", async (c) => {
+  const roomName = c.req.param("roomName");
+  const password = c.req.query("password");
 
   const currentData = await loadGraveyardData(c.env.GRAVEYARD_KV);
   const matchingDumps = currentData.filter(
-    d => d.isPrivate && d.roomName?.toLowerCase() === roomName.toLowerCase()
+    (d) => d.isPrivate && d.roomName?.toLowerCase() === roomName.toLowerCase()
   );
 
   if (matchingDumps.length === 0) {
@@ -157,10 +152,13 @@ app.get('/rooms/:roomName', async (c) => {
 
   const roomLock = matchingDumps[0].roomPassword;
   if (roomLock && roomLock !== password) {
-    return c.json({ error: "Access denied. Toxic fumes detected. Enter matching containment key." }, 403);
+    return c.json(
+      { error: "Access denied. Toxic fumes detected. Enter matching containment key." },
+      403
+    );
   }
 
-  const safeDumps = matchingDumps.map(d => {
+  const safeDumps = matchingDumps.map((d) => {
     const { roomPassword, ...safe } = d;
     return safe;
   });
@@ -168,17 +166,19 @@ app.get('/rooms/:roomName', async (c) => {
   return c.json(safeDumps);
 });
 
-// API: Live AI waste management consultant / appraisal using Gemini-3.5-flash
-app.post('/appraise', async (c) => {
+// API: Live AI waste management consultant / appraisal
+app.post("/api/appraise", async (c) => {
   const body = await c.req.json();
   const { name, description, category, causeOfDeath, techStack } = body;
 
   if (!name || !description) {
-    return c.json({ error: "Project name and tragedy description are required for an appraisal." }, 400);
+    return c.json(
+      { error: "Project name and tragedy description are required for an appraisal." },
+      400
+    );
   }
 
-  const apiKey = c.env.GEMINI_API_KEY || (typeof process !== "undefined" ? process.env.GEMINI_API_KEY : undefined);
-  const aiClient = getAIClient(apiKey);
+  const aiClient = getAIClient(c.env.GEMINI_API_KEY);
 
   if (!aiClient) {
     return c.json({
@@ -193,7 +193,7 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
   }
 
   try {
-    const prompt = `You are the chief "Waste Management Consultant" at Glitch Graveyard (trash-can.net). 
+    const prompt = `You are the chief "Waste Management Consultant" at Glitch Graveyard (trash-can.net).
 Your job is to write a hilariously accurate, highly critical but oddly encouraging diagnostic post-mortem report and appraisal for a user's dead project.
 
 Project Name: ${name}
@@ -233,14 +233,20 @@ Ensure the response is clean, formatted as JSON, and contains no raw markdown, b
         score: Math.floor(Math.random() * 30) + 70,
         appraisal: `The tragic demise of "${name}" is verified. Diagnostic systems appreciate your sacrifice.`,
         postMortem: `This project was killed by "${causeOfDeath || "technological fatigue"}". Given that it relied on "${techStack || "existential hope"}", its failure was mathematically inevitable yet magnificent.`,
-        recyclingPlan: `Extract the logo, mint it as a relic, and sell the domain name trash-can.net to an enthusiast.`
+        recyclingPlan: `Extract the logo, mint it as a relic, and sell the domain name trash-can.net to an enthusiast.`,
       });
     }
-
   } catch (err: any) {
     console.error("Gemini API Error:", err);
-    return c.json({ error: "The AI consultant is currently mourning a dead script. Please try calling later." }, 500);
+    return c.json(
+      { error: "The AI consultant is currently mourning a dead script. Please try calling later." },
+      500
+    );
   }
 });
 
-export const onRequest = handle(app);
+// Safety net: anything non-API that reaches the Worker is served from static assets.
+// (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
+app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
+
+export default app;

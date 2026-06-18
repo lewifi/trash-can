@@ -1,39 +1,32 @@
 {
-  "name": "react-example",
+  "name": "trash-can",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
     "build": "vite build",
-    "start": "NODE_ENV=production tsx server.ts",
-    "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit",
-    "pages:dev": "wrangler pages dev --config wrangler.vite.json --compatibility-date=2024-01-01",
-    "pages:deploy": "npm run build && wrangler pages deploy dist --config wrangler.vite.json"
+    "dev": "vite build && wrangler dev",
+    "preview": "vite build && wrangler dev",
+    "deploy": "vite build && wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
-    "@tailwindcss/vite": "^4.1.14",
-    "@vitejs/plugin-react": "^5.0.4",
-    "dotenv": "^17.2.3",
-    "express": "^4.21.2",
     "hono": "^4.6.14",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
+    "react-dom": "^19.0.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
-    "@types/express": "^4.17.21",
+    "@tailwindcss/vite": "^4.1.14",
     "@types/node": "^22.14.0",
-    "autoprefixer": "^10.4.21",
-    "esbuild": "^0.25.0",
+    "@types/react": "^19.1.7",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.4",
     "tailwindcss": "^4.1.14",
-    "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3",
     "wrangler": "^4.102.0"

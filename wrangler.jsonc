@@ -1,31 +1,25 @@
-/**
- * For more details on how to configure Wrangler, refer to:
- * https://developers.cloudflare.com/workers/wrangler/configuration/
- */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "<WORKER_NAME>",
-	"main": ".open-next/worker.js",
-	"compatibility_date": "<COMPATIBILITY_DATE>",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".open-next/assets"
-	},
-	"images": {
-		// Enable image optimization
-		// see https://opennext.js.org/cloudflare/howtos/image
-		"binding": "IMAGES"
-	},
-	"services": [
-		{
-			// Self-reference service binding, the service name must match the worker name
-			// see https://opennext.js.org/cloudflare/caching
-			"binding": "WORKER_SELF_REFERENCE",
-			"service": "<WORKER_NAME>"
-		}
-	],
-	"observability": {
-		"enabled": true
-	}
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "trash-can",
+  "main": "src/worker.ts",
+  "compatibility_date": "2025-06-18",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "GRAVEYARD_KV",
+      "id": "a6644daf2d85427ca08b03c8b1b07c14"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+  // GEMINI_API_KEY is a secret, not a var. Set it with:
+  //   npx wrangler secret put GEMINI_API_KEY
+  // and add it in the Cloudflare dashboard for the Worker (Settings > Variables and Secrets).
 }

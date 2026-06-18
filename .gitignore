@@ -1,5 +1,4 @@
 node_modules/
-build/
 dist/
 coverage/
 .DS_Store
@@ -7,12 +6,10 @@ coverage/
 .env*
 !.env.example
 
-# Cloudflare / Next / Wrangler
+# Cloudflare / Wrangler
 .wrangler/
-.next/
-.open-next/
 .dev.vars*
 !.dev.vars.example
 
-# Local database persistence
-graveyard_data.json
+# Generated Worker types
+worker-configuration.d.ts
