@@ -1,0 +1,13 @@
+{
+  "name": "Glitch Graveyard",
+  "short_name": "Glitch Graveyard",
+  "description": "A digital memorial for dead software projects. trash-can.net",
+  "icons": [
+    { "src": "/favicon-32x32.png", "type": "image/png", "sizes": "32x32" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ],
+  "theme_color": "#0b0f19",
+  "background_color": "#0b0f19",
+  "display": "standalone"
+}
