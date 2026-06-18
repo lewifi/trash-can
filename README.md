@@ -1,47 +1,56 @@
-# OpenNext Starter
+# Run and deploy your AI Studio app (Glitch Graveyard)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This contains everything you need to run your app locally and deploy it to Cloudflare Pages.
 
-## Getting Started
+View your app in AI Studio: https://ai.studio/apps/5ef222d6-4914-4cfc-ba40-c96f708fd402
 
-Read the documentation at https://opennext.js.org/cloudflare.
+## Run Locally (Express Developer Server)
 
-## Develop
+**Prerequisites:** Node.js
 
-Run the Next.js development server:
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Set the `GEMINI_API_KEY` in `.env` to your Gemini API key.
+3. Run the app:
+   ```bash
+   npm run dev
+   ```
 
+## Run Locally (Cloudflare Pages Emulation)
+
+If you want to run the project in a simulated Cloudflare environment (with serverless function edge routes and local Key-Value storage emulation):
+
+1. Make sure your static assets are compiled first:
+   ```bash
+   npm run build
+   ```
+2. Start the wrangler development environment:
+   ```bash
+   npm run pages:dev
+   ```
+   This compiles your serverless routing Functions under the `/functions` folder and boots up the Wrangler server on `http://localhost:8788`.
+3. If you want to supply environment variables (like `GEMINI_API_KEY`) to the serverless emulator, create a `.dev.vars` file in the root of the project:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+## Deploying to Cloudflare Pages
+
+### 1. Set up Cloudflare KV Storage
+Create a Key-Value storage namespace in your Cloudflare dashboard (under **Workers & Pages -> KV**):
+1. Create a namespace called `GRAVEYARD_KV`.
+2. Grab the KV namespace ID and update it in `wrangler.json` (under `kv_namespaces[0].id`).
+
+### 2. Set up Environment Variables
+In your Cloudflare Pages project settings:
+1. Navigate to **Settings -> Environment variables**.
+2. Add `GEMINI_API_KEY` as a variable in **Production** and **Preview** variables.
+
+### 3. Deploy via Command Line
+Run the deploy script:
 ```bash
-npm run dev
-# or similar package manager command
+npm run pages:deploy
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
-
-```bash
-npm run preview
-# or similar package manager command
-```
-
-## Deploy
-
-Deploy the application to Cloudflare:
-
-```bash
-npm run deploy
-# or similar package manager command
-```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This builds your React site and deploys it along with its Serverless API Functions automatically.
