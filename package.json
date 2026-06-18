@@ -10,8 +10,8 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "pages:dev": "wrangler pages dev --compatibility-date=2024-01-01",
-    "pages:deploy": "npm run build && wrangler pages deploy dist"
+    "pages:dev": "wrangler pages dev --config wrangler.vite.json --compatibility-date=2024-01-01",
+    "pages:deploy": "npm run build && wrangler pages deploy dist --config wrangler.vite.json"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
