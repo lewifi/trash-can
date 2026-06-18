@@ -1189,7 +1189,7 @@ export default function App() {
             <div className="lg:col-span-4">
               
               {selectedDump ? (
-                <div className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 sticky top-24 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                <div className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
