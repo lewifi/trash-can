@@ -388,6 +388,36 @@ app.delete("/api/incinerator/dumps/:id", async (c) => {
   return c.json({ ok: true, deleted: id, remaining: next.length });
 });
 
+// Edit an existing dump (admin): update text fields and/or image.
+app.patch("/api/incinerator/dumps/:id", async (c) => {
+  const admin = await verifyAdmin(c);
+  if (!admin) return c.json({ error: "Not authorized." }, 403);
+  const id = c.req.param("id");
+  const body = await c.req.json();
+  const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
+  const idx = data.findIndex((d) => d.id === id);
+  if (idx === -1) return c.json({ error: "Not found." }, 404);
+
+  const cur = data[idx];
+  const clip = (v: any, n: number) => String(v).slice(0, n);
+  if (typeof body.name === "string") cur.name = clip(body.name, 80);
+  if (typeof body.description === "string") cur.description = clip(body.description, 2000);
+  if (typeof body.causeOfDeath === "string") cur.causeOfDeath = clip(body.causeOfDeath, 100);
+  if (typeof body.techStack === "string") cur.techStack = clip(body.techStack, 200);
+  if (typeof body.creator === "string") cur.creator = clip(body.creator, 60);
+  if (typeof body.category === "string") cur.category = body.category as DeadProject["category"];
+  if (body.emotionalTragedy !== undefined) {
+    cur.emotionalTragedy = Number(body.emotionalTragedy) || cur.emotionalTragedy;
+  }
+  if (body.roomName !== undefined) cur.roomName = body.roomName ? String(body.roomName) : undefined;
+  if (body.isPrivate !== undefined) cur.isPrivate = !!body.isPrivate;
+  if (body.imageUrl !== undefined) cur.imageUrl = body.imageUrl ? String(body.imageUrl) : undefined;
+
+  data[idx] = cur;
+  await saveGraveyardData(c.env.GRAVEYARD_KV, data);
+  return c.json(cur);
+});
+
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
 app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
