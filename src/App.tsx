@@ -1,0 +1,1547 @@
+import React, { useState, useEffect } from "react";
+import HeartbreakMap from "./components/HeartbreakMap";
+import OracleAppraiser from "./components/OracleAppraiser";
+import RescueRemix from "./components/RescueRemix";
+import TeamVenting from "./components/TeamVenting";
+import TiersUpgrades from "./components/TiersUpgrades";
+import ArtifactVisualizer from "./components/ArtifactVisualizer";
+import {
+  Trash2,
+  Skull,
+  Flame,
+  HeartCrack,
+  Flower2,
+  Sparkles,
+  MapPin,
+  Search,
+  Lock,
+  Unlock,
+  Send,
+  Layers,
+  Compass,
+  HelpCircle,
+  Activity,
+  HardDrive,
+  Terminal,
+  Sliders,
+  Eye,
+  EyeOff,
+  Cpu,
+  AlertTriangle,
+  TrendingDown,
+  Plus,
+  X,
+  Coins,
+  Upload,
+  Camera,
+  ArrowRight,
+  ExternalLink,
+  Shield,
+  FileCode2,
+  RefreshCw
+} from "lucide-react";
+
+interface DeadProject {
+  id: string;
+  name: string;
+  description: string;
+  category: "saas" | "web3" | "mobile" | "ai" | "hardware" | "game" | "dev_tool" | "other";
+  causeOfDeath: string;
+  emotionalTragedy: number;
+  techStack: string;
+  artifactIcon: string;
+  likes: number;
+  flowers: number;
+  creator: string;
+  createdAt: string;
+  latitude: number;
+  longitude: number;
+  aiAppraisal?: string;
+  diagnosticScore?: number;
+  isPrivate?: boolean;
+  roomPassword?: string;
+  roomName?: string;
+  recyclingPlan?: string;
+  appraisal?: string;
+  postMortem?: string;
+}
+
+export default function App() {
+  // Navigation tabs
+  const [activeTab, setActiveTab] = useState<"dump" | "memorials" | "oracle" | "disposal" | "contracts">("dump");
+
+  // State for original/fetched dumps
+  const [dumps, setDumps] = useState<DeadProject[]>([]);
+  const [filteredDumps, setFilteredDumps] = useState<DeadProject[]>([]);
+  const [selectedDump, setSelectedDump] = useState<DeadProject | null>(null);
+
+  // Search and Filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "likes" | "flowers" | "tragedy">("newest");
+
+  // Private Venting Room states
+  const [roomNameInput, setRoomNameInput] = useState("");
+  const [roomPasswordInput, setRoomPasswordInput] = useState("");
+  const [currentRoomName, setCurrentRoomName] = useState<string | null>(null);
+  const [roomDumps, setRoomDumps] = useState<DeadProject[]>([]);
+  const [roomError, setRoomError] = useState("");
+
+  // Create/Dump Form state
+  const [formName, setFormName] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formCategory, setFormCategory] = useState<DeadProject["category"]>("saas");
+  const [formCause, setFormCause] = useState("");
+  const [formTech, setFormTech] = useState("");
+  const [formCreator, setFormCreator] = useState("");
+  const [formTragedy, setFormTragedy] = useState(5);
+  const [formIcon, setFormIcon] = useState("skull");
+  const [formIsPrivate, setFormIsPrivate] = useState(false);
+  const [formRoomName, setFormRoomName] = useState("");
+  const [formRoomPassword, setFormRoomPassword] = useState("");
+  const [formImageUrl, setFormImageUrl] = useState("");
+  
+  // Custom interactive settings
+  const [customSkin, setCustomSkin] = useState<"cyber-lime" | "radium" | "vaporwave" | "rust-belter">("cyber-lime");
+  const [simulationSpeed, setSimulationSpeed] = useState<"static" | "flow" | "frenzy">("flow");
+
+  // AI Appraisal panel states (Independent submission or clicking audit)
+  const [appraiseLoading, setAppraiseLoading] = useState(false);
+  const [appraiseResult, setAppraiseResult] = useState<{
+    score?: number;
+    appraisal?: string;
+    postMortem?: string;
+    recyclingPlan?: string;
+    error?: string;
+  } | null>(null);
+
+  // Drag and drop image states
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setFormImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setFormImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Fetch standard public dumps on load
+  const fetchDumps = async () => {
+    try {
+      const res = await fetch("/api/dumps");
+      if (res.ok) {
+        const data = await res.json();
+        setDumps(data);
+      }
+    } catch (e) {
+      console.error("Error fetching dumps:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchDumps();
+  }, []);
+
+  // Filter and sort handlers
+  useEffect(() => {
+    let result = [...dumps];
+
+    // Filter by category
+    if (selectedCategory && selectedCategory !== "all") {
+      result = result.filter(d => d.category === selectedCategory);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        d =>
+          d.name.toLowerCase().includes(query) ||
+          d.description.toLowerCase().includes(query) ||
+          d.techStack.toLowerCase().includes(query) ||
+          d.causeOfDeath.toLowerCase().includes(query) ||
+          d.creator.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort
+    if (sortBy === "newest") {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } else if (sortBy === "likes") {
+      result.sort((a, b) => b.likes - a.likes);
+    } else if (sortBy === "flowers") {
+      result.sort((a, b) => b.flowers - a.flowers);
+    } else if (sortBy === "tragedy") {
+      result.sort((a, b) => b.emotionalTragedy - a.emotionalTragedy);
+    }
+
+    setFilteredDumps(result);
+  }, [dumps, searchQuery, selectedCategory, sortBy]);
+
+  // Form submission handler
+  const handleDumpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName || !formDescription) {
+      alert("Please provide at least a project name and a brief description of its tragedy.");
+      return;
+    }
+
+    const payload = {
+      name: formName,
+      description: formDescription,
+      category: formCategory,
+      causeOfDeath: formCause || "Unexplained sudden freeze",
+      emotionalTragedy: formTragedy,
+      techStack: formTech || "None declared",
+      artifactIcon: formIcon,
+      creator: formCreator || "Anonymous Grave-keeper",
+      isPrivate: formIsPrivate,
+      roomName: formIsPrivate ? formRoomName : undefined,
+      roomPassword: formIsPrivate ? formRoomPassword : undefined,
+      imageUrl: formImageUrl || undefined,
+    };
+
+    try {
+      const res = await fetch("/api/dumps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        // Reset form
+        setFormName("");
+        setFormDescription("");
+        setFormCause("");
+        setFormTech("");
+        setFormCreator("");
+        setFormTragedy(5);
+        setFormIsPrivate(false);
+        setFormRoomName("");
+        setFormRoomPassword("");
+        setFormImageUrl("");
+        
+        // Refresh & announce
+        await fetchDumps();
+        setActiveTab("memorials");
+        
+        // Auto select the new dump for detail preview
+        const data = await res.json();
+        setSelectedDump(data);
+      } else {
+        const errData = await res.json();
+        alert(`Error dumping project: ${errData.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to record the tragedy. Database signals blocked.");
+    }
+  };
+
+  // Upvote/Like trigger
+  const handleAction = async (id: string, type: "like" | "flower") => {
+    try {
+      const res = await fetch(`/api/dumps/${id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        // Update local items in lists
+        setDumps(prev => prev.map(item => (item.id === id ? updated : item)));
+        if (selectedDump && selectedDump.id === id) {
+          setSelectedDump(updated);
+        }
+        if (roomDumps.length > 0) {
+          setRoomDumps(prev => prev.map(item => (item.id === id ? updated : item)));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Connect & load team room
+  const handleAccessRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!roomNameInput) return;
+    setRoomError("");
+
+    try {
+      const res = await fetch(`/api/rooms/${encodeURIComponent(roomNameInput)}?password=${encodeURIComponent(roomPasswordInput)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRoomDumps(data);
+        setCurrentRoomName(roomNameInput);
+        if (data.length === 0) {
+          setRoomError("Room is currently empty or does not exist. Create a private dump using this room identity first!");
+        }
+      } else {
+        const err = await res.json();
+        setRoomError(err.error || "Failed to penetrate safety valves.");
+        setRoomDumps([]);
+      }
+    } catch (e) {
+      setRoomError("Faulty terminal transmission.");
+    }
+  };
+
+  // AI Appraisal request
+  const handleAppraise = async (project: {
+    name: string;
+    description: string;
+    category: string;
+    causeOfDeath: string;
+    techStack: string;
+  }) => {
+    setAppraiseLoading(true);
+    setAppraiseResult(null);
+
+    try {
+      const res = await fetch("/api/appraise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(project),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAppraiseResult(data);
+      } else {
+        const err = await res.json();
+        setAppraiseResult({ error: err.error || "Failed to perform diagnostic analysis." });
+      }
+    } catch (e) {
+      setAppraiseResult({ error: "The AI Oracle was disconnected from its synapses." });
+    } finally {
+      setAppraiseLoading(false);
+    }
+  };
+
+  // Helper to draw specific artifact icons
+  const renderArtifactIcon = (iconName: string, className = "w-6 h-6") => {
+    switch (iconName) {
+      case "skull":
+        return <Skull className={className} />;
+      case "fire":
+        return <Flame className={className} />;
+      case "heart-broken":
+        return <HeartCrack className={className} />;
+      case "monitor":
+        return <HardDrive className={className} />;
+      case "server":
+        return <Cpu className={className} />;
+      default:
+        return <Trash2 className={className} />;
+    }
+  };
+
+  // Theme skin visual helper classes
+  const getSkinClasses = () => {
+    switch (customSkin) {
+      case "radium":
+        return {
+          bannerBg: "from-green-950/40 via-black to-slate-950/20",
+          accentColor: "text-green-400",
+          accentBorder: "border-green-500/30",
+          accentBg: "bg-green-500/10",
+          glowClass: "neon-glow-green",
+          badgeBg: "bg-green-500/20 text-green-300",
+          buttonColor: "hover:bg-green-500/20 bg-green-900/30 text-green-400 border-green-500/40",
+          textColor: "text-green-100",
+          headingGlow: "shadow-green-500/20",
+        };
+      case "vaporwave":
+        return {
+          bannerBg: "from-pink-950/40 via-black to-fuchsia-950/20",
+          accentColor: "text-pink-400",
+          accentBorder: "border-pink-500/30",
+          accentBg: "bg-pink-500/10",
+          glowClass: "neon-glow-amber",
+          badgeBg: "bg-pink-500/20 text-pink-300",
+          buttonColor: "hover:bg-pink-500/20 bg-pink-900/30 text-pink-400 border-pink-500/40",
+          textColor: "text-pink-100",
+          headingGlow: "shadow-pink-500/20",
+        };
+      case "rust-belter":
+        return {
+          bannerBg: "from-amber-950/40 via-black to-amber-950/20",
+          accentColor: "text-amber-500",
+          accentBorder: "border-amber-600/30",
+          accentBg: "bg-amber-600/10",
+          glowClass: "neon-glow-amber",
+          badgeBg: "bg-amber-600/20 text-amber-200",
+          buttonColor: "hover:bg-amber-600/20 bg-amber-950/30 text-amber-500 border-amber-600/40",
+          textColor: "text-amber-100",
+          headingGlow: "shadow-amber-600/20",
+        };
+      case "cyber-lime":
+      default:
+        return {
+          bannerBg: "from-cyan-950/40 via-black to-slate-950/20",
+          accentColor: "text-cyan-400",
+          accentBorder: "border-cyan-500/30",
+          accentBg: "bg-cyan-500/10",
+          glowClass: "neon-glow-cyan",
+          badgeBg: "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20",
+          buttonColor: "hover:bg-cyan-500/20 bg-cyan-900/30 text-cyan-400 border border-cyan-500/40",
+          textColor: "text-cyan-100",
+          headingGlow: "shadow-cyan-500/20",
+        };
+    }
+  };
+
+  const skin = getSkinClasses();
+
+  // Static items for Hall of fame / Museum Carousel
+  const museumHighRated = dumps.filter(d => d.likes > 300);
+
+  // Geo coordinate hotspot highlights (Heatmap of Heartbreak)
+  // Let's filter some coordinate groups
+  const coordinateDumps = dumps.filter(d => d.latitude && d.longitude);
+
+  return (
+    <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+      
+      {/* Decorative ambient background grids */}
+      <div className="absolute inset-x-0 top-0 h-[600px] bg-gradient-to-b from-blue-950/10 via-cyan-950/5 to-transparent pointer-events-none" />
+      <div className="absolute top-[15%] left-[10%] w-[350px] h-[350px] rounded-full bg-cyan-500/5 blur-[120px] pointer-events-none animate-pulse-slow" />
+      <div className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-red-500/5 blur-[150px] pointer-events-none animate-pulse-slow" />
+
+      {/* HEADER BAR */}
+      <header className="sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-gray-800/80 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          {/* Logo Brand Zone */}
+          <div className="flex items-center gap-3">
+            <div className="relative p-2 bg-gray-900 rounded-lg border border-gray-700/80 group">
+              <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-red-500 to-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity blur" />
+              <Trash2 className="w-7 h-7 text-cyan-400 relative z-10 animate-flicker" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold tracking-wider font-monument bg-gradient-to-r from-cyan-400 via-teal-200 to-red-400 bg-clip-text text-transparent">
+                  trash-can.net
+                </span>
+                <span className="text-[10px] font-mono-tech border border-red-500/30 text-red-400 px-1.5 py-0.2 rounded uppercase animate-flicker">
+                  Glitch Graveyard
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 tracking-wide">
+                Est. 2026 • The Digital Landfill & Museum of Broken Restless Hopes
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Stats Live Counter */}
+          <div className="flex items-center gap-6 text-xs font-mono-tech text-gray-400 bg-gray-950 border border-gray-800 rounded-lg px-4 py-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+              <span>TOTAL DUMPS: <strong className="text-gray-100 font-bold">{dumps.length + 1840}</strong></span>
+            </div>
+            <div className="hidden sm:block text-gray-600">|</div>
+            <div className="hidden sm:flex items-center gap-2">
+              <Flower2 className="w-3.5 h-3.5 text-pink-400" />
+              <span>MOURNED: <strong className="text-gray-100 font-bold">12,492</strong></span>
+            </div>
+            <div className="hidden md:block text-gray-600">|</div>
+            <div className="hidden md:block">
+              <span>TRAGEDY RATIO: <strong className="text-red-400">8.9/10 (EXTREME)</strong></span>
+            </div>
+          </div>
+
+        </div>
+      </header>
+
+      {/* SUB-ACCENT BANNER */}
+      <div className={`p-1 bg-gradient-to-r from-cyan-500/20 via-red-500/20 to-purple-500/20 border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech`}>
+        🗑️ "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO 🗑️
+      </div>
+
+      <main className="max-w-7xl mx-auto px-4 py-6">
+
+        {/* NAVIGATION SYSTEM */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-gray-950 border border-gray-800/80 p-2 rounded-xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => { setActiveTab("dump"); setSelectedDump(null); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
+                activeTab === "dump"
+                  ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
+              }`}
+            >
+              <Plus className="w-4 h-4 text-cyan-400" />
+              DUMP YOUR IDEAS
+            </button>
+
+            <button
+              onClick={() => setActiveTab("memorials")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
+                activeTab === "memorials"
+                  ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
+              }`}
+            >
+              <Compass className="w-4 h-4 text-pink-400" />
+              EXPLORE THE LANDFILL
+            </button>
+
+            <button
+              onClick={() => setActiveTab("oracle")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
+                activeTab === "oracle"
+                  ? "bg-slate-900 border border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.15)]"
+                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+              AI TRASH ORACLE
+            </button>
+
+            <button
+              onClick={() => setActiveTab("disposal")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
+                activeTab === "disposal"
+                  ? "bg-slate-900 border border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.15)]"
+                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
+              }`}
+            >
+              <Shield className="w-4 h-4 text-red-500" />
+              TOXIC WASTE VENT (TEAMS)
+            </button>
+
+            <button
+              onClick={() => setActiveTab("contracts")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
+                activeTab === "contracts"
+                  ? "bg-slate-900 border border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
+              }`}
+            >
+              <Coins className="w-4 h-4 text-amber-500" />
+              SALVAGE CONTRACTS
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-mono-tech text-gray-500">PREVIEW SKIN:</span>
+            <div className="flex gap-1.5 bg-black border border-gray-800 p-1 rounded-lg">
+              <button
+                onClick={() => setCustomSkin("cyber-lime")}
+                className={`w-4 h-4 rounded-full bg-cyan-400 border transition-transform ${customSkin === "cyber-lime" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
+                title="Cyber-Lime Glow"
+              />
+              <button
+                onClick={() => setCustomSkin("radium")}
+                className={`w-4 h-4 rounded-full bg-green-500 border transition-transform ${customSkin === "radium" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
+                title="Radium Spill"
+              />
+              <button
+                onClick={() => setCustomSkin("vaporwave")}
+                className={`w-4 h-4 rounded-full bg-fuchsia-500 border transition-transform ${customSkin === "vaporwave" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
+                title="Neon Vaporwave"
+              />
+              <button
+                onClick={() => setCustomSkin("rust-belter")}
+                className={`w-4 h-4 rounded-full bg-amber-500 border transition-transform ${customSkin === "rust-belter" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
+                title="Rust Belter Chrome"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* HERO INTRO / VIRTUAL MEMORIAL GRAPHIC */}
+        {activeTab === "dump" && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            
+            {/* LEFT HERO GRAPHIC INTRO */}
+            <div className="lg:col-span-7 bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between">
+              
+              {/* Virtual Glowing Wireframes background animation */}
+              <div className="absolute inset-0 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-mono-tech px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded">
+                    LANDFILL SECTOR 07
+                  </span>
+                  <span className="text-xs font-mono-tech text-gray-500">• Procedural Junk-scape</span>
+                </div>
+
+                <h1 className="text-3xl md:text-5xl font-extrabold font-monument tracking-wide leading-tight mb-4 text-[#ffffff]">
+                  STORY OF ALL <span className="bg-gradient-to-r from-red-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">YOUR UNUSED CODE</span>
+                </h1>
+
+                <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6">
+                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
+                </p>
+
+                {/* Aesthetic interactive simulator panel */}
+                <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 mb-6">
+                  <div className="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
+                    <span className="text-xs font-mono-tech text-gray-400 flex items-center gap-2">
+                      <Terminal className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM DIAGNOSTICS
+                    </span>
+                    <span className="text-[10px] text-gray-500">SIMULATION: {simulationSpeed.toUpperCase()}</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
+                      <p className="text-[10px] text-gray-500">Methane Vent</p>
+                      <p className="text-xs font-mono-tech text-cyan-400 font-bold">12.4 Pa</p>
+                    </div>
+                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
+                      <p className="text-[10px] text-gray-500">Rust Oxidation</p>
+                      <p className="text-xs font-mono-tech text-red-400 font-bold">84.2%</p>
+                    </div>
+                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
+                      <p className="text-[10px] text-gray-500">Domain Entropy</p>
+                      <p className="text-xs font-mono-tech text-pink-400 font-bold">9.8 Hz</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>EMBEDDED COBALT COMPRESSION</span>
+                    <button 
+                      onClick={() => {
+                        setSimulationSpeed(prev => prev === "flow" ? "frenzy" : prev === "frenzy" ? "static" : "flow");
+                      }} 
+                      className="text-cyan-400 hover:underline font-mono-tech transition-colors"
+                    >
+                      [CYCLE FREQUENCY]
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Quote */}
+              <div className="border-l-2 border-red-500/50 pl-4 py-1 relative z-10">
+                <p className="text-xs text-gray-400 italic">
+                  "The average developer owns 12 domains that will never launch and 5 repo drafts that give them severe imposter syndrome. We gave them a home."
+                </p>
+                <span className="text-[10px] text-gray-600 font-mono-tech block mt-1">— Glitch Graveyard Conservator Code</span>
+              </div>
+
+            </div>
+
+            {/* RIGHT FORM - DUMP YOUR TRASH */}
+            <div className="lg:col-span-5 bg-gray-950 border border-gray-800 p-6 rounded-2xl relative">
+              <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <span className="text-[10px] font-mono-tech text-cyan-400">INPUT GATEWAY ACTIVE</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <Trash2 className="w-5 h-5 text-red-400" />
+                <h2 className="text-lg font-bold font-monument tracking-wider">TOSS SOMETHING INTO THE LANDFILL</h2>
+              </div>
+
+              <form onSubmit={handleDumpSubmit} className="space-y-4 text-sm">
+                <div>
+                  <label className="block text-xs font-mono-tech text-gray-400 mb-1">PROJECT NAME / DEAD IDEA *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g. EtherGarden / BarkMatch / Uber for Raccoons"
+                    className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 transition-colors placeholder:text-gray-600"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-mono-tech text-gray-400 mb-1">CATEGORY</label>
+                    <select
+                      value={formCategory}
+                      onChange={(e) => setFormCategory(e.target.value as DeadProject["category"])}
+                      className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200"
+                    >
+                      <option value="saas">SaaS Venture</option>
+                      <option value="web3">Web3 / Crypto NFT</option>
+                      <option value="mobile">Mobile Application</option>
+                      <option value="ai">AI Agent / GPT Prompt</option>
+                      <option value="hardware">Hardware / Gadgets</option>
+                      <option value="game">Gaming / Metaverse</option>
+                      <option value="dev_tool">Developer Tooling</option>
+                      <option value="other">Other Trash</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono-tech text-gray-400 mb-1">ARTIFACT SHAPE</label>
+                    <select
+                      value={formIcon}
+                      onChange={(e) => setFormIcon(e.target.value)}
+                      className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200"
+                    >
+                      <option value="skull">💀 Crushed Mannequin / Skull</option>
+                      <option value="fire">🔥 Glowing Trash Cannister</option>
+                      <option value="heart-broken">💔 Fragmented Heart Disk</option>
+                      <option value="monitor">🖥️ Flickering Retro CRT</option>
+                      <option value="server">🖨️ Burnt Out Cloud Server</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono-tech text-gray-400 mb-1">TRAGICAL POST-MORTEM (HOW DID IT DIE?) *</label>
+                  <textarea
+                    required
+                    value={formDescription}
+                    onChange={(e) => setFormDescription(e.target.value)}
+                    rows={3}
+                    placeholder="Describe what happened: Was it legal trouble? Did the founders fight? Did you realize squeezable food packets don't need a Wi-Fi computer?"
+                    className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 transition-colors placeholder:text-gray-600 resize-none text-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-mono-tech text-gray-400 mb-1">CAUSE OF DEATH SUMMARY</label>
+                    <input
+                      type="text"
+                      value={formCause}
+                      onChange={(e) => setFormCause(e.target.value)}
+                      placeholder="e.g. Recursive billing panic"
+                      className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 transition-colors placeholder:text-gray-600 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-mono-tech text-gray-400 mb-1">TECH STACK USED</label>
+                    <input
+                      type="text"
+                      value={formTech}
+                      onChange={(e) => setFormTech(e.target.value)}
+                      placeholder="e.g. C++, Solidity, Coffee"
+                      className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 transition-colors placeholder:text-gray-600 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-mono-tech text-gray-400 mb-1">CREATOR IDENTITY</label>
+                    <input
+                      type="text"
+                      value={formCreator}
+                      onChange={(e) => setFormCreator(e.target.value)}
+                      placeholder="e.g. Wandering Dev"
+                      className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 transition-colors placeholder:text-gray-600 text-xs"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-mono-tech text-gray-400">EMOTIONAL DAMAGE</label>
+                      <span className="text-xs font-mono-tech text-red-400 font-bold">{formTragedy}/10</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={formTragedy}
+                      onChange={(e) => setFormTragedy(Number(e.target.value))}
+                      className="w-full accent-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                {/* VISUAL IMAGE UPLOADER ZONE */}
+                <div className="border-t border-gray-950 pt-3.5 space-y-2">
+                  <label className="block text-xs font-mono-tech text-gray-400">
+                    MEDIA CORES & PROJECT SCREENSHOT
+                  </label>
+
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`relative border-2 border-dashed rounded-xl p-4 transition-all duration-300 flex flex-col items-center justify-center text-center ${
+                      isDragging
+                        ? "border-cyan-400 bg-cyan-950/20"
+                        : formImageUrl
+                        ? "border-emerald-500/50 bg-emerald-950/5"
+                        : "border-gray-800 hover:border-gray-700 bg-black/40"
+                    }`}
+                  >
+                    {formImageUrl ? (
+                      <div className="w-full space-y-3 relative">
+                        <button
+                          type="button"
+                          onClick={() => setFormImageUrl("")}
+                          className="absolute -top-1 -right-1 p-1 bg-red-900 hover:bg-red-700 text-white rounded-full z-10 transition-colors cursor-pointer"
+                          title="Purge Image Core"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+
+                        <div className="relative h-32 w-full rounded-lg overflow-hidden border border-gray-800 bg-[#05070e]">
+                          <div className="absolute inset-0 scanlines opacity-30 pointer-events-none" />
+                          <img
+                            src={formImageUrl}
+                            alt="Uploaded snapshot"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute bottom-2 left-2 bg-[#020306]/85 px-1.5 py-0.5 border border-gray-800 rounded font-mono-tech text-[8px] text-emerald-400 animate-pulse uppercase">
+                            ● ATTACHED_SNAPSHOT
+                          </div>
+                        </div>
+                        
+                        <p className="text-[10px] font-mono-tech text-gray-500">
+                          Custom media registered. Loaded as data URL payload.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 py-2">
+                        <div className="flex justify-center">
+                          <div className="p-2 bg-gray-900/60 rounded-lg text-gray-400 border border-gray-850">
+                            <Camera className="w-5 h-5 text-cyan-400 animate-pulse" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-300">
+                            PROMPT_IMG_INJECT
+                          </p>
+                          <p className="text-[10px] text-gray-500 max-w-[280px] mt-0.5">
+                            Drag & Drop project mockup, or <span className="text-cyan-400 underline cursor-pointer hover:text-cyan-300 relative inline">
+                              browse files
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                              />
+                            </span> (JPG, PNG, GIF, <span className="text-gray-400 font-bold">10MB MAX</span>)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preset sci-fi schematics gallery */}
+                  {!formImageUrl && (
+                    <div className="space-y-1.5 pt-0.5">
+                      <span className="text-[9px] font-mono-tech text-cyan-500 uppercase tracking-widest block font-bold">
+                        ⚡ AUTOMATED MOCKUP BLUEPRINT PICKER
+                      </span>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          {
+                            name: "CYAN CAD CORE",
+                            color: "hover:border-cyan-400/80 bg-cyan-950/10 border-cyan-900/40 text-cyan-400",
+                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%2305070e"/><g stroke="%2322d3ee" stroke-dasharray="3,3" stroke-opacity="0.3"><line x1="0" y1="50" x2="300" y2="50"/><line x1="0" y1="100" x2="300" y2="100"/><line x1="0" y1="150" x2="300" y2="150"/></g><circle cx="150" cy="100" r="45" fill="none" stroke="%2322d3ee" stroke-width="1.5"/><line x1="90" y1="100" x2="210" y2="100" stroke="%2322d3ee" stroke-width="1"/><line x1="150" y1="40" x2="150" y2="160" stroke="%2322d3ee" stroke-width="1"/><text x="15" y="25" fill="%2322d3ee" font-family="monospace" font-size="10">SYS_ID: OP_V_09</text></svg>'
+                          },
+                          {
+                            name: "MELTDOWN RED",
+                            color: "hover:border-red-500/80 bg-red-950/10 border-red-900/40 text-red-400",
+                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%23110505"/><path d="M40,140 L90,60 L140,120 L190,40 L240,160" fill="none" stroke="%23f43f5e" stroke-width="2"/><text x="150" y="105" fill="%23ef4444" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">CONTAINMENT CRITICAL</text></svg>'
+                          },
+                          {
+                            name: "AI SYNAPSE",
+                            color: "hover:border-fuchsia-500/80 bg-fuchsia-950/10 border-fuchsia-900/40 text-fuchsia-400",
+                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%230c0512"/><circle cx="150" cy="100" r="35" fill="none" stroke="%23a855f7" stroke-width="1"/><polygon points="150,30 155,60 180,65 155,70 150,100" fill="%23c084fc"/><text x="150" y="160" fill="%23c084fc" font-family="monospace" font-size="10" text-anchor="middle">SYN_CORE_BURN</text></svg>'
+                          }
+                        ].map((scheme, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setFormImageUrl(scheme.svg)}
+                            className={`py-1.5 px-1 bg-[#090e1a] hover:bg-[#111a33] border rounded text-[9px] font-mono-tech font-bold uppercase transition-all tracking-wider text-center cursor-pointer ${scheme.color}`}
+                          >
+                            🎨 {scheme.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Private venting controls */}
+                <div className="border-t border-gray-900 pt-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formIsPrivate}
+                      onChange={(e) => setFormIsPrivate(e.target.checked)}
+                      className="w-4 h-4 rounded bg-gray-900 border-gray-800 accent-red-500 focus:ring-0"
+                    />
+                    <div className="flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-red-400" />
+                      <span className="text-xs font-mono-tech text-gray-300">ACTIVATE SECURITY WALL (PRIVATE TEAM VENT)</span>
+                    </div>
+                  </label>
+
+                  {formIsPrivate && (
+                    <div className="grid grid-cols-2 gap-2 mt-2 p-2 bg-red-950/20 border border-red-950 rounded-lg">
+                      <div>
+                        <input
+                          type="text"
+                          required={formIsPrivate}
+                          placeholder="Room ID Name"
+                          value={formRoomName}
+                          onChange={(e) => setFormRoomName(e.target.value)}
+                          className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-white"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="password"
+                          required={formIsPrivate}
+                          placeholder="Access Token"
+                          value={formRoomPassword}
+                          onChange={(e) => setFormRoomPassword(e.target.value)}
+                          className="w-full bg-black border border-gray-800 rounded px-2 py-1 text-xs text-white"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-gradient-to-r from-red-600 to-cyan-600 hover:from-red-500 hover:to-cyan-500 text-white font-mono-tech font-bold tracking-wider rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4 relative group-hover:rotate-12 transition-transform" />
+                  DUMP TRASH TO WEB-SERVER
+                </button>
+              </form>
+
+            </div>
+          </div>
+        )}
+
+        {/* HEATMAP OF HEARTBREAK — GLOBAL LANDFILL GEOGRAPHY */}
+        {(activeTab === "dump" || activeTab === "memorials") && (
+          <div className="mb-8">
+            <HeartbreakMap 
+              projects={dumps} 
+              onSelectProject={(p) => { 
+                setSelectedDump(p); 
+                setActiveTab("memorials"); 
+              }} 
+            />
+          </div>
+        )}
+
+        {/* NEON HALL OF FAME / CAROUSEL ZONE */}
+        {activeTab === "memorials" && !selectedDump && (
+          <div className="mb-8 p-6 bg-gradient-to-r from-[#0d091a] via-[#05070f] to-[#04091a] border border-gray-800 rounded-2xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-96 h-96 bg-fuchsia-500/5 blur-[120px] pointer-events-none" />
+            
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-fuchsia-400 font-mono-tech">Hall of Legendary Failures</span>
+                <h3 className="text-2xl font-bold font-monument tracking-wider text-pink-400">
+                  🏛️ NEON-LIT MUSEUM ZONE
+                </h3>
+              </div>
+              <span className="text-[11px] text-gray-400 font-mono-tech max-w-xs text-right hidden sm:block">
+                The most spectacular, high-budget, beautifully catastrophic dreams are enshrined here for eternity.
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {museumHighRated.slice(0, 3).map((item) => (
+                <div 
+                  key={item.id}
+                  onClick={() => setSelectedDump(item)}
+                  className="p-5 bg-black/60 hover:bg-black border border-purple-500/30 hover:border-purple-400 rounded-xl cursor-pointer transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(240,46,170,0.05)] flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-mono-tech text-fuchsia-300 bg-fuchsia-950/40 px-2 py-0.5 rounded border border-fuchsia-900">
+                        {item.category.toUpperCase()}
+                      </span>
+                      <strong className="text-xs text-red-400 font-mono-tech">🚨 GLITCH SCORE: {item.diagnosticScore || 90}%</strong>
+                    </div>
+
+                    {/* Interactive Showcase holographic blueprint */}
+                    <div className="mb-4">
+                      <ArtifactVisualizer
+                        category={item.category}
+                        name={item.name}
+                        emotionalTragedy={item.emotionalTragedy}
+                        techStack={item.techStack}
+                        causeOfDeath={item.causeOfDeath}
+                        id={item.id}
+                        variant="thumbnail"
+                      />
+                    </div>
+
+                    <h4 className="text-lg font-bold font-monument tracking-wide mb-2 text-white">
+                      {item.name}
+                    </h4>
+                    
+                    <p className="text-gray-400 text-xs line-clamp-3 leading-relaxed mb-4">
+                      {item.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-gray-900 pt-3 text-[11px] font-mono-tech text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5 text-red-400" />
+                      {item.likes} MOURNERS
+                    </span>
+                    <span className="flex items-center gap-1 text-purple-400 hover:underline">
+                      EXAMINE REMAINS →
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* PRIMARY EXPLORATION & FILTERING GRID */}
+        {activeTab === "memorials" && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* LEFT SEARCH AND TILES (8 cols) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* FILTERS TOOLBAR */}
+              <div className="bg-gray-950 border border-gray-800 p-4 rounded-xl space-y-3">
+                <div className="flex flex-col md:flex-row items-center gap-3">
+                  <div className="relative w-full md:w-3/5">
+                    <Search className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="Sift through virtual garbage pile (name, stack, creator, tragedy)..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-[#05070e] border border-gray-900 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-cyan-500 text-gray-200"
+                    />
+                  </div>
+
+                  <div className="w-full md:w-2/5 flex gap-2">
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full bg-[#05070e] border border-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="all">📁 All Categories</option>
+                      <option value="saas">SaaS Projects</option>
+                      <option value="web3">Web3 / Crypto</option>
+                      <option value="mobile">Mobile Apps</option>
+                      <option value="ai">AI / Prompts</option>
+                      <option value="hardware">Hardware</option>
+                      <option value="game">Gaming</option>
+                      <option value="dev_tool">Developer Tools</option>
+                      <option value="other">Other Residuals</option>
+                    </select>
+
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="w-full bg-[#05070e] border border-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="newest">⏰ Date Dumped</option>
+                      <option value="likes">🔥 Upvotes / Mourners</option>
+                      <option value="flowers">🌸 Flowers Placed</option>
+                      <option value="tragedy">💔 Emotional Damage</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 border-t border-gray-900 pt-2">
+                  <span>FOUND: <strong>{filteredDumps.length}</strong> ENTOMBMENTS</span>
+                  <span>CLICK TARGETS TO ACTIVATE MEMORIAL CORES</span>
+                </div>
+              </div>
+
+              {/* THE JUNKYARD GRID LANDSCAPE */}
+              {filteredDumps.length === 0 ? (
+                <div className="bg-gray-950/60 border border-gray-800 p-12 text-center rounded-2xl flex flex-col items-center justify-center">
+                  <Skull className="w-12 h-12 text-gray-600 mb-3 animate-pulse" />
+                  <p className="text-gray-400 font-bold font-mono-tech tracking-wide mb-1">
+                    LANDFILL SECTOR VACANT
+                  </p>
+                  <p className="text-gray-600 text-xs max-w-sm">
+                    No registered artifacts match your search parameters. Consider dumping a tragedy of your own using the dump tool!
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredDumps.map((d) => (
+                    <div
+                      key={d.id}
+                      onClick={() => {
+                        setSelectedDump(d);
+                        // Auto appraisal call if not present
+                        if (!d.aiAppraisal && !appraiseResult) {
+                          handleAppraise(d);
+                        }
+                      }}
+                      className={`group p-5 bg-gray-950 border transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between ${
+                        selectedDump?.id === d.id
+                          ? "border-cyan-400 bg-slate-950/80 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+                          : "border-gray-800 hover:border-gray-600 hover:bg-gray-900/60"
+                      }`}
+                    >
+                      {/* Subtly animated decorative corner badges */}
+                      <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
+                      
+                      <div>
+                        {/* Interactive Visual Blueprint cover of the failure */}
+                        <div className="mb-3.5">
+                          <ArtifactVisualizer
+                            category={d.category}
+                            name={d.name}
+                            emotionalTragedy={d.emotionalTragedy}
+                            techStack={d.techStack}
+                            causeOfDeath={d.causeOfDeath}
+                            id={d.id}
+                            variant="thumbnail"
+                            imageUrl={d.imageUrl}
+                          />
+                        </div>
+
+                        {/* Meta Category Section */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <span className="text-[9px] font-mono-tech px-2 py-0.5 bg-gray-900 text-gray-400 border border-gray-800 rounded">
+                            {d.category.toUpperCase()}
+                          </span>
+                          <span className="text-[10px] font-mono-tech text-red-400 bg-red-950/30 px-1.5 py-0.5 rounded border border-red-900/30">
+                            TRAGEDY: {d.emotionalTragedy}/10
+                          </span>
+                        </div>
+
+                        {/* Title header */}
+                        <div className="flex items-start gap-2.5 mb-2">
+                          <span className="p-1.5 bg-gray-900 border border-gray-800 rounded text-cyan-400 group-hover:animate-flicker">
+                            {renderArtifactIcon(d.artifactIcon, "w-4 h-4")}
+                          </span>
+                          <div>
+                            <h4 className="text-sm font-bold text-white tracking-wide group-hover:text-cyan-300 transition-colors">
+                              {d.name}
+                            </h4>
+                            <p className="text-[10px] text-gray-500 font-mono-tech">
+                              By {d.creator}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Description excerpt */}
+                        <p className="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-4">
+                          {d.description}
+                        </p>
+                      </div>
+
+                      {/* Footer actions counters */}
+                      <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-[11px] font-mono-tech text-gray-500">
+                        <span className="flex items-center gap-2">
+                          <span className="flex items-center gap-1 group-hover:text-cyan-400 transition-colors">
+                            <Flame className="w-3.5 h-3.5" /> {d.likes} Mourners
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 group-hover:text-pink-400 transition-colors">
+                            <Flower2 className="w-3.5 h-3.5" /> {d.flowers} Flowers
+                          </span>
+                        </span>
+                        
+                        <span className="text-cyan-400 text-[10px] group-hover:translate-x-1 transition-transform">
+                          INSPECT →
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+
+            {/* RIGHT WORKBENCH DETAIL SYSTEM (4 cols) */}
+            <div className="lg:col-span-4">
+              
+              {selectedDump ? (
+                <div className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 sticky top-24 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                  
+                  {/* Close Details panel */}
+                  <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
+                    <span className="text-xs font-mono-tech text-cyan-400 flex items-center gap-1.5">
+                      <Terminal className="w-4 h-4" /> RETRIEVED ANOMALY MODULE
+                    </span>
+                    <button
+                      onClick={() => {
+                        setSelectedDump(null);
+                        setAppraiseResult(null);
+                      }}
+                      className="p-1 hover:bg-gray-900 rounded text-gray-400 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Active Card Body info */}
+                  <div className="space-y-4">
+                    {/* Live CRT Containment CCTV Video Feed */}
+                    <div className="mb-3.5">
+                      <ArtifactVisualizer
+                        category={selectedDump.category}
+                        name={selectedDump.name}
+                        emotionalTragedy={selectedDump.emotionalTragedy}
+                        techStack={selectedDump.techStack}
+                        causeOfDeath={selectedDump.causeOfDeath}
+                        id={selectedDump.id}
+                        variant="crt"
+                        imageUrl={selectedDump.imageUrl}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-gray-900 border border-gray-800 rounded-lg text-red-400 text-xl">
+                        {renderArtifactIcon(selectedDump.artifactIcon, "w-8 h-8")}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white font-monument">
+                          {selectedDump.name}
+                        </h3>
+                        <p className="text-xs font-mono-tech text-gray-500">
+                          COORDINATES: {selectedDump.latitude.toFixed(4)}N, {selectedDump.longitude.toFixed(4)}W
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-[#070b14] border border-gray-900 rounded-xl space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Category:</span>
+                        <span className="font-mono-tech text-cyan-400 uppercase">{selectedDump.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Cause of Death:</span>
+                        <span className="font-mono-tech text-red-400 font-bold">{selectedDump.causeOfDeath}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Technology stack:</span>
+                        <span className="font-mono-tech text-gray-300">{selectedDump.techStack}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Date Logged:</span>
+                        <span className="font-mono-tech text-gray-500">{new Date(selectedDump.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h5 className="text-xs font-mono-tech text-gray-400 mb-1 uppercase">Post-Mortem Tragedy Logs</h5>
+                      <div className="bg-[#0c0d12] border border-gray-900 p-3 rounded-lg text-xs leading-relaxed text-gray-300 max-h-[140px] overflow-y-auto">
+                        "{selectedDump.description}"
+                      </div>
+                    </div>
+
+                    {/* VOTE & MOURN ACTIONS */}
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <button
+                        onClick={() => handleAction(selectedDump.id, "like")}
+                        className="py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-xs font-mono-tech font-bold text-gray-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Flame className="w-4 h-4 text-red-400" />
+                        MOURN (+1 VOTE)
+                      </button>
+
+                      <button
+                        onClick={() => handleAction(selectedDump.id, "flower")}
+                        className="py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-xs font-mono-tech font-bold text-pink-400 hover:text-pink-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Flower2 className="w-4 h-4" />
+                        LAY FLOWER ({selectedDump.flowers})
+                      </button>
+                    </div>
+
+                    {/* AI LANDFILL APPRAISAL COMPONENT */}
+                    <div className="border-t border-gray-900 pt-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono-tech text-purple-400 flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5" /> AI CHIEF APPRAISAL
+                        </span>
+                        
+                        <button
+                          onClick={() => handleAppraise(selectedDump)}
+                          disabled={appraiseLoading}
+                          className="text-[10px] bg-purple-950/40 hover:bg-purple-900/40 border border-purple-800 text-purple-300 px-2.5 py-1 rounded flex items-center gap-1 font-mono-tech transition-all uppercase cursor-pointer"
+                        >
+                          {appraiseLoading ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              RECOMPILING...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5" />
+                              RUN CRITIQUE
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Displaying static preloaded appraise, or dynamified result */}
+                      {appraiseLoading ? (
+                        <div className="bg-purple-950/10 border border-purple-950/40 p-4 rounded-lg text-center">
+                          <div className="animate-spin inline-block w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full mb-2" />
+                          <p className="text-[11px] font-mono-tech text-purple-400 animate-pulse">
+                            Consultant analyzing trace elements of {selectedDump.name}...
+                          </p>
+                        </div>
+                      ) : appraiseResult ? (
+                        <div className="bg-purple-950/15 border border-purple-900/40 p-4 rounded-xl space-y-3">
+                          {appraiseResult.error ? (
+                            <p className="text-xs font-mono-tech text-red-400 text-center">{appraiseResult.error}</p>
+                          ) : (
+                            <>
+                              <div className="flex justify-between items-center border-b border-purple-950/60 pb-2">
+                                <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
+                                <span className="text-xs font-mono-tech text-red-400 font-extrabold bg-red-450/20 px-2 py-0.5 rounded">
+                                  {appraiseResult.score}/100
+                                </span>
+                              </div>
+                              <p className="text-xs italic text-gray-300 font-medium">
+                                "{appraiseResult.appraisal}"
+                              </p>
+                              <div className="text-[11px] text-gray-400 border-l border-purple-500/30 pl-2 leading-relaxed">
+                                <strong className="text-purple-300">Cause Analysis:</strong> {appraiseResult.postMortem}
+                              </div>
+                              {appraiseResult.recyclingPlan && (
+                                <div className="text-[11px] bg-cyan-950/20 text-cyan-300 p-2 rounded-lg border border-cyan-900/30">
+                                  💡 <strong className="text-cyan-200">Suggested Code Pivot:</strong> {appraiseResult.recyclingPlan}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ) : selectedDump.aiAppraisal ? (
+                        /* Prepopulated diagnostic */
+                        <div className="bg-purple-950/15 border border-purple-900/40 p-4 rounded-xl space-y-2">
+                          <div className="flex justify-between items-center border-b border-purple-950/60 pb-1.5">
+                            <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
+                            <span className="text-xs font-mono-tech text-red-400 font-extrabold bg-red-950/30 px-2 py-0.5 rounded">
+                              {selectedDump.diagnosticScore || 85}/100
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-300 leading-relaxed italic">
+                            "{selectedDump.aiAppraisal}"
+                          </p>
+                          <p className="text-[10px] text-purple-400 font-mono-tech">
+                            * Prepopulated historic critique.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-900 border border-gray-850 p-4 rounded-xl text-center text-xs text-gray-500">
+                          Click <strong>RUN CRITIQUE</strong> above to command the chief Gemini Waste Consultant to analyze this idea.
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-950 border border-gray-900 rounded-2xl p-6 text-center text-xs text-gray-500 space-y-4">
+                  <div className="w-12 h-12 rounded-full border border-gray-800 flex items-center justify-center mx-auto text-cyan-400/60 font-mono-tech animate-pulse-slow">
+                    [T_6]
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-300 mb-1">NO ANOMALY INSPECTED</h5>
+                    <p className="max-w-xs mx-auto">
+                      Review other developers' wreckage. Click on any block in the landfill list or tap points on the global Heartbreak map to query trace materials.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* AI WASTE CONSULTING ORACLE PORTAL */}
+        {activeTab === "oracle" && (
+          <div className="mb-8">
+            <OracleAppraiser onAddProjectDirectly={(added) => {
+              setDumps(prev => [...prev, added]);
+            }} />
+          </div>
+        )}
+
+        {/* TOXIC WASTE VENT (LOCK PROTECTED TEAMS SYSTEM) */}
+        {activeTab === "disposal" && (
+          <div className="mb-8">
+            <TeamVenting onAddProjectDirectly={(added) => {
+              setDumps(prev => [...prev, added]);
+            }} />
+          </div>
+        )}
+
+        {/* WORKPLACE CONSULTING CONTRACTS MARKETPLACE */}
+        {activeTab === "contracts" && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Rescue & Remix Segment */}
+            <RescueRemix projects={dumps} />
+
+            {/* Custom Subscription Tiers & Artifact Customizer */}
+            <TiersUpgrades />
+
+            {/* Intro layout */}
+            <div className="bg-[#0b101c] border border-amber-900/40 p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono-tech tracking-widest text-amber-500 uppercase">Interactive Developer Guild Residuals</span>
+                <h3 className="text-2xl font-bold font-monument tracking-wider text-amber-500">
+                  🏗️ WASTE MANAGEMENT CONSULTANT MARKETPLACE
+                </h3>
+                <p className="text-xs text-gray-400 max-w-2xl leading-relaxed">
+                  "One developer's abandoned git repo is another builder's gold-mine." Have a half-baked repo you will never launch but owns neat algorithms or nice layout blueprints? Or need an experienced "Trash Sweeper" to fix your project? Explore or list custom salvage contracts below.
+                </p>
+              </div>
+
+              <div className="font-mono-tech text-xs bg-gray-950 border border-gray-800 p-4 rounded-xl text-amber-400 text-center min-w-[180px]">
+                <p className="text-[9px] text-gray-500">ESTIMATED TRASH CAP</p>
+                <strong className="text-base text-gray-200">12,420 USD</strong>
+                <p className="text-[8px] text-gray-600 mt-1">AVERAGE CONTRACT FEE</p>
+              </div>
+            </div>
+
+            {/* List of Simulated / Seeded Salvage Contracts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              <div className="p-5 bg-gray-950/80 border border-gray-800 hover:border-amber-500/50 rounded-xl transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono-tech">
+                    <span className="bg-amber-950/40 text-amber-500 border border-amber-900/40 px-2.5 py-0.5 rounded">SALVAGING EXPERT</span>
+                    <strong className="text-white">💰 $250</strong>
+                  </div>
+
+                  <h4 className="text-base font-bold text-gray-200 mb-1">
+                    "React Native Spaghetti Untangler"
+                  </h4>
+                  <p className="text-xs text-gray-500 font-mono-tech mb-3">By @SpaghettiSlayer</p>
+                  
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    "I will take your abandoned React Native repo with 44 warning errors in console, clean up your state mutations, refactor Redux into clean Context, and make it compile without emulator crash."
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">
+                  <span className="text-gray-500">Delivery: 4 days</span>
+                  <button 
+                    onClick={() => alert("SpaghettiSlayer notified! Secure trash container initialized via mail link.")}
+                    className="text-amber-500 hover:underline cursor-pointer"
+                  >
+                    ACCEPTS DRAFT →
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-5 bg-gray-950/80 border border-gray-800 hover:border-amber-500/50 rounded-xl transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono-tech">
+                    <span className="bg-cyan-950/40 text-cyan-400 border border-cyan-900/40 px-2.5 py-0.5 rounded">DOMAIN OFFER</span>
+                    <strong className="text-emerald-400">🔥 1 Cup of Coffee</strong>
+                  </div>
+
+                  <h4 className="text-base font-bold text-gray-200 mb-1">
+                    "Unused Crypto Domain Exchange"
+                  </h4>
+                  <p className="text-xs text-gray-500 font-mono-tech mb-3">By @DecentralizedDave</p>
+                  
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    "I purchased 'ethereumgardeners.io' in mid-2022 and have spent $40 renewing it every year out of guilt. Willing to exchange domain ownership for a $10 Starbucks giftcard or a funny meme repository in Go."
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">
+                  <span className="text-gray-500">Expires: 12 hours</span>
+                  <button 
+                    onClick={() => alert("Dave notified! Cryptocactus soil is ready for shipment.")}
+                    className="text-amber-500 hover:underline cursor-pointer"
+                  >
+                    ACCEPTS DRAFT →
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-5 bg-gray-950/80 border border-gray-800 hover:border-amber-500/50 rounded-xl transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono-tech">
+                    <span className="bg-purple-950/40 text-purple-400 border border-purple-950/40 px-2.5 py-0.5 rounded">ASSET RECYCLING</span>
+                    <strong className="text-white">💰 $60</strong>
+                  </div>
+
+                  <h4 className="text-base font-bold text-gray-200 mb-1">
+                    "Procedural SVG Asset Rescue"
+                  </h4>
+                  <p className="text-xs text-gray-500 font-mono-tech mb-3">By @VaporwaveGamer</p>
+                  
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    "I build high-fidelity vectors, CRT mockup screens, and vaporwave color maps. If you have an ugly landing page dashboard you gave up on, I will turn it into a gorgeous SVG illustration or NFT trading card mockup!"
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">
+                  <span className="text-gray-500">Delivery: 2 days</span>
+                  <button 
+                    onClick={() => alert("VaporwaveGamer notified! Graphic scrap files requested.")}
+                    className="text-amber-500 hover:underline cursor-pointer"
+                  >
+                    ACCEPTS DRAFT →
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* FOOTER SYSTEM */}
+      <footer className="border-t border-gray-900 bg-[#02050c] px-4 py-8 mt-12 text-center text-xs text-gray-500 space-y-3 font-mono-tech">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="tracking-wide">
+            © 2026 Glitch Graveyard™ Central Administration. Built on top of the world's finest garbage.
+          </p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-cyan-400 transition-colors uppercase">Security Containment rules</a>
+            <span>•</span>
+            <a href="#" className="hover:text-pink-400 transition-colors uppercase">Privacy Shields</a>
+            <span>•</span>
+            <a href="#" className="hover:text-amber-500 transition-colors uppercase">Domain Lease terms</a>
+          </div>
+        </div>
+        <p className="text-[10px] text-gray-600 uppercase">
+          "Everything in this system is dedicated to developers who bought domains while drinking coffee at 3:00 AM and never built on them."
+        </p>
+      </footer>
+
+    </div>
+  );
+}

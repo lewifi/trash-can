@@ -1,0 +1,6 @@
+{
+  "name": "Glitch Graveyard",
+  "description": "An interactive digital memorial for discarded ideas, dead projects, and buggy code, featuring a global Heatmap of Heartbreak, neon-lit Hall of Fame, and AI-powered Waste Management Consulting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
