@@ -1,12 +1,17 @@
 import { Hono } from "hono";
 import { GoogleGenAI } from "@google/genai";
 import { DeadProject, INITIAL_DUMPS } from "./server/initial-data";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 type Bindings = {
   ASSETS: Fetcher;
   GRAVEYARD_KV: KVNamespace;
   GEMINI_API_KEY: string;
   GEMINI_MODEL?: string;
+  // Admin (Cloudflare Access) config
+  ADMIN_EMAIL?: string;
+  ACCESS_TEAM_DOMAIN?: string;
+  ACCESS_AUD?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -94,6 +99,42 @@ Respond with ONLY raw JSON, no markdown, no backticks:
   }
   const parsed = JSON.parse(txt);
   return { allowed: parsed.allowed !== false, reason: String(parsed.reason || "") };
+}
+
+// --- Admin auth via Cloudflare Access -------------------------------------
+// Verifies the Access JWT (Cf-Access-Jwt-Assertion) against the team's public
+// keys and checks the email matches ADMIN_EMAIL. Returns the email or null.
+// Fails CLOSED: if Access config is missing, admin endpoints stay locked.
+const jwksCache: Record<string, ReturnType<typeof createRemoteJWKSet>> = {};
+function getJWKS(teamDomain: string) {
+  if (!jwksCache[teamDomain]) {
+    jwksCache[teamDomain] = createRemoteJWKSet(
+      new URL(`https://${teamDomain}/cdn-cgi/access/certs`)
+    );
+  }
+  return jwksCache[teamDomain];
+}
+
+async function verifyAdmin(c: any): Promise<string | null> {
+  const teamDomain: string | undefined = c.env.ACCESS_TEAM_DOMAIN;
+  const adminEmail: string | undefined = c.env.ADMIN_EMAIL;
+  if (!teamDomain || !adminEmail || teamDomain.includes("REPLACE_WITH")) {
+    return null; // not configured -> locked
+  }
+  const token =
+    c.req.header("Cf-Access-Jwt-Assertion") ||
+    c.req.header("cf-access-jwt-assertion");
+  if (!token) return null;
+  try {
+    const opts: any = { issuer: `https://${teamDomain}` };
+    if (c.env.ACCESS_AUD) opts.audience = c.env.ACCESS_AUD;
+    const { payload } = await jwtVerify(token, getJWKS(teamDomain), opts);
+    const email = String(payload.email || "").toLowerCase();
+    return email && email === adminEmail.toLowerCase() ? email : null;
+  } catch (e) {
+    console.error("Access JWT verify failed:", String((e as any)?.message || e));
+    return null;
+  }
 }
 
 // API: Get all dumps (public/unlocked)
@@ -324,6 +365,27 @@ Ensure the response is clean, formatted as JSON, and contains no raw markdown, b
       500
     );
   }
+});
+
+// --- Admin (Incinerator) routes, gated by Cloudflare Access ---------------
+// List every dump (including private ones) for the admin view.
+app.get("/api/incinerator/dumps", async (c) => {
+  const admin = await verifyAdmin(c);
+  if (!admin) return c.json({ error: "Not authorized." }, 403);
+  const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
+  return c.json([...data].reverse());
+});
+
+// Permanently delete one dump by id.
+app.delete("/api/incinerator/dumps/:id", async (c) => {
+  const admin = await verifyAdmin(c);
+  if (!admin) return c.json({ error: "Not authorized." }, 403);
+  const id = c.req.param("id");
+  const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
+  const next = data.filter((d) => d.id !== id);
+  if (next.length === data.length) return c.json({ error: "Not found." }, 404);
+  await saveGraveyardData(c.env.GRAVEYARD_KV, next);
+  return c.json({ ok: true, deleted: id, remaining: next.length });
 });
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.

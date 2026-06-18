@@ -84,6 +84,40 @@ submission is allowed so users are never blocked by an outage. Rejections return
 HTTP 422 with a reason. The model is `gemini-2.5-flash` (override via the
 `GEMINI_MODEL` variable).
 
+## Admin: the Incinerator (delete bad entries)
+
+A hidden admin page lives at **`/incinerator`** (`trash-can.net/incinerator`).
+It lists every submission with a Burn button to permanently delete it. It is
+protected by **Cloudflare Access** (you log in with Google or an email code),
+and the Worker cryptographically verifies that Access login before the
+`/api/incinerator/*` endpoints will do anything. Until Access is set up, those
+endpoints stay locked (403).
+
+To rename the path, change `'/incinerator'` in `src/main.tsx`.
+
+### One-time setup (Cloudflare Zero Trust)
+
+1. In the Cloudflare dashboard open **Zero Trust** (Cloudflare Access). Note your
+   team domain — it looks like `your-team.cloudflareaccess.com`
+   (Zero Trust -> Settings -> Custom Pages / or the team domain shown on login).
+2. **Access -> Applications -> Add an application -> Self-hosted.**
+   - Add two application paths (same app): `trash-can.net/incinerator` and
+     `trash-can.net/api/incinerator/*`.
+   - Create a policy: Action **Allow**, rule **Emails** =
+     `lewi.hirvela@gmail.com`.
+   - After saving, open the application's **Overview** and copy the
+     **Application Audience (AUD) Tag**.
+3. Put the config in `wrangler.jsonc` under `vars` and push (Workers Builds will
+   redeploy):
+   - `ACCESS_TEAM_DOMAIN` = your `your-team.cloudflareaccess.com`
+   - `ADMIN_EMAIL` = the allowed email (already set)
+   - `ACCESS_AUD` = the AUD tag from step 2 (optional but recommended)
+4. Visit `trash-can.net/incinerator` -> Cloudflare shows a login -> sign in with
+   the allowed email -> the page loads and delete works.
+
+Security note: deletion is gated by verifying the Access JWT, so even someone who
+finds the URL or calls the API directly can't delete without passing Access.
+
 ## Next steps
 
 - No user accounts yet (intentionally, to keep submission friction low). If spam

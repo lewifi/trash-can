@@ -20,10 +20,15 @@
       "id": "a6644daf2d85427ca08b03c8b1b07c14"
     }
   ],
+  "vars": {
+    "ADMIN_EMAIL": "lewi.hirvela@gmail.com",
+    "ACCESS_TEAM_DOMAIN": "REPLACE_WITH_your-team.cloudflareaccess.com",
+    "ACCESS_AUD": ""
+  },
   "observability": {
     "enabled": true
   }
   // GEMINI_API_KEY is a secret, not a var. Set it with:
   //   npx wrangler secret put GEMINI_API_KEY
-  // and add it in the Cloudflare dashboard for the Worker (Settings > Variables and Secrets).
+  // and add it in the Cloudflare dashboard (Settings > Variables and Secrets).
 }
