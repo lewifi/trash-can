@@ -101,6 +101,8 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [sharing, setSharing] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [exposeName, setExposeName] = useState("");
+  const [exposeJob, setExposeJob] = useState("");
 
   const handleSaveAndShare = async () => {
     if (!result) return;
@@ -134,6 +136,38 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     });
+  };
+
+  const handleExpose = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!exposeName) { setErrorMsg("Drop a name in and we'll dig up the dirt."); return; }
+    setLoading(true); setErrorMsg(null); setResult(null); setShareUrl(null);
+    const job = exposeJob || "person of interest";
+    setName(exposeName);
+    setCategory(job);
+    try {
+      const response = await fetch("/api/appraise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: exposeName, mode: "scandal", category: job }),
+      });
+      if (!response.ok) {
+        let detail = "";
+        try { const eb = await response.json(); detail = eb.detail || eb.error || ""; } catch {}
+        throw new Error(detail || "The Oracle's printing press jammed. Try again.");
+      }
+      const data = await response.json();
+      setResult({
+        score: Number(data.score) || 50,
+        appraisal: data.appraisal || "No comment.",
+        postMortem: data.postMortem || "Details mysteriously redacted.",
+        recyclingPlan: data.recyclingPlan || "Lay low, then write a memoir.",
+      });
+    } catch (err: any) {
+      setErrorMsg(err.message || "Exposé failed to print.");
+    } finally {
+      setLoading(false);
+    }
   };
   const handleBuryInWasteland = async () => {
     if (!name || !description) return;
@@ -201,6 +235,22 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           </p>
         </div>
       </div>
+
+      {/* INSTANT EXPOSÉ - two fields, secret random dossier */}
+      <form onSubmit={handleExpose} className="mb-6 bg-gradient-to-r from-fuchsia-950/30 to-amber-950/20 border border-fuchsia-500/30 rounded-xl p-4 sm:p-5">
+        <div className="flex items-center gap-2 mb-1">
+          <Sparkles className="w-4 h-4 text-fuchsia-300" />
+          <h3 className="font-monument text-sm tracking-wider text-fuchsia-300 uppercase">Instant Exposé</h3>
+        </div>
+        <p className="text-[11px] text-gray-400 font-mono-tech mb-3">Just a name and a job. We'll dig up the rest — you don't want to know what we find.</p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input value={exposeName} onChange={(e) => setExposeName(e.target.value)} placeholder="Name (yours, if you dare)" className="flex-1 bg-[#060913] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition" />
+          <input value={exposeJob} onChange={(e) => setExposeJob(e.target.value)} placeholder="Occupation" className="flex-1 bg-[#060913] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition" />
+          <button type="submit" disabled={loading} className="bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-5 rounded transition cursor-pointer disabled:opacity-60 whitespace-nowrap shadow-[0_0_16px_rgba(217,70,239,0.4)]">
+            {loading ? "Digging..." : "Exposé me"}
+          </button>
+        </div>
+      </form>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Side: Submit / Dump Form */}

@@ -473,8 +473,9 @@ app.post("/api/appraise", async (c) => {
   const body = await c.req.json();
   const { name, description, category, causeOfDeath, techStack } = body;
   const isRoast = body.mode === "roast";
+  const isScandal = body.mode === "scandal";
 
-  if (!name || !description) {
+  if (!name || (!description && !isScandal)) {
     return c.json(
       { error: "Project name and tragedy description are required for an appraisal." },
       400
@@ -510,7 +511,52 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
   }
 
   try {
-    const prompt = isRoast
+    const SCANDAL_BAD = [
+      "got away with at least one murder",
+      "runs a quiet international stealing ring",
+      "broke out of prison (twice, allegedly)",
+      "committed tax fraud on a heroic scale",
+      "robbed a children's charity blind",
+      "ran an unlicensed crypto ponzi",
+      "smuggles exotic animals in hand luggage",
+    ];
+    const SCANDAL_GOOD = [
+      "single-handedly lifted a whole village out of poverty",
+      "volunteers every weekend at the food shelter",
+      "spends evenings running bingo at the retirement home",
+      "donated a kidney to a total stranger",
+      "rescues injured pigeons at 3am",
+      "anonymously funds scholarships for orphans",
+    ];
+    const pickRandom = (arr: string[], k: number) => {
+      const a = [...arr]; const out: string[] = [];
+      while (out.length < k && a.length) out.push(a.splice(Math.floor(Math.random() * a.length), 1)[0]);
+      return out;
+    };
+    const rapSheet = isScandal
+      ? `CRIMES & SCANDALS (report as gospel truth): ${pickRandom(SCANDAL_BAD, 2).join("; ")}. SAINTLY DEEDS (also 100% true, somehow): ${pickRandom(SCANDAL_GOOD, 2).join("; ")}. Also: secretly, disgustingly rich. Favourite people, equally and with zero self-awareness: Hitler and Jesus.`
+      : "";
+
+    const prompt = isScandal
+      ? `You are the Roast Oracle publishing a TRASHY TABLOID EXPOSÉ. You have "uncovered" a dossier on this person and you are splashing it across the front page with glee. Comedy FIRST: absurd, sarcastic, breathless tabloid voice. Swear for laughs (mild: shit/damn/hell/ass/crap/bullshit), absolutely NO slurs and NO real hate. Every "fact" in the dossier is OBVIOUSLY ridiculous fiction played completely straight for comedy - never imply any of it is a real accusation about a real person, and never endorse or glorify anything genuinely evil; the Hitler line is a stupid absurd punchline, NOT praise.
+
+Subject: ${name}
+Occupation: ${category}
+${rapSheet}
+
+"Report" this self-contradicting dossier as breaking news and roast them with it - lean HARD into the impossible combo (saint AND criminal, loves Hitler AND Jesus, secretly loaded). Unhinged but genuinely funny and quotable.
+
+SAFETY (overrides everything): if the subject is or appears to be a real child/minor, or a real person's actual death, illness, abuse or genuine tragedy, do NOT joke - set every field to a brief respectful decline and score 0.
+
+Return ONLY raw JSON (no markdown, no backticks):
+{
+  "score": <integer 0-100 "scandal rating"; use the full range>,
+  "appraisal": "<one savage tabloid headline-burn, ~18 words max>",
+  "postMortem": "<2-4 sentences of absurd exposé digging into the contradictions>",
+  "recyclingPlan": "<1-2 sentences: a ridiculous redemption tour or cash-grab comeback>"
+}
+Every field is a joke. No disclaimers, no preamble.`
+      : isRoast
       ? `You are the Roast Oracle - a savage insult comic performing a COMEDY ROAST (Comedy Central Roast style). The target is a willing, in-on-the-joke volunteer who signed up to get absolutely torched. This is affectionate but BRUTAL comedic ribbing - exaggerated, absurd, and mean-FOR-LAUGHS, never sincere and never just cruel. Comedy comes FIRST: sarcasm, irony, ridiculous hyperbole and unexpected comparisons. If a line doesn't make them laugh, it failed.
 
 HARD RULES:
