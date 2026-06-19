@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Flame, Trash2, RefreshCw, Lock, Heart, Flower2, AlertTriangle,
+  Flame, Trash2, RefreshCw, Lock, Heart, Flower2, AlertTriangle, ChevronLeft,
   ShieldAlert, Pencil, Save, X, ImagePlus,
 } from "lucide-react";
 
@@ -191,10 +191,16 @@ export default function Incinerator() {
               <p className="text-xs text-gray-500 font-mono">Admin disposal bay · {dumps.length} entries</p>
             </div>
           </div>
-          <button onClick={load} disabled={loading}
-            className="flex items-center gap-2 bg-gray-900 border border-gray-700 hover:border-amber-400 text-gray-300 text-xs font-mono uppercase px-3 py-2 rounded transition disabled:opacity-50">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <a href="/"
+              className="flex items-center gap-2 bg-gray-900 border border-gray-700 hover:border-cyan-400 text-gray-300 text-xs font-mono uppercase px-3 py-2 rounded transition">
+              <ChevronLeft className="w-4 h-4" /> Back to site
+            </a>
+            <button onClick={load} disabled={loading}
+              className="flex items-center gap-2 bg-gray-900 border border-gray-700 hover:border-amber-400 text-gray-300 text-xs font-mono uppercase px-3 py-2 rounded transition disabled:opacity-50">
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+            </button>
+          </div>
         </header>
 
         {error && (
