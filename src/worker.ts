@@ -848,7 +848,7 @@ app.get("/roast/:id", async (c) => {
   const raw = kv ? await kv.get("roast:" + id) : null;
   if (!raw) return shell;
   const r = JSON.parse(raw);
-  const title = `${r.name} got roasted \u2014 Glitch Graveyard`;
+  const title = `\uD83D\uDD25 ${r.name} just got roasted \u2014 you have to see this`;
   const desc = `\uD83D\uDD25 ${r.appraisal || ""}`.replace(/\s+/g, " ").slice(0, 190);
   const url = `https://trash-can.net/roast/${id}`;
   const img = `https://trash-can.net/api/og/roast/${id}`;
