@@ -201,22 +201,21 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
   </div>`;
 }
 
-function roastImageHtml(name: string, category: string, score: number, appraisal: string, pivot: string): string {
+function roastImageHtml(name: string, category: string, score: number, appraisal: string): string {
   return `
-  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:64px;font-family:'Space Grotesk', sans-serif;">
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
       <img src="${OG_LOGO}" width="64" height="64" style="margin-right:18px;" />
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;letter-spacing:3px;">THE ROAST MACHINE</div>
-      <div style="display:flex;margin-left:auto;color:#f59e0b;font-size:28px;font-weight:700;">${score}/100</div>
+      <div style="display:flex;margin-left:auto;color:#f59e0b;font-size:30px;font-weight:700;">${score}/100</div>
     </div>
-    <div style="display:flex;margin-top:24px;color:#94a3b8;font-size:22px;letter-spacing:4px;font-weight:700;">${category}</div>
-    <div style="display:flex;margin-top:6px;color:#ffffff;font-size:56px;font-weight:700;line-height:1.05;">${name}</div>
-    <div style="display:flex;margin-top:22px;color:#f1f5f9;font-size:32px;line-height:1.3;font-style:italic;">"${appraisal}"</div>
-    <div style="display:flex;flex-direction:column;margin-top:auto;border-top:2px solid #1f2937;padding-top:18px;">
-      <div style="display:flex;color:#f59e0b;font-size:19px;font-weight:700;letter-spacing:3px;">THE PIVOT</div>
-      <div style="display:flex;margin-top:8px;color:#cbd5e1;font-size:24px;line-height:1.3;">${pivot}</div>
+    <div style="display:flex;margin-top:36px;color:#94a3b8;font-size:22px;letter-spacing:4px;font-weight:700;">${category}</div>
+    <div style="display:flex;margin-top:8px;color:#ffffff;font-size:62px;font-weight:700;line-height:1.05;">${name}</div>
+    <div style="display:flex;margin-top:32px;color:#f1f5f9;font-size:40px;line-height:1.3;font-style:italic;">"${appraisal}"</div>
+    <div style="display:flex;margin-top:auto;align-items:center;justify-content:space-between;border-top:2px solid #1f2937;padding-top:22px;">
+      <div style="display:flex;color:#e879f9;font-size:30px;font-weight:700;">Click to see the full roast</div>
+      <div style="display:flex;color:#22d3ee;font-size:24px;font-weight:700;">trash-can.net</div>
     </div>
-    <div style="display:flex;margin-top:18px;color:#22d3ee;font-size:22px;font-weight:700;">roast yours at trash-can.net</div>
   </div>`;
 }
 
@@ -828,8 +827,7 @@ app.get("/api/og/roast/:id", async (c) => {
       esc(String(r.name).slice(0, 70)),
       esc(String(r.category || "").toUpperCase().slice(0, 30)),
       Math.round(Number(r.score)) || 0,
-      esc(String(r.appraisal || "").slice(0, 180)),
-      esc(String(r.recyclingPlan || "").slice(0, 200))
+      esc(String(r.appraisal || "").slice(0, 200))
     );
     let fonts;
     try { fonts = await loadOgFonts(); } catch (e) { console.error("roast og font:", String((e as any)?.message || e)); }
