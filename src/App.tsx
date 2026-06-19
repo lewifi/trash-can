@@ -102,7 +102,10 @@ export default function App() {
     const el = carouselRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      // Trackpad gestures (small/continuous deltas, or any horizontal) keep native
+      // scrolling so the page can still move up/down. Only translate real mouse
+      // wheels (vertical-only, larger discrete steps) into horizontal carousel scroll.
+      if (e.deltaX !== 0 || Math.abs(e.deltaY) < 40) return;
       e.preventDefault();
       el.scrollLeft += e.deltaY;
     };
