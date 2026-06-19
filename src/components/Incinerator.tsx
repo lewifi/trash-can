@@ -36,6 +36,8 @@ export default function Incinerator() {
   const [draft, setDraft] = useState<Dump | null>(null);
   const [saving, setSaving] = useState(false);
   const [coordsInput, setCoordsInput] = useState("");
+  const [geoQuery, setGeoQuery] = useState("");
+  const [geoStatus, setGeoStatus] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -87,6 +89,8 @@ export default function Incinerator() {
     setCoordsInput(
       d.latitude !== undefined && d.longitude !== undefined ? `${d.latitude}, ${d.longitude}` : ""
     );
+    setGeoQuery("");
+    setGeoStatus("");
   };
   const cancelEdit = () => {
     setEditingId(null);
@@ -94,6 +98,21 @@ export default function Incinerator() {
   };
   const setField = (k: keyof Dump, v: any) =>
     setDraft((p) => (p ? { ...p, [k]: v } : p));
+
+  const lookupPlace = async () => {
+    const q = geoQuery.trim();
+    if (!q) return;
+    setGeoStatus("Searching\u2026");
+    try {
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (!res.ok) { setGeoStatus(data.error || "Not found."); return; }
+      setCoordsInput(`${Number(data.lat).toFixed(4)}, ${Number(data.lng).toFixed(4)}`);
+      setGeoStatus(`\uD83D\uDCCD ${data.display}`);
+    } catch {
+      setGeoStatus("Lookup failed.");
+    }
+  };
 
   const onPickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -234,6 +253,17 @@ export default function Incinerator() {
                       <input className={inputCls} placeholder="Cause of death" value={draft.causeOfDeath || ""} onChange={(e) => setField("causeOfDeath", e.target.value)} />
                     </div>
                     <input className={inputCls} placeholder="Tech stack" value={draft.techStack || ""} onChange={(e) => setField("techStack", e.target.value)} />
+                    <div className="flex gap-2">
+                      <input
+                        className={`${inputCls} flex-1`}
+                        placeholder="Type a place: city, country"
+                        value={geoQuery}
+                        onChange={(e) => setGeoQuery(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); lookupPlace(); } }}
+                      />
+                      <button type="button" onClick={lookupPlace} className="text-[11px] font-mono uppercase text-cyan-300 border border-cyan-500/40 px-3 rounded hover:bg-cyan-950">Find</button>
+                    </div>
+                    {geoStatus && <p className="text-[11px] text-gray-400 break-words">{geoStatus}</p>}
                     <input className={inputCls} placeholder="GPS coords: lat, lng (e.g. 40.7128, -74.0060)" value={coordsInput} onChange={(e) => setCoordsInput(e.target.value)} />
                     <label className="block text-[10px] uppercase font-mono text-gray-500">
                       Tragedy {draft.emotionalTragedy ?? 5}/10

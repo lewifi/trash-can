@@ -553,6 +553,30 @@ app.get("/api/og/:id", async (c) => {
   }
 });
 
+// Geocode a free-text place ("city, country") -> lat/lng via OpenStreetMap Nominatim.
+app.get("/api/geocode", async (c) => {
+  const q = (c.req.query("q") || "").trim();
+  if (q.length < 2) return c.json({ error: "Type a place to look up." }, 400);
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
+    const r = await fetch(url, {
+      headers: { "User-Agent": "GlitchGraveyard/1.0 (https://trash-can.net)", Accept: "application/json" },
+      cf: { cacheEverything: true, cacheTtl: 86400 } as any,
+    });
+    if (!r.ok) return c.json({ error: "Geocoder unavailable." }, 502);
+    const arr = (await r.json()) as any[];
+    if (!arr || arr.length === 0) return c.json({ error: "No match found." }, 404);
+    return c.json({
+      lat: Number(arr[0].lat),
+      lng: Number(arr[0].lon),
+      display: String(arr[0].display_name || q),
+    });
+  } catch (e) {
+    console.error("Geocode error:", String((e as any)?.message || e));
+    return c.json({ error: "Geocoding failed." }, 500);
+  }
+});
+
 // Per-grave page: rewrite Open Graph tags so a shared link previews that grave.
 app.get("/grave/:id", async (c) => {
   const id = c.req.param("id");
