@@ -688,7 +688,7 @@ export default function App() {
                   <span className="text-xs font-mono-tech text-gray-500">• Procedural Junk-scape</span>
                 </div>
 
-                <h1 className="text-3xl md:text-5xl font-extrabold font-monument tracking-wide leading-tight mb-4 text-[#ffffff]">
+                <h1 className={`text-3xl md:text-5xl font-extrabold font-monument tracking-wide leading-tight mb-4 ${skin.accentColor}`}>
                   STORY OF ALL <span className="bg-gradient-to-r from-red-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">YOUR UNUSED CODE</span>
                 </h1>
 
@@ -753,7 +753,7 @@ export default function App() {
 
               <div className="flex items-center gap-2.5 mb-4">
                 <Trash2 className="w-5 h-5 text-red-400" />
-                <h2 className="text-lg font-bold font-monument tracking-wider">TOSS SOMETHING INTO THE LANDFILL</h2>
+                <h2 className={`text-lg font-bold font-monument tracking-wider ${skin.accentColor}`}>TOSS SOMETHING INTO THE LANDFILL</h2>
               </div>
 
               <form onSubmit={handleDumpSubmit} className="space-y-4 text-sm">
@@ -1020,7 +1020,7 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-red-600 to-cyan-600 hover:from-red-500 hover:to-cyan-500 text-white font-mono-tech font-bold tracking-wider rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
+                  className={`w-full py-3 ${skin.buttonColor} font-mono-tech font-bold tracking-wider rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer`}
                 >
                   <Trash2 className="w-4 h-4 relative group-hover:rotate-12 transition-transform" />
                   DUMP TRASH TO WEB-SERVER
