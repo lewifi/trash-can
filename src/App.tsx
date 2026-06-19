@@ -194,17 +194,6 @@ export default function App() {
     };
   }, [!!selectedDump]);
 
-  // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
-  useEffect(() => {
-    const el = loadMoreRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) setVisibleCount((c) => c + 12); },
-      { rootMargin: "300px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [filteredDumps.length, visibleCount]);
 
   // Deep-link: open /grave/:id straight to that grave once the dumps load.
   const [copiedShare, setCopiedShare] = useState(false);
@@ -236,6 +225,17 @@ export default function App() {
   const [visibleCount, setVisibleCount] = useState(12);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setVisibleCount(12); }, [searchQuery, selectedCategory, sortBy]);
+  // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) setVisibleCount((c) => c + 12); },
+      { rootMargin: "300px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filteredDumps.length, visibleCount]);
 
   // Private Venting Room states
   const [roomNameInput, setRoomNameInput] = useState("");
