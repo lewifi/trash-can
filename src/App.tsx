@@ -173,6 +173,39 @@ export default function App() {
     setAppraiseResult(null);
   }, [selectedDump?.id]);
 
+  // Lock the page behind the detail modal and restore the exact scroll spot on close,
+  // so closing a card returns you to where you were instead of jumping under the map.
+  useEffect(() => {
+    if (!selectedDump) return;
+    const y = window.scrollY;
+    const { style } = document.body;
+    style.position = "fixed";
+    style.top = `-${y}px`;
+    style.left = "0";
+    style.right = "0";
+    style.width = "100%";
+    return () => {
+      style.position = "";
+      style.top = "";
+      style.left = "";
+      style.right = "";
+      style.width = "";
+      window.scrollTo(0, y);
+    };
+  }, [!!selectedDump]);
+
+  // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) setVisibleCount((c) => c + 12); },
+      { rootMargin: "300px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filteredDumps.length, visibleCount]);
+
   // Deep-link: open /grave/:id straight to that grave once the dumps load.
   const [copiedShare, setCopiedShare] = useState(false);
   useEffect(() => {
@@ -200,6 +233,9 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "likes" | "flowers" | "tragedy">("newest");
+  const [visibleCount, setVisibleCount] = useState(12);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { setVisibleCount(12); }, [searchQuery, selectedCategory, sortBy]);
 
   // Private Venting Room states
   const [roomNameInput, setRoomNameInput] = useState("");
@@ -1383,17 +1419,8 @@ export default function App() {
                 </div>
               ) : (
                 <div className="relative">
-                  <button type="button" aria-label="Scroll left" onClick={() => carouselRef.current?.scrollBy({ left: -380, behavior: "smooth" })} className="hidden sm:flex absolute left-1 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-gray-900/90 border border-cyan-500/40 text-cyan-300 hover:bg-gray-800 hover:border-cyan-400 transition">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button type="button" aria-label="Scroll right" onClick={() => carouselRef.current?.scrollBy({ left: 380, behavior: "smooth" })} className="hidden sm:flex absolute right-1 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-gray-900/90 border border-cyan-500/40 text-cyan-300 hover:bg-gray-800 hover:border-cyan-400 transition">
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                  <div
-                    ref={carouselRef}
-                    className="flex gap-5 overflow-x-auto snap-x snap-proximity px-[9%] sm:px-14 py-2 no-scrollbar"
-                  >
-                  {filteredDumps.map((d) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredDumps.slice(0, visibleCount).map((d) => (
                     <div
                       key={d.id}
                       onClick={() => {
@@ -1402,7 +1429,7 @@ export default function App() {
                           handleAppraise(d);
                         }
                       }}
-                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between flex-shrink-0 snap-center w-[82%] sm:w-[360px]"
+                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full"
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
@@ -1472,6 +1499,17 @@ export default function App() {
                     </div>
                   ))}
                   </div>
+                  {visibleCount < filteredDumps.length && (
+                    <div ref={loadMoreRef} className="flex justify-center pt-8">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleCount((c) => c + 12)}
+                        className={`px-6 py-2.5 rounded-lg font-mono-tech text-xs uppercase tracking-wider border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass} hover:bg-gray-900/60 transition-all`}
+                      >
+                        Dig deeper ({filteredDumps.length - visibleCount} more in the pile)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
