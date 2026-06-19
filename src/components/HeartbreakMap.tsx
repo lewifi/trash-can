@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Move, HeartOff, Flame, AlertOctagon, Terminal, Globe } from "lucide-react";
 import { DeadProject } from "../types";
 
@@ -29,12 +29,25 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
       });
   }, []);
 
+  const stageRef = useRef<HTMLDivElement>(null);
+  const handleTilt = (e: React.MouseEvent) => {
+    const el = stageRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `rotateX(${(-py * 6).toFixed(2)}deg) rotateY(${(px * 9).toFixed(2)}deg)`;
+  };
+  const resetTilt = () => {
+    if (stageRef.current) stageRef.current.style.transform = "rotateX(0deg) rotateY(0deg)";
+  };
+
   // Translate lat/lng to container percentages for simple responsive SVG plotting
   // Simple cylindrical projection approximation matching Equirectangular format
   const getCoordinates = (lat: number, lng: number) => {
     const x = ((lng + 180) / 360) * 100;
     const y = ((90 - lat) / 180) * 100;
-    return { x: Math.max(5, Math.min(95, x)), y: Math.max(10, Math.min(85, y)) };
+    return { x: Math.max(1, Math.min(99, x)), y: Math.max(1, Math.min(99, y)) };
   };
 
   // Convert GeoJSON geometry to responsive SVG path data
@@ -97,8 +110,17 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* The Map visual stage */}
-        <div className="lg:col-span-3 relative bg-[#060913] border border-cyan-500/10 rounded-lg min-h-[180px] sm:min-h-[350px] flex flex-col justify-between overflow-hidden p-2">
+        {/* The Map visual stage (CSS-perspective tilt on mouse move) */}
+        <div
+          className="lg:col-span-3"
+          style={{ perspective: "1000px" }}
+          onMouseMove={handleTilt}
+          onMouseLeave={resetTilt}
+        >
+          <div
+            ref={stageRef}
+            className="relative bg-[#060913] border border-cyan-500/10 rounded-lg h-[230px] sm:h-[430px] overflow-hidden p-2 transition-transform duration-200 ease-out will-change-transform"
+          >
           {/* Cyber grid lines */}
           <div className="absolute inset-0 scanlines opacity-40 pointer-events-none"></div>
           <div className="absolute inset-0 bg-grid-cyan opacity-5 pointer-events-none" 
@@ -109,7 +131,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
           {geoData && (
             <svg 
               viewBox="0 0 100 100" 
-              className="absolute inset-0 w-full h-full p-2 select-none pointer-events-none z-0"
+              className="absolute inset-0 w-full h-full select-none pointer-events-none z-0"
               preserveAspectRatio="none"
             >
               <g className="pointer-events-auto">
@@ -142,7 +164,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
           </div>
 
           {/* Sizable items mapped */}
-          <div className="relative w-full h-[180px] sm:h-[320px] bg-gradient-to-b from-cyan-950/10 to-transparent">
+          <div className="absolute inset-0 z-10">
             {projects.map((project) => {
               const { x, y } = getCoordinates(project.latitude, project.longitude);
               const isTragic = project.emotionalTragedy >= 8;
@@ -188,9 +210,10 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
               );
             })}
           </div>
+          </div>
 
           {/* Compass & Scale indicators */}
-          <div className="relative z-10 flex justify-between items-end text-[10px] font-mono-tech text-cyan-500/50 p-2">
+          <div className="relative z-10 flex justify-between items-end text-[10px] font-mono-tech text-cyan-500/50 px-1 pt-2">
             <div>
               <span>LAT_GRID: [84.15° N - 84.15° S]</span>
               <br />

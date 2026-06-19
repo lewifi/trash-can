@@ -234,7 +234,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us the exact moment you realized it was garbage. Or dump your unrequested project ideas here so our AI chief of staff can review..."
+              placeholder="Tell us the exact moment you realized it was garbage. Or dump your unrequested project ideas here so our AI chef of staff can review..."
               className="w-full bg-[#060913] border border-cyan-500/30 rounded p-3 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               required
             ></textarea>
@@ -355,7 +355,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     Diagnostics Terminal Dormant
                   </p>
                   <p className="text-[11px] text-gray-600 max-w-xs mx-auto">
-                    Fill the left parameters and consult the Waste Chief to receive your Tragic Appraiser Report and customized scrap recycling plan!
+                    Fill the left parameters and consult the Waste Chef to receive your Tragic Appraiser Report and customized scrap recycling plan!
                   </p>
                 </div>
               )}
@@ -369,7 +369,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
                   <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
                     <span className="text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
-                      Chief Consultant's Appraisal
+                      Chef Consultant's Appraisal
                     </span>
                     <p className="italic text-gray-300 leading-relaxed font-sans font-medium text-sm">
                       "{result.appraisal}"

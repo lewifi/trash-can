@@ -1409,7 +1409,7 @@ export default function App() {
                     <div className="border-t border-gray-900 pt-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-mono-tech text-purple-400 flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5" /> AI CHIEF APPRAISAL
+                          <Sparkles className="w-3.5 h-3.5" /> AI CHEF APPRAISAL
                         </span>
                         
                         <button
@@ -1481,7 +1481,7 @@ export default function App() {
                         </div>
                       ) : (
                         <div className="bg-gray-900 border border-gray-850 p-4 rounded-xl text-center text-xs text-gray-500">
-                          Click <strong>RUN CRITIQUE</strong> above to command the chief Gemini Waste Consultant to analyze this idea.
+                          Click <strong>RUN CRITIQUE</strong> above to command the Gemini Waste Chef to analyze this idea.
                         </div>
                       )}
                     </div>
