@@ -215,6 +215,61 @@ export default function ArtifactVisualizer({
           </svg>
         );
 
+      case "web":
+        return (
+          <svg viewBox="0 0 100 100" className="w-full h-full text-sky-400">
+            {/* Abandoned browser window -> 404 */}
+            <rect x="18" y="20" width="64" height="58" rx="3" fill="#06121f" stroke="#38bdf8" strokeWidth="1.5" />
+            <line x1="18" y1="32" x2="82" y2="32" stroke="#38bdf8" strokeWidth="1.2" />
+            <circle cx="24" cy="26" r="1.7" fill="#f43f5e" />
+            <circle cx="30" cy="26" r="1.7" fill="#fbbf24" />
+            <circle cx="36" cy="26" r="1.7" fill="#22c55e" />
+            {/* glitch cracks */}
+            <line x1="20" y1="44" x2="44" y2="50" stroke="#f43f5e" strokeWidth="0.8" />
+            <line x1="80" y1="66" x2="58" y2="60" stroke="#f43f5e" strokeWidth="0.8" />
+            <text x="50" y="58" fill="#38bdf8" fontSize="15" fontFamily="monospace" textAnchor="middle" className="font-bold animate-pulse">404</text>
+            <text x="50" y="72" fill="#7dd3fc" fontSize="5" fontFamily="monospace" textAnchor="middle">PAGE NOT FOUND</text>
+          </svg>
+        );
+
+      case "tech":
+        return (
+          <svg viewBox="0 0 100 100" className="w-full h-full text-teal-300">
+            {/* Overengineered bricked gadget (smartwatch) */}
+            <rect x="40" y="8" width="20" height="20" fill="#042f2e" stroke="#2dd4bf" strokeWidth="1" />
+            <rect x="40" y="72" width="20" height="20" fill="#042f2e" stroke="#2dd4bf" strokeWidth="1" />
+            <rect x="30" y="28" width="40" height="44" rx="6" fill="#06201d" stroke="#2dd4bf" strokeWidth="1.5" />
+            <rect x="36" y="34" width="28" height="32" rx="2" fill="#021a18" stroke="#5eead4" strokeWidth="1" />
+            {/* too many crowns / buttons */}
+            <rect x="70" y="36" width="4" height="6" fill="#2dd4bf" />
+            <rect x="70" y="46" width="4" height="6" fill="#2dd4bf" />
+            <rect x="70" y="56" width="4" height="4" fill="#f43f5e" className="animate-ping" />
+            {/* dead screen X */}
+            <line x1="44" y1="44" x2="56" y2="56" stroke="#f43f5e" strokeWidth="1.5" className="animate-pulse" />
+            <line x1="56" y1="44" x2="44" y2="56" stroke="#f43f5e" strokeWidth="1.5" className="animate-pulse" />
+            <text x="50" y="86" fill="#5eead4" fontSize="4.5" fontFamily="monospace" textAnchor="middle">v9 BETA · BRICKED</text>
+          </svg>
+        );
+
+      case "entertainment":
+        return (
+          <svg viewBox="0 0 100 100" className="w-full h-full text-fuchsia-400">
+            {/* Collapsed festival stage / Fyre tent */}
+            <line x1="10" y1="78" x2="90" y2="78" stroke="#a21caf" strokeWidth="1" />
+            <path d="M18,78 Q50,42 82,78 Z" fill="#2a0a2e" stroke="#e879f9" strokeWidth="1.5" />
+            {/* tilted, sagging pole */}
+            <line x1="52" y1="50" x2="48" y2="78" stroke="#e879f9" strokeWidth="1.5" />
+            {/* drooping flag */}
+            <line x1="52" y1="50" x2="52" y2="42" stroke="#e879f9" strokeWidth="1" />
+            <path d="M52,42 L62,44 L52,47 Z" fill="#f43f5e" className="animate-pulse" />
+            {/* scattered debris */}
+            <circle cx="28" cy="74" r="1.5" fill="#f0abfc" />
+            <circle cx="70" cy="73" r="1.5" fill="#f0abfc" />
+            <rect x="60" y="70" width="6" height="3" fill="#7e22ce" transform="rotate(20 63 71)" />
+            <text x="50" y="92" fill="#f0abfc" fontSize="5" fontFamily="monospace" textAnchor="middle" className="animate-pulse">FESTIVAL CANCELLED</text>
+          </svg>
+        );
+
       default:
         return (
           <svg viewBox="0 0 100 100" className="w-full h-full text-red-500">
