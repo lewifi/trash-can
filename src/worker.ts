@@ -443,6 +443,38 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
   return c.json(cur);
 });
 
+// Per-grave page: rewrite Open Graph tags so a shared link previews that grave.
+app.get("/grave/:id", async (c) => {
+  const id = c.req.param("id");
+  const shell = await c.env.ASSETS.fetch(new URL("/index.html", c.req.url));
+  const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
+  const dump = data.find((d) => d.id === id && !d.isPrivate);
+  if (!dump) return shell; // unknown or private -> generic card + SPA
+
+  const title = `${dump.name} \u2014 Glitch Graveyard`;
+  const desc = `\u2620\uFE0F ${dump.causeOfDeath || "Unknown causes"} \u2014 ${dump.description || ""}`
+    .replace(/\s+/g, " ")
+    .slice(0, 190);
+  const url = `https://trash-can.net/grave/${id}`;
+  const img =
+    dump.imageUrl && /^https?:\/\//.test(dump.imageUrl)
+      ? dump.imageUrl
+      : "https://trash-can.net/og.png";
+  const content = (v: string) => ({ element(e: any) { e.setAttribute("content", v); } });
+
+  return new HTMLRewriter()
+    .on("title", { element(e) { e.setInnerContent(title); } })
+    .on('meta[name="description"]', content(desc))
+    .on('meta[property="og:title"]', content(title))
+    .on('meta[name="twitter:title"]', content(title))
+    .on('meta[property="og:description"]', content(desc))
+    .on('meta[name="twitter:description"]', content(desc))
+    .on('meta[property="og:url"]', content(url))
+    .on('meta[property="og:image"]', content(img))
+    .on('meta[name="twitter:image"]', content(img))
+    .transform(shell);
+});
+
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
 app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));

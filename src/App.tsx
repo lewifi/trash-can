@@ -75,6 +75,7 @@ export default function App() {
     if (pth === "/oracle") return "oracle";
     if (pth === "/disposal") return "disposal";
     if (pth === "/contracts") return "contracts";
+    if (pth.startsWith("/grave/")) return "memorials";
     return "dump";
   };
   const [activeTab, setActiveTab] = useState<TabId>(tabFromPath());
@@ -102,6 +103,29 @@ export default function App() {
       detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedDump?.id]);
+
+  // Deep-link: open /grave/:id straight to that grave once the dumps load.
+  const [copiedShare, setCopiedShare] = useState(false);
+  useEffect(() => {
+    const m = window.location.pathname.match(/^\/grave\/(.+)$/);
+    if (m && dumps.length && !selectedDump) {
+      const g = dumps.find((d) => d.id === decodeURIComponent(m[1]));
+      if (g) setSelectedDump(g);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dumps]);
+
+  const shareGrave = (id: string) => {
+    const link = `${window.location.origin}/grave/${id}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link).then(() => {
+        setCopiedShare(true);
+        setTimeout(() => setCopiedShare(false), 1800);
+      });
+    } else {
+      window.prompt("Copy this link:", link);
+    }
+  };
 
   // Search and Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -1300,6 +1324,15 @@ export default function App() {
                         "{selectedDump.description}"
                       </div>
                     </div>
+
+                    {/* SHARE */}
+                    <button
+                      onClick={() => shareGrave(selectedDump.id)}
+                      className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
+                    </button>
 
                     {/* VOTE & MOURN ACTIONS */}
                     <div className="grid grid-cols-2 gap-2 pt-2">
