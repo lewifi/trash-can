@@ -1625,11 +1625,11 @@ export default function App() {
             © 2026 Glitch Graveyard™ Central Administration. Built on top of the world's finest garbage.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-cyan-400 transition-colors uppercase">Security Containment rules</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("RULE 1: there are no rules. RULE 2: you just wasted a click on Rule 1."); }} className="hover:text-cyan-400 transition-colors uppercase cursor-pointer">Security Containment rules</a>
             <span>•</span>
-            <a href="#" className="hover:text-pink-400 transition-colors uppercase">Privacy Shields</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy Shields: 100% effective \u2014 nobody, not even us, is reading this page."); }} className="hover:text-pink-400 transition-colors uppercase cursor-pointer">Privacy Shields</a>
             <span>•</span>
-            <a href="#" className="hover:text-amber-500 transition-colors uppercase">Domain Lease terms</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("You leased a domain at 3am, built nothing, and are now reading the lease terms. Seek sunlight."); }} className="hover:text-amber-500 transition-colors uppercase cursor-pointer">Domain Lease terms</a>
             <span>•</span>
             <a href="https://ephix.net" target="_blank" rel="noopener noreferrer" title="Ephix Pulse — live top-100 TV & movie trending" className="text-cyan-400 hover:text-cyan-300 transition-colors uppercase">Built by Ephix Pulse</a>
           </div>
