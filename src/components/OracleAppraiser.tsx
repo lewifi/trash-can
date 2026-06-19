@@ -6,12 +6,27 @@ interface OracleAppraiserProps {
   onAddProjectDirectly: (newProject: any) => void;
 }
 
+const ROAST_PRESETS = [
+  { label: "\uD83E\uDD84 Raised $100M", category: "saas", claim: "Raised a $100M Series B at a $2B valuation", tech: "Money, momentum, and a foosball table", desc: "Backed by every top-tier VC on Sand Hill Road. Hired 200 people in a year and bought billboards at the airport. Surely nothing could go wrong." },
+  { label: "\uD83D\uDD14 IPO'd", category: "tech", claim: "Went public to a standing ovation on the NYSE floor", tech: "Investor hype and a confetti cannon", desc: "Founders rang the bell, the stock popped 80% on day one, and the whole team bought matching Teslas. Peak everything." },
+  { label: "\uD83E\uDD1D Acquired by Google", category: "ai", claim: "Acqui-hired by Google for an undisclosed (enormous) sum", tech: "A demo that worked exactly once", desc: "The team got golden handcuffs and a shiny campus badge. The product was lovingly sunset six months later." },
+  { label: "\uD83D\uDE80 Went viral", category: "web", claim: "Hit #1 on Product Hunt and trended worldwide", tech: "Virality, vibes, and a melting server", desc: "Three million signups in a single weekend. The founder did a TED talk about disruption before the load balancer recovered." },
+  { label: "\uD83D\uDC96 Beloved & profitable", category: "other", claim: "Profitable, adored, and growing 40% a year", tech: "Actually good decisions", desc: "Happy customers, sustainable revenue, zero drama. Annoyingly wholesome and somehow still begging to be roasted." },
+] as const;
+
 export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraiserProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<"saas" | "web" | "web3" | "mobile" | "ai" | "tech" | "hardware" | "game" | "dev_tool" | "entertainment" | "other">("saas");
   const [causeOfDeath, setCauseOfDeath] = useState("");
   const [techStack, setTechStack] = useState("");
+
+  const applyPreset = (p: typeof ROAST_PRESETS[number]) => {
+    setCategory(p.category as any);
+    setCauseOfDeath(p.claim);
+    setTechStack(p.tech);
+    setDescription(p.desc);
+  };
   const [creator, setCreator] = useState("");
   const [emotionalTragedy, setEmotionalTragedy] = useState(5);
 
@@ -189,6 +204,24 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Side: Submit / Dump Form */}
         <form onSubmit={handleConsult} className="lg:col-span-3 space-y-4">
+          <div>
+            <span className="block text-[10px] font-mono-tech text-amber-300 uppercase tracking-widest mb-2 font-bold">
+              Quick brag &mdash; one tap, then let the roast do its worst
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {ROAST_PRESETS.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => applyPreset(p)}
+                  className="text-[11px] font-mono-tech px-2.5 py-1 rounded-full border border-amber-500/30 text-amber-300 hover:bg-amber-950/30 hover:border-amber-400 transition cursor-pointer"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label id="lbl-project-name" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
@@ -243,13 +276,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label id="lbl-cause-death" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Cause of Death
+                Claim to Fame
               </label>
               <input
                 type="text"
                 value={causeOfDeath}
                 onChange={(e) => setCauseOfDeath(e.target.value)}
-                placeholder="e.g. Realized my bare hands could do it"
+                placeholder="best attribute / flex — e.g. Raised $20M, 4M users"
                 className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
