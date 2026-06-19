@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { GoogleGenAI } from "@google/genai";
 import { DeadProject, INITIAL_DUMPS } from "./server/initial-data";
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import { ImageResponse } from "workers-og";
 
 type Bindings = {
   ASSETS: Fetcher;
@@ -153,6 +154,29 @@ async function verifyAdmin(c: any): Promise<string | null> {
     console.error("Access JWT verify failed:", String((e as any)?.message || e));
     return null;
   }
+}
+
+// --- Dynamic OG image (satori/resvg via workers-og) ----------------------
+function esc(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function ogImageHtml(name: string, appraisal: string, cause: string, score: number): string {
+  return `
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:70px;font-family:sans-serif;">
+    <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">GLITCH GRAVEYARD</div>
+    <div style="display:flex;margin-top:34px;color:#ffffff;font-size:70px;font-weight:800;line-height:1.05;">${name}</div>
+    <div style="display:flex;margin-top:14px;color:#f43f5e;font-size:28px;">Cause of death: ${cause}</div>
+    <div style="display:flex;margin-top:34px;color:#cbd5e1;font-size:34px;line-height:1.35;">${appraisal}</div>
+    <div style="display:flex;margin-top:auto;align-items:center;justify-content:space-between;">
+      <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
+      <div style="display:flex;color:#f59e0b;font-size:26px;font-weight:700;">Glitch score ${score}/100</div>
+    </div>
+  </div>`;
 }
 
 // API: Get all dumps (public/unlocked)
@@ -443,6 +467,55 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
   return c.json(cur);
 });
 
+// Dynamic social-card image for a grave: project name + AI post-mortem + score.
+app.get("/api/og/:id", async (c) => {
+  const FALLBACK = "https://trash-can.net/og.png";
+  try {
+    const id = c.req.param("id");
+    const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
+    const dump = data.find((d) => d.id === id && !d.isPrivate) as any;
+    if (!dump) return Response.redirect(FALLBACK, 302);
+
+    // Use a stored appraisal, else generate one once and cache it on the grave.
+    let text: string = dump.ogAppraisal || "";
+    if (!text) {
+      const ai = getAIClient(c.env.GEMINI_API_KEY);
+      if (ai) {
+        try {
+          const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
+          const prompt = `You are the chief Waste Management Consultant at Glitch Graveyard. In ONE punchy, darkly funny sentence (max 28 words), deliver a post-mortem verdict on this dead project. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence, no quotes.`;
+          const resp = await generateWithRetry(ai, model, prompt);
+          text = (resp.text || "").trim().replace(/^["']+|["']+$/g, "");
+          if (text) {
+            const idx = data.findIndex((d) => d.id === id);
+            if (idx !== -1) {
+              (data[idx] as any).ogAppraisal = text;
+              await saveGraveyardData(c.env.GRAVEYARD_KV, data);
+            }
+          }
+        } catch (e) {
+          console.error("OG appraisal gen failed:", String((e as any)?.message || e));
+        }
+      }
+    }
+    if (!text) text = dump.description || dump.causeOfDeath || "A project that did not make it.";
+
+    const html = ogImageHtml(
+      esc(String(dump.name).slice(0, 70)),
+      esc(text.slice(0, 200)),
+      esc(String(dump.causeOfDeath || "Unknown").slice(0, 70)),
+      Number(dump.diagnosticScore) || 0
+    );
+    const img = new ImageResponse(html, { width: 1200, height: 630 });
+    return new Response(img.body, {
+      headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" },
+    });
+  } catch (e) {
+    console.error("OG image error:", String((e as any)?.message || e));
+    return Response.redirect(FALLBACK, 302);
+  }
+});
+
 // Per-grave page: rewrite Open Graph tags so a shared link previews that grave.
 app.get("/grave/:id", async (c) => {
   const id = c.req.param("id");
@@ -456,10 +529,7 @@ app.get("/grave/:id", async (c) => {
     .replace(/\s+/g, " ")
     .slice(0, 190);
   const url = `https://trash-can.net/grave/${id}`;
-  const img =
-    dump.imageUrl && /^https?:\/\//.test(dump.imageUrl)
-      ? dump.imageUrl
-      : "https://trash-can.net/og.png";
+  const img = `https://trash-can.net/api/og/${id}`;
   const content = (v: string) => ({ element(e: any) { e.setAttribute("content", v); } });
 
   return new HTMLRewriter()
