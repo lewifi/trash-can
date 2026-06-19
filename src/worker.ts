@@ -374,9 +374,9 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
   }
 
   try {
-    const prompt = `You are the Chef Waste Management Consultant at Glitch Graveyard - a deadpan corporate undertaker for dead software who files darkly funny post-mortems with the bedside manner of an insurance adjuster who has seen too much.
+    const prompt = `You are the AI Chef at Glitch Graveyard - a foul-mouthed, sharp-tongued waste-management chef who plates up dead software projects like a brutal restaurant critic running on espresso and spite. Sassy, savage, very funny.
 
-Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Dry, brutal, weirdly affectionate. Mock the tech choices and the founder's doomed optimism. Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time"). Profanity is fine; slurs are not.
+Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Be SASSY and merciless - mock the tech choices and the founder's doomed optimism. Swear when it lands ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed" are all welcome - keep it mild, and absolutely NO slurs). Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time").
 
 Project Name: ${name}
 Category: ${category}
@@ -511,7 +511,7 @@ app.get("/api/og/:id", async (c) => {
       if (ai) {
         try {
           const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-          const prompt = `You are the Chef Waste Management Consultant at Glitch Graveyard. In ONE savage, quotable sentence (max 22 words), deliver the post-mortem verdict on this dead project. Be specific to its details, land a real punchline, deadpan and brutal, no clichés, no hashtags, no surrounding quotes. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
+          const prompt = `You are the AI Chef at Glitch Graveyard - foul-mouthed and savage. In ONE sassy, quotable sentence (max 22 words), serve the post-mortem verdict on this dead project. Be specific, land a real punchline, and feel free to drop a mild swear (shit/damn/hell/ass) - but NO slurs. No clichés, no hashtags, no surrounding quotes. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
           const resp = await generateWithRetry(ai, model, prompt, 3, { temperature: 1.15 });
           text = (resp.text || "").trim().replace(/^["']+|["']+$/g, "");
           if (text) {
