@@ -42,7 +42,8 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  Star
+  Star,
+  ScrollText
 } from "lucide-react";
 
 interface DeadProject {
@@ -70,15 +71,63 @@ interface DeadProject {
   postMortem?: string;
 }
 
+// Hand-written patch notes from the gravekeeper, newest first. Written in site voice.
+const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = [
+  {
+    date: "2026-06-19",
+    tag: "NEW PLOTS",
+    title: "Three fresh plots dug in the cemetery",
+    body: "Web, Tech, and Entertainment (Fyre-Festival-grade disasters welcome) now have their own graves. No more cramming a doomed gadget or a scammy festival into 'Other' like a coward.",
+  },
+  {
+    date: "2026-06-19",
+    tag: "MAP",
+    title: "Pin the corpse to a map",
+    body: "You can now type a city, country when you bury a project, so the world can see exactly where the dream went cold. Optional — some bodies prefer an unmarked grave.",
+  },
+  {
+    date: "2026-06-15",
+    tag: "THE CHEF",
+    title: "The Waste Chef sharpened the knives",
+    body: "The AI roast is bigger, louder, and meaner. The RUN CRITIQUE button now glows because pressing it is the most fun you'll have grieving today.",
+  },
+  {
+    date: "2026-06-12",
+    tag: "HOUSEKEEPING",
+    title: "Vent rooms sealed shut",
+    body: "Private venting-room confessions were leaking into the public landfill. They've been walled back up. What's whispered in the vent stays in the vent.",
+  },
+  {
+    date: "2026-06-08",
+    tag: "SHARE",
+    title: "Every grave gets a headstone you can share",
+    body: "Drop a /grave link anywhere and it unfurls with its own neon tombstone card. Spread the bad news beautifully.",
+  },
+];
+
+// Compact "X ago" for the freshly-buried feed.
+function timeAgo(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (isNaN(then)) return "";
+  const s = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24); if (d < 30) return `${d}d ago`;
+  const mo = Math.floor(d / 30); if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
+}
+
 export default function App() {
   // Navigation tabs
-  type TabId = "dump" | "memorials" | "oracle" | "disposal" | "contracts";
+  type TabId = "dump" | "memorials" | "oracle" | "disposal" | "contracts" | "log";
   const tabFromPath = (): TabId => {
     const pth = window.location.pathname.replace(/\/+$/, "");
     if (pth === "/memorials") return "memorials";
     if (pth === "/oracle") return "oracle";
     if (pth === "/disposal") return "disposal";
     if (pth === "/contracts") return "contracts";
+    if (pth === "/log") return "log";
     if (pth.startsWith("/grave/")) return "memorials";
     return "dump";
   };
@@ -581,6 +630,7 @@ export default function App() {
               { id: "oracle", label: "Oracle", Icon: Star },
               { id: "disposal", label: "Vent", Icon: Shield },
               { id: "contracts", label: "Salvage", Icon: Coins },
+              { id: "log", label: "Crypt Log", Icon: ScrollText },
             ] as const).map(({ id, label, Icon }) => (
               <button
                 key={id}
@@ -1668,6 +1718,78 @@ export default function App() {
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* GRAVEKEEPER'S CRYPT LOG: patch notes + freshly buried feed */}
+        {activeTab === "log" && (
+          <div className="space-y-10 animate-fade-in">
+            <div className="text-center max-w-2xl mx-auto">
+              <span className={`text-[10px] font-mono-tech tracking-widest uppercase ${skin.accentColor}`}>Dispatches from the groundskeeper</span>
+              <h2 className={`text-2xl md:text-3xl font-bold font-monument tracking-wider mt-1 ${skin.accentColor}`}>
+                THE CRYPT LOG
+              </h2>
+              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                What we've dug up lately, and who got buried this week. The dead don't rest, and neither does the changelog.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* PATCH NOTES */}
+              <div className="lg:col-span-3 space-y-4">
+                <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                  <ScrollText className={`w-4 h-4 ${skin.accentColor}`} /> Exhumation Notes
+                </h3>
+                {CRYPT_LOG.map((e, i) => (
+                  <div key={i} className={`relative bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-5 pl-6`}>
+                    <span className={`absolute left-0 top-5 bottom-5 w-1 rounded-full bg-current ${skin.accentColor} opacity-70`} />
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <span className={`text-[10px] font-mono-tech px-2 py-0.5 rounded border ${skin.accentBorder} ${skin.accentColor} uppercase tracking-wider`}>{e.tag}</span>
+                      <span className="text-[10px] font-mono-tech text-gray-600">{new Date(e.date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-gray-100 mb-1">{e.title}</h4>
+                    <p className="text-xs text-gray-400 leading-relaxed">{e.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* FRESHLY BURIED FEED */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                  <Skull className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Buried
+                </h3>
+                <div className={`bg-[#0b0f19] border ${skin.accentBorder} rounded-xl divide-y divide-gray-900`}>
+                  {[...dumps]
+                    .filter((d) => !d.isPrivate)
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 8)
+                    .map((d) => (
+                      <button
+                        key={d.id}
+                        onClick={() => { navTab("memorials"); setSelectedDump(d); }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-900/60 transition-colors flex items-center justify-between gap-3 group"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-100 truncate group-hover:underline">{d.name}</p>
+                          <p className="text-[10px] font-mono-tech text-gray-500 truncate">
+                            {d.category} • by {d.creator || "Anonymous"}
+                          </p>
+                        </div>
+                        <span className={`text-[10px] font-mono-tech whitespace-nowrap ${skin.accentColor}`}>{timeAgo(d.createdAt)}</span>
+                      </button>
+                    ))}
+                  {dumps.filter((d) => !d.isPrivate).length === 0 && (
+                    <p className="px-4 py-6 text-center text-xs text-gray-600 font-mono-tech">The pit is empty. Be the first to bury something.</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => { navTab("dump"); setSelectedDump(null); }}
+                  className={`w-full text-xs font-mono-tech py-2.5 rounded-lg border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass} hover:bg-gray-900/60 transition-all uppercase tracking-wider`}
+                >
+                  + Bury something new
+                </button>
+              </div>
             </div>
           </div>
         )}
