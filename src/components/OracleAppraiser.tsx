@@ -103,6 +103,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [copied, setCopied] = useState(false);
   const [exposeName, setExposeName] = useState("");
   const [exposeJob, setExposeJob] = useState("");
+  const [prankCopied, setPrankCopied] = useState(false);
 
   const handleSaveAndShare = async () => {
     if (!result) return;
@@ -236,189 +237,45 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         </div>
       </div>
 
-      {/* INSTANT EXPOSÉ - two fields, secret random dossier */}
-      <form onSubmit={handleExpose} className="mb-6 bg-gradient-to-r from-fuchsia-950/30 to-amber-950/20 border border-fuchsia-500/30 rounded-xl p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="w-4 h-4 text-fuchsia-300" />
-          <h3 className="font-monument text-sm tracking-wider text-fuchsia-300 uppercase">Instant Exposé</h3>
-        </div>
-        <p className="text-[11px] text-gray-400 font-mono-tech mb-3">Just a name and a job. We'll dig up the rest — you don't want to know what we find.</p>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input value={exposeName} onChange={(e) => setExposeName(e.target.value)} placeholder="Name (yours, if you dare)" className="flex-1 bg-[#060913] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition" />
-          <input value={exposeJob} onChange={(e) => setExposeJob(e.target.value)} placeholder="Occupation" className="flex-1 bg-[#060913] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition" />
-          <button type="submit" disabled={loading} className="bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-5 rounded transition cursor-pointer disabled:opacity-60 whitespace-nowrap shadow-[0_0_16px_rgba(217,70,239,0.4)]">
-            {loading ? "Digging..." : "Exposé me"}
-          </button>
-        </div>
-      </form>
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Side: Submit / Dump Form */}
-        <form onSubmit={handleConsult} className="lg:col-span-3 space-y-4">
-          <div>
-            <span className="block text-[10px] font-mono-tech text-amber-300 uppercase tracking-widest mb-2 font-bold">
-              Quick targets &mdash; one tap to load a realistic roast-me type
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {ROAST_PRESETS.map((p) => (
-                <button
-                  key={p.label}
-                  type="button"
-                  onClick={() => applyPreset(p)}
-                  className="text-[11px] font-mono-tech px-2.5 py-1 rounded-full border border-amber-500/30 text-amber-300 hover:bg-amber-950/30 hover:border-amber-400 transition cursor-pointer"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleExpose} className="lg:col-span-3 space-y-4">
+          <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4">
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Roast someone. Drop in their name and what they do &mdash; we'll dig up the rest. Go on, do your worst to a mate. Hand them the phone, even.
+            </p>
             <div>
-              <label id="lbl-project-name" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                * Target
-              </label>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Name</label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Cloudflare, your mate Dave, that one startup"
-                className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
+                value={exposeName}
+                onChange={(e) => setExposeName(e.target.value)}
+                placeholder="e.g. your own name, if you dare"
+                className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
             </div>
             <div>
-              <label id="lbl-project-creator" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Their Favourite Person
-              </label>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">Occupation</label>
               <input
                 type="text"
-                value={creator}
-                onChange={(e) => setCreator(e.target.value)}
-                placeholder="e.g. their cofounder, their dog, their personal brand"
-                className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
+                value={exposeJob}
+                onChange={(e) => setExposeJob(e.target.value)}
+                placeholder="e.g. dentist, founder, barista"
+                className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
               />
             </div>
-          </div>
-
-          <div>
-            <label id="lbl-category" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-              Category
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
-              className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-cyan-400 transition"
-            >
-              <option value="startup">Startup / Overfunded Dream</option>
-              <option value="bigtech">Big Tech / Too Big to Care</option>
-              <option value="crypto">Crypto Bro / Web3 Prophet</option>
-              <option value="ai">AI Hype / Thin GPT Wrapper</option>
-              <option value="influencer">Influencer / Content Machine</option>
-              <option value="publicfigure">Public Figure / Main Character</option>
-              <option value="mate">Your Mate / Personal Attack</option>
-              <option value="app">App / Product</option>
-              <option value="other">Some Forgettable Nobody</option>
-            </select>
-          </div>
-
-          <div>
-            <label id="lbl-cause-death" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-              One Good Thing About Them
-            </label>
-            <input
-              type="text"
-              value={causeOfDeath}
-              onChange={(e) => setCauseOfDeath(e.target.value)}
-              placeholder="the genuinely impressive bit — money, looks, talent, success"
-              className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
-            />
-          </div>
-
-          <div>
-            <label id="lbl-description" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-              * Something Embarrassing About Them
-            </label>
-            <textarea
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="The cringe, the red flag, the thing everyone notices. This is the ammo..."
-              className="w-full bg-[#060913] border border-cyan-500/30 rounded p-3 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
-              required
-            ></textarea>
-          </div>
-
-          <div className="bg-[#060913] border border-dashed border-cyan-500/20 rounded p-4">
-            <span className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-wider mb-2 font-bold">
-              Advanced Telemetry Controls
-            </span>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-[10px] uppercase font-mono-tech text-cyan-400/80 mb-1">
-                  Emotional Tragedy Rating ({emotionalTragedy}/10)
-                </label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  step="1"
-                  value={emotionalTragedy}
-                  onChange={(e) => setEmotionalTragedy(Number(e.target.value))}
-                  className="w-full accent-cyan-400 h-1 bg-cyan-950 rounded-lg cursor-pointer"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase font-mono-tech text-cyan-400/80 mb-1">
-                  Location Latitude (-90 to 90)
-                </label>
-                <input
-                  type="number"
-                  step="0.0001"
-                  min="-90"
-                  max="90"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value === "" ? "" : Number(e.target.value))}
-                  placeholder="Random if empty"
-                  className="w-full text-xs bg-cyan-950/20 border border-cyan-500/20 rounded px-2 py-1 placeholder:text-gray-600"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase font-mono-tech text-cyan-400/80 mb-1">
-                  Location Longitude (-180 to 180)
-                </label>
-                <input
-                  type="number"
-                  step="0.0001"
-                  min="-180"
-                  max="180"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value === "" ? "" : Number(e.target.value))}
-                  placeholder="Random if empty"
-                  className="w-full text-xs bg-cyan-950/20 border border-cyan-500/20 rounded px-2 py-1 placeholder:text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-mono-tech uppercase font-bold py-3 px-6 rounded transition shadow-lg hover:shadow-cyan-500/20 disabled:opacity-50 cursor-pointer flex justify-center items-center gap-2"
+              className="w-full bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-3 px-4 rounded flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 shadow-[0_0_18px_rgba(217,70,239,0.45)]"
             >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>RUNNING CORE DIAGNOSTICS...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-cyan-200" />
-                  <span>RUN THE ROAST</span>
-                </>
-              )}
+              <Sparkles className="w-4 h-4" />
+              {loading ? "Cooking up the roast..." : "Roast them"}
             </button>
+            {errorMsg && (
+              <p className="text-xs text-red-400 font-mono-tech bg-red-950/20 p-2 border border-red-500/20 rounded">⚠️ {errorMsg}</p>
+            )}
           </div>
         </form>
 
@@ -502,6 +359,23 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     <p className="leading-relaxed text-[11px]">
                       {result.recyclingPlan}
                     </p>
+                  </div>
+
+                  <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
+                    <p className="text-sm font-bold text-fuchsia-200">😈 Gotcha &mdash; we roasted YOU.</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">Now send <span className="text-fuchsia-300">this link</span> to someone else and prank them secretly:</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(`${window.location.origin}/roastoracle`).then(() => {
+                          setPrankCopied(true);
+                          setTimeout(() => setPrankCopied(false), 1800);
+                        });
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
+                    >
+                      {prankCopied ? "Link copied! Go prank someone" : "Copy the prank link"}
+                    </button>
                   </div>
                 </div>
               )}
