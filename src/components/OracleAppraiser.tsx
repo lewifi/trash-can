@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins } from "lucide-react";
+import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2 } from "lucide-react";
 import { AppraisalResult } from "../types";
 
 interface OracleAppraiserProps {
@@ -34,6 +34,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
     setLoading(true);
     setErrorMsg(null);
     setResult(null);
+    setShareUrl(null);
 
     try {
       const response = await fetch("/api/appraise", {
@@ -81,6 +82,43 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   };
 
   const [burying, setBurying] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleSaveAndShare = async () => {
+    if (!result) return;
+    setSharing(true);
+    try {
+      const res = await fetch("/api/roasts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name || "Unnamed target",
+          category,
+          score: result.score,
+          appraisal: result.appraisal,
+          postMortem: result.postMortem,
+          recyclingPlan: result.recyclingPlan,
+        }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      const data = await res.json();
+      setShareUrl(`${window.location.origin}${data.url}`);
+    } catch (e) {
+      setErrorMsg("Could not save the roast for sharing. Try again in a moment.");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const copyShare = () => {
+    if (!shareUrl) return;
+    navigator.clipboard?.writeText(shareUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  };
   const handleBuryInWasteland = async () => {
     if (!name || !description) return;
     setBurying(true);
@@ -402,7 +440,54 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             </div>
 
             {result && (
-              <div className="mt-6 pt-3 border-t border-cyan-500/10 flex gap-2">
+              <div className="mt-6 pt-3 border-t border-cyan-500/10 space-y-2">
+                {!shareUrl ? (
+                  <button
+                    type="button"
+                    onClick={handleSaveAndShare}
+                    disabled={sharing}
+                    className="w-full bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-xs font-mono-tech font-bold uppercase py-2.5 px-3 rounded flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-60 shadow-[0_0_18px_rgba(217,70,239,0.4)]"
+                  >
+                    {sharing ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Plating the roast...
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-3.5 h-3.5" />
+                        Save & Share this roast
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-mono-tech text-fuchsia-300 uppercase tracking-widest">Send it to whoever you just roasted:</p>
+                    <div className="flex gap-2">
+                      <input
+                        readOnly
+                        value={shareUrl}
+                        onFocus={(e) => e.currentTarget.select()}
+                        className="flex-1 bg-[#030712] border border-cyan-500/30 rounded px-2 py-1.5 text-[11px] text-cyan-200 font-mono-tech focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={copyShare}
+                        className="bg-cyan-950/40 border border-cyan-500/40 hover:bg-cyan-900/40 text-cyan-200 text-[11px] font-mono-tech uppercase px-3 rounded transition cursor-pointer"
+                      >
+                        {copied ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                    <a
+                      href={shareUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-center text-[11px] font-mono-tech text-fuchsia-300 hover:underline"
+                    >
+                      Open the share card →
+                    </a>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleBuryInWasteland}

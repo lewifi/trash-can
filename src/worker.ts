@@ -201,6 +201,25 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
   </div>`;
 }
 
+function roastImageHtml(name: string, category: string, score: number, appraisal: string, pivot: string): string {
+  return `
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:64px;font-family:'Space Grotesk', sans-serif;">
+    <div style="display:flex;align-items:center;">
+      <img src="${OG_LOGO}" width="64" height="64" style="margin-right:18px;" />
+      <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;letter-spacing:3px;">THE ROAST MACHINE</div>
+      <div style="display:flex;margin-left:auto;color:#f59e0b;font-size:28px;font-weight:700;">${score}/100</div>
+    </div>
+    <div style="display:flex;margin-top:24px;color:#94a3b8;font-size:22px;letter-spacing:4px;font-weight:700;">${category}</div>
+    <div style="display:flex;margin-top:6px;color:#ffffff;font-size:56px;font-weight:700;line-height:1.05;">${name}</div>
+    <div style="display:flex;margin-top:22px;color:#f1f5f9;font-size:32px;line-height:1.3;font-style:italic;">"${appraisal}"</div>
+    <div style="display:flex;flex-direction:column;margin-top:auto;border-top:2px solid #1f2937;padding-top:18px;">
+      <div style="display:flex;color:#f59e0b;font-size:19px;font-weight:700;letter-spacing:3px;">THE PIVOT</div>
+      <div style="display:flex;margin-top:8px;color:#cbd5e1;font-size:24px;line-height:1.3;">${pivot}</div>
+    </div>
+    <div style="display:flex;margin-top:18px;color:#22d3ee;font-size:22px;font-weight:700;">roast yours at trash-can.net</div>
+  </div>`;
+}
+
 // API: Get all dumps (public/unlocked)
 app.get("/api/dumps", async (c) => {
   const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
@@ -715,6 +734,95 @@ app.get("/grave/:id", async (c) => {
   const img = `https://trash-can.net/api/og/${id}`;
   const content = (v: string) => ({ element(e: any) { e.setAttribute("content", v); } });
 
+  return new HTMLRewriter()
+    .on("title", { element(e) { e.setInnerContent(title); } })
+    .on('meta[name="description"]', content(desc))
+    .on('meta[property="og:title"]', content(title))
+    .on('meta[name="twitter:title"]', content(title))
+    .on('meta[property="og:description"]', content(desc))
+    .on('meta[name="twitter:description"]', content(desc))
+    .on('meta[property="og:url"]', content(url))
+    .on('meta[property="og:image"]', content(img))
+    .on('meta[name="twitter:image"]', content(img))
+    .transform(shell);
+});
+
+// --- Standalone Roasts: shareable AI roasts that never enter the public landfill ---
+app.post("/api/roasts", async (c) => {
+  const limited = await rateLimit(c, "roast_save", [
+    { windowMs: 30_000, max: 10 },
+    { windowMs: 3_600_000, max: 100 },
+  ]);
+  if (limited) return limited;
+  const kv = c.env.GRAVEYARD_KV;
+  if (!kv) return c.json({ error: "Storage unavailable." }, 503);
+  const body = await c.req.json();
+  const appraisal = String(body.appraisal || "").trim();
+  if (!appraisal) return c.json({ error: "Run a roast first - nothing to save." }, 400);
+  const id = "roast-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  const roast = {
+    id,
+    name: String(body.name || "Unnamed target").slice(0, 100),
+    category: String(body.category || "other").slice(0, 40),
+    score: Number(body.score) || 0,
+    appraisal: appraisal.slice(0, 400),
+    postMortem: String(body.postMortem || "").slice(0, 1200),
+    recyclingPlan: String(body.recyclingPlan || "").slice(0, 800),
+    createdAt: new Date().toISOString(),
+  };
+  try {
+    await kv.put("roast:" + id, JSON.stringify(roast), { expirationTtl: 60 * 60 * 24 * 365 });
+  } catch (e) {
+    console.error("roast save failed:", String((e as any)?.message || e));
+    return c.json({ error: "Failed to save roast." }, 500);
+  }
+  return c.json({ id, url: "/roast/" + id }, 201);
+});
+
+app.get("/api/roasts/:id", async (c) => {
+  const kv = c.env.GRAVEYARD_KV;
+  if (!kv) return c.json({ error: "Storage unavailable." }, 503);
+  const raw = await kv.get("roast:" + c.req.param("id"));
+  if (!raw) return c.json({ error: "Roast not found." }, 404);
+  return c.json(JSON.parse(raw));
+});
+
+app.get("/api/og/roast/:id", async (c) => {
+  const FALLBACK = "https://trash-can.net/og.png";
+  try {
+    const kv = c.env.GRAVEYARD_KV;
+    const raw = kv ? await kv.get("roast:" + c.req.param("id")) : null;
+    if (!raw) return Response.redirect(FALLBACK, 302);
+    const r = JSON.parse(raw);
+    const html = roastImageHtml(
+      esc(String(r.name).slice(0, 70)),
+      esc(String(r.category || "").toUpperCase().slice(0, 30)),
+      Number(r.score) || 0,
+      esc(String(r.appraisal || "").slice(0, 180)),
+      esc(String(r.recyclingPlan || "").slice(0, 200))
+    );
+    let fonts;
+    try { fonts = await loadOgFonts(); } catch (e) { console.error("roast og font:", String((e as any)?.message || e)); }
+    const img = new ImageResponse(html, fonts ? { width: 1200, height: 630, fonts } : { width: 1200, height: 630 });
+    return new Response(img.body, { headers: { "content-type": "image/png", "cache-control": "public, max-age=86400" } });
+  } catch (e) {
+    console.error("roast og error:", String((e as any)?.message || e));
+    return Response.redirect(FALLBACK, 302);
+  }
+});
+
+app.get("/roast/:id", async (c) => {
+  const id = c.req.param("id");
+  const shell = await c.env.ASSETS.fetch(new URL("/index.html", c.req.url));
+  const kv = c.env.GRAVEYARD_KV;
+  const raw = kv ? await kv.get("roast:" + id) : null;
+  if (!raw) return shell;
+  const r = JSON.parse(raw);
+  const title = `${r.name} got roasted \u2014 Glitch Graveyard`;
+  const desc = `\uD83D\uDD25 ${r.appraisal || ""}`.replace(/\s+/g, " ").slice(0, 190);
+  const url = `https://trash-can.net/roast/${id}`;
+  const img = `https://trash-can.net/api/og/roast/${id}`;
+  const content = (v: string) => ({ element(e: any) { e.setAttribute("content", v); } });
   return new HTMLRewriter()
     .on("title", { element(e) { e.setInnerContent(title); } })
     .on('meta[name="description"]', content(desc))
