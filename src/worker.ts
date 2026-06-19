@@ -59,11 +59,11 @@ function getAIClient(apiKey: string | undefined): GoogleGenAI | null {
 
 // Call Gemini with retry/backoff on 429 (rate limit) so transient limits
 // don't fail user actions.
-async function generateWithRetry(ai: GoogleGenAI, model: string, prompt: string, tries = 3) {
+async function generateWithRetry(ai: GoogleGenAI, model: string, prompt: string, tries = 3, config?: Record<string, unknown>) {
   let lastErr: any;
   for (let i = 0; i < tries; i++) {
     try {
-      return await ai.models.generateContent({ model, contents: prompt });
+      return await ai.models.generateContent({ model, contents: prompt, config });
     } catch (e: any) {
       lastErr = e;
       const msg = String(e?.message || e);
@@ -111,7 +111,7 @@ ${submission}
 Respond with ONLY raw JSON, no markdown, no backticks:
 { "allowed": true or false, "reason": "short reason if blocked, otherwise empty" }`;
 
-  const resp = await generateWithRetry(ai, model, prompt);
+  const resp = await generateWithRetry(ai, model, prompt, 3, { temperature: 0 });
   let txt = (resp.text || "").trim();
   if (txt.includes("```")) {
     txt = txt.replace(/```json/g, "").replace(/```/g, "").trim();
@@ -374,27 +374,27 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
   }
 
   try {
-    const prompt = `You are the chief "Waste Management Consultant" at Glitch Graveyard (trash-can.net).
-Your job is to write a hilariously accurate, highly critical but oddly encouraging diagnostic post-mortem report and appraisal for a user's dead project.
+    const prompt = `You are the Chief Waste Management Consultant at Glitch Graveyard - a deadpan corporate undertaker for dead software who files darkly funny post-mortems with the bedside manner of an insurance adjuster who has seen too much.
+
+Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Dry, brutal, weirdly affectionate. Mock the tech choices and the founder's doomed optimism. Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time"). Profanity is fine; slurs are not.
 
 Project Name: ${name}
 Category: ${category}
-Tragedy Description: ${description}
+Tragedy: ${description}
 Cause of Death: ${causeOfDeath}
 Tech Stack: ${techStack}
 
-Respond strictly in a valid JSON format with the following keys and data types:
+Return ONLY raw JSON (no markdown, no backticks, no commentary):
 {
-  "score": <number from 0 to 100 representing the project's tragic 'glitch rating'>,
-  "appraisal": "<a witty 1-2 sentence final summary value of the idea>",
-  "postMortem": "<a cohesive paragraph of humorous analysis of why it failed>",
-  "recyclingPlan": "<a 1-2 sentence funny, yet actually creative plan on how to reuse this codebase or asset to make money, or what pivot to make>"
+  "score": <0-100 glitch rating; be stingy and oddly specific>,
+  "appraisal": "<one savage, quotable verdict, ~18 words max>",
+  "postMortem": "<2-4 sentences of autopsy: why it REALLY died, mocking the specifics>",
+  "recyclingPlan": "<1-2 sentences: an absurd but weirdly plausible pivot or cash-grab>"
 }
-
-Ensure the response is clean, formatted as JSON, and contains no raw markdown, backticks, or comments around it other than the raw JSON output. Do not mention any API restrictions. Make it full of personality!`;
+Every field should land a joke. No disclaimers, no preamble.`;
 
     const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const response = await generateWithRetry(aiClient, model, prompt);
+    const response = await generateWithRetry(aiClient, model, prompt, 3, { temperature: 1.1 });
 
     let resultText = response.text || "";
     if (resultText.includes("```json")) {
@@ -505,8 +505,8 @@ app.get("/api/og/:id", async (c) => {
       if (ai) {
         try {
           const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-          const prompt = `You are the chief Waste Management Consultant at Glitch Graveyard. In ONE punchy, darkly funny sentence (max 28 words), deliver a post-mortem verdict on this dead project. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence, no quotes.`;
-          const resp = await generateWithRetry(ai, model, prompt);
+          const prompt = `You are the Chief Waste Management Consultant at Glitch Graveyard. In ONE savage, quotable sentence (max 22 words), deliver the post-mortem verdict on this dead project. Be specific to its details, land a real punchline, deadpan and brutal, no clichés, no hashtags, no surrounding quotes. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
+          const resp = await generateWithRetry(ai, model, prompt, 3, { temperature: 1.15 });
           text = (resp.text || "").trim().replace(/^["']+|["']+$/g, "");
           if (text) {
             const idx = data.findIndex((d) => d.id === id);
