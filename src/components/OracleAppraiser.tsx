@@ -242,21 +242,21 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         <form onSubmit={handleExpose} className="lg:col-span-3 space-y-4">
           <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4">
             <p className="text-xs text-gray-400 leading-relaxed">
-              Roast someone. Drop in their name and what they do &mdash; we'll dig up the rest. Go on, do your worst to a mate. Hand them the phone, even.
+              Roast your mates. Pop your name and job in to get set up, then fire the link round and watch them squirm.
             </p>
             <div>
-              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Name</label>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Your name</label>
               <input
                 type="text"
                 value={exposeName}
                 onChange={(e) => setExposeName(e.target.value)}
-                placeholder="e.g. your own name, if you dare"
+                placeholder="Your name"
                 className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">Occupation</label>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">Your occupation</label>
               <input
                 type="text"
                 value={exposeJob}
@@ -271,7 +271,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               className="w-full bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-3 px-4 rounded flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 shadow-[0_0_18px_rgba(217,70,239,0.45)]"
             >
               <Sparkles className="w-4 h-4" />
-              {loading ? "Cooking up the roast..." : "Roast them"}
+              {loading ? "Setting you up..." : "Start roasting"}
             </button>
             {errorMsg && (
               <p className="text-xs text-red-400 font-mono-tech bg-red-950/20 p-2 border border-red-500/20 rounded">⚠️ {errorMsg}</p>
