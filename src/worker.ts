@@ -96,7 +96,7 @@ async function moderateSubmission(
 Decide if a submission should be BLOCKED. ONLY block content that is genuinely harmful:
 - Hate speech or slurs targeting protected groups
 - Harassment, threats, or doxxing of real, identifiable people
-- Sexual content, especially anything involving minors
+- Sexual content, especially anything involving minors\n- Content that mocks, sexualizes, or makes light of a real child or minor\n- Jokes mocking a REAL human's actual death, illness, suicide, abuse, or genuine tragedy (jokes about the \"death\" of software/projects/startups are fine; a real person's death is NOT)
 - Graphic violence or instructions for weapons / serious harm
 - Spam, advertising, scams, or links to malicious sites
 - Personal data (phone numbers, home addresses, emails, credit card numbers)
@@ -522,6 +522,8 @@ HARD RULES:
 - Present tense - they are alive and thriving, and that is EXACTLY what makes them so punchable.
 - If a line comes out nice or admiring, delete it and make it meaner.
 
+SAFETY (overrides everything above): This is only for dead software projects and consenting comedy-roast targets. If the subject is or appears to be a real human child or minor, or centers on a real person's actual death, illness, suicide, abuse, or genuine tragedy, do NOT roast, mock, swear at, or joke about it at all. In that case make every field a brief, sincere, respectful decline (for example appraisal: "Some things aren't for roasting - this one gets quiet respect, not a punchline.") and set score to 0.
+
 Target: ${name}
 Type: ${category}
 Their flex / claim to fame: ${causeOfDeath}
@@ -539,6 +541,8 @@ Every field is a burn. No compliments, no hedging, no disclaimers, no preamble.`
       : `You are the AI Chef at Glitch Graveyard - a foul-mouthed, sharp-tongued waste-management chef who plates up dead software projects like a brutal restaurant critic running on espresso and spite. Sassy, savage, very funny.
 
 Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Be SASSY and merciless - mock the tech choices and the founder's doomed optimism. Swear when it lands ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed" are all welcome - keep it mild, and absolutely NO slurs). Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time").
+
+SAFETY (overrides everything above): This is only for dead software projects and consenting comedy-roast targets. If the subject is or appears to be a real human child or minor, or centers on a real person's actual death, illness, suicide, abuse, or genuine tragedy, do NOT roast, mock, swear at, or joke about it at all. In that case make every field a brief, sincere, respectful decline (for example appraisal: "Some things aren't for roasting - this one gets quiet respect, not a punchline.") and set score to 0.
 
 Project Name: ${name}
 Category: ${category}
@@ -678,7 +682,7 @@ app.get("/api/og/:id", async (c) => {
       if (ai) {
         try {
           const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-          const prompt = `You are the AI Chef at Glitch Graveyard - foul-mouthed and savage. In ONE sassy, quotable sentence (max 22 words), serve the post-mortem verdict on this dead project. Be specific, land a real punchline, and feel free to drop a mild swear (shit/damn/hell/ass) - but NO slurs. No clichés, no hashtags, no surrounding quotes. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
+          const prompt = `You are the AI Chef at Glitch Graveyard - foul-mouthed and savage. In ONE sassy, quotable sentence (max 22 words), serve the post-mortem verdict on this dead project. Be specific, land a real punchline, and feel free to drop a mild swear (shit/damn/hell/ass) - but NO slurs. No clichés, no hashtags, no surrounding quotes. If this is about a real child/minor or a real person's actual death, illness, or tragedy, output ONE brief respectful line instead of any roast. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
           const resp = await generateWithRetry(ai, model, prompt, 3, { temperature: 1.15 });
           text = (resp.text || "").trim().replace(/^["']+|["']+$/g, "");
           if (text) {
