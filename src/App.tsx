@@ -1138,6 +1138,43 @@ export default function App() {
           </div>
         )}
 
+        {/* FRESHLY BURIED STRIP — quick glance at the newest graves */}
+        {activeTab === "dump" && dumps.filter((d) => !d.isPrivate).length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                <Skull className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Buried
+              </h3>
+              <button
+                onClick={() => navTab("log")}
+                className={`text-[10px] font-mono-tech uppercase tracking-wider ${skin.accentColor} hover:underline`}
+              >
+                Full crypt log &rarr;
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
+              {[...dumps]
+                .filter((d) => !d.isPrivate)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 8)
+                .map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => { setSelectedDump(d); navTab("memorials"); }}
+                    className={`flex-shrink-0 w-52 text-left bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-3 hover:bg-gray-900/60 transition-all group`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-[9px] font-mono-tech text-gray-500 uppercase truncate">{d.category}</span>
+                      <span className={`text-[9px] font-mono-tech whitespace-nowrap ${skin.accentColor}`}>{timeAgo(d.createdAt)}</span>
+                    </div>
+                    <p className="text-sm text-gray-100 truncate group-hover:underline">{d.name}</p>
+                    <p className="text-[10px] font-mono-tech text-gray-500 truncate">by {d.creator || "Anonymous"}</p>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+
         {/* HEATMAP OF HEARTBREAK — GLOBAL LANDFILL GEOGRAPHY */}
         {(activeTab === "dump" || activeTab === "memorials") && (
           <div className="mb-8">
