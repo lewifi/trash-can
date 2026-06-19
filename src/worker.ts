@@ -209,7 +209,66 @@ app.get("/api/dumps", async (c) => {
 });
 
 // API: Dump a project
+// --- Per-IP rate limiting for the token-burning AI routes (sliding window in KV). ---
+// Fails OPEN: if KV is missing or errors, requests are allowed rather than blocked,
+// so a storage hiccup never takes the site down.
+async function rateLimit(
+  c: any,
+  bucket: string,
+  rules: { windowMs: number; max: number }[]
+): Promise<Response | null> {
+  const kv: KVNamespace | undefined = c.env.GRAVEYARD_KV;
+  if (!kv) return null;
+  const ip =
+    c.req.header("CF-Connecting-IP") ||
+    c.req.header("x-forwarded-for") ||
+    "unknown";
+  const key = `rl:${bucket}:${ip}`;
+  const now = Date.now();
+  const maxWindow = Math.max(...rules.map((r) => r.windowMs));
+  let hits: number[] = [];
+  try {
+    const raw = await kv.get(key);
+    if (raw) hits = JSON.parse(raw) as number[];
+  } catch {
+    return null;
+  }
+  hits = hits.filter((t) => now - t < maxWindow);
+  for (const r of rules) {
+    const inWindow = hits.filter((t) => now - t < r.windowMs);
+    if (inWindow.length >= r.max) {
+      const retry = Math.max(
+        1,
+        Math.ceil((r.windowMs - (now - Math.min(...inWindow))) / 1000)
+      );
+      return c.json(
+        {
+          error:
+            "Easy, tomb raider \u2014 the AI needs a breather. Give it a few seconds and try again.",
+          retryAfter: retry,
+        },
+        429,
+        { "Retry-After": String(retry) }
+      );
+    }
+  }
+  hits.push(now);
+  try {
+    await kv.put(key, JSON.stringify(hits), {
+      expirationTtl: Math.max(60, Math.ceil(maxWindow / 1000)),
+    });
+  } catch {
+    /* best effort */
+  }
+  return null;
+}
+
 app.post("/api/dumps", async (c) => {
+  const limited = await rateLimit(c, "dumps", [
+    { windowMs: 30_000, max: 5 },
+    { windowMs: 3_600_000, max: 60 },
+  ]);
+  if (limited) return limited;
   const body = await c.req.json();
   const {
     name,
@@ -349,6 +408,11 @@ app.get("/api/rooms/:roomName", async (c) => {
 
 // API: Live AI waste management consultant / appraisal
 app.post("/api/appraise", async (c) => {
+  const limited = await rateLimit(c, "appraise", [
+    { windowMs: 30_000, max: 5 },
+    { windowMs: 3_600_000, max: 60 },
+  ]);
+  if (limited) return limited;
   const body = await c.req.json();
   const { name, description, category, causeOfDeath, techStack } = body;
 
