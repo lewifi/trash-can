@@ -75,15 +75,15 @@ interface DeadProject {
 const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = [
   {
     date: "2026-06-19",
-    tag: "NEW PLOTS",
-    title: "Three fresh plots dug in the cemetery",
-    body: "Web, Tech, and Entertainment (Fyre-Festival-grade disasters welcome) now have their own graves. No more cramming a doomed gadget or a scammy festival into 'Other' like a coward.",
+    tag: "NEW BINS",
+    title: "Three new piles opened in the yard",
+    body: "Web, Tech, and Entertainment (Fyre-Festival-grade disasters welcome) now have their own piles. No more cramming a doomed gadget or a scammy festival into 'Other' like a coward.",
   },
   {
     date: "2026-06-19",
     tag: "MAP",
-    title: "Pin the corpse to a map",
-    body: "You can now type a city, country when you bury a project, so the world can see exactly where the dream went cold. Optional — some bodies prefer an unmarked grave.",
+    title: "Pin your wreck to a map",
+    body: "You can now type a city, country when you bury a project, so the world can see exactly where the dream hit the skip. Optional — some wrecks prefer to stay off the map.",
   },
   {
     date: "2026-06-15",
@@ -100,8 +100,8 @@ const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = 
   {
     date: "2026-06-08",
     tag: "SHARE",
-    title: "Every grave gets a headstone you can share",
-    body: "Drop a /grave link anywhere and it unfurls with its own neon tombstone card. Spread the bad news beautifully.",
+    title: "Every dump gets a card you can share",
+    body: "Drop a /grave link anywhere and it unfurls with its own neon card. Spread the bad news beautifully.",
   },
 ];
 
@@ -630,7 +630,7 @@ export default function App() {
               { id: "oracle", label: "Oracle", Icon: Star },
               { id: "disposal", label: "Vent", Icon: Shield },
               { id: "contracts", label: "Salvage", Icon: Coins },
-              { id: "log", label: "Crypt Log", Icon: ScrollText },
+              { id: "log", label: "Notes", Icon: ScrollText },
             ] as const).map(({ id, label, Icon }) => (
               <button
                 key={id}
@@ -1138,18 +1138,18 @@ export default function App() {
           </div>
         )}
 
-        {/* FRESHLY BURIED STRIP — quick glance at the newest graves */}
+        {/* FRESHLY DUMPED STRIP — quick glance at the newest entries */}
         {activeTab === "dump" && dumps.filter((d) => !d.isPrivate).length > 0 && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Skull className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Buried
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2 min-w-0">
+                <Trash2 className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Dumped
               </h3>
               <button
                 onClick={() => navTab("log")}
-                className={`text-[10px] font-mono-tech uppercase tracking-wider ${skin.accentColor} hover:underline`}
+                className={`text-[10px] font-mono-tech uppercase tracking-wider whitespace-nowrap shrink-0 ${skin.accentColor} hover:underline`}
               >
-                Full crypt log &rarr;
+                Yard notes &rarr;
               </button>
             </div>
             <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
@@ -1763,12 +1763,12 @@ export default function App() {
         {activeTab === "log" && (
           <div className="space-y-10 animate-fade-in">
             <div className="text-center max-w-2xl mx-auto">
-              <span className={`text-[10px] font-mono-tech tracking-widest uppercase ${skin.accentColor}`}>Dispatches from the groundskeeper</span>
+              <span className={`text-[10px] font-mono-tech tracking-widest uppercase ${skin.accentColor}`}>Notes from the yardman</span>
               <h2 className={`text-2xl md:text-3xl font-bold font-monument tracking-wider mt-1 ${skin.accentColor}`}>
-                THE CRYPT LOG
+                YARDMAN'S NOTES
               </h2>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                What we've dug up lately, and who got buried this week. The dead don't rest, and neither does the changelog.
+                What we've hauled in lately, and what got tossed this week. The pile never stops growing, and neither does the changelog.
               </p>
             </div>
 
@@ -1776,7 +1776,7 @@ export default function App() {
               {/* PATCH NOTES */}
               <div className="lg:col-span-3 space-y-4">
                 <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <ScrollText className={`w-4 h-4 ${skin.accentColor}`} /> Exhumation Notes
+                  <ScrollText className={`w-4 h-4 ${skin.accentColor}`} /> Yard Notes
                 </h3>
                 {CRYPT_LOG.map((e, i) => (
                   <div key={i} className={`relative bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-5 pl-6`}>
@@ -1794,7 +1794,7 @@ export default function App() {
               {/* FRESHLY BURIED FEED */}
               <div className="lg:col-span-2 space-y-4">
                 <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <Skull className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Buried
+                  <Trash2 className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Dumped
                 </h3>
                 <div className={`bg-[#0b0f19] border ${skin.accentBorder} rounded-xl divide-y divide-gray-900`}>
                   {[...dumps]
@@ -1817,14 +1817,14 @@ export default function App() {
                       </button>
                     ))}
                   {dumps.filter((d) => !d.isPrivate).length === 0 && (
-                    <p className="px-4 py-6 text-center text-xs text-gray-600 font-mono-tech">The pit is empty. Be the first to bury something.</p>
+                    <p className="px-4 py-6 text-center text-xs text-gray-600 font-mono-tech">The yard's empty. Be the first to dump something.</p>
                   )}
                 </div>
                 <button
                   onClick={() => { navTab("dump"); setSelectedDump(null); }}
                   className={`w-full text-xs font-mono-tech py-2.5 rounded-lg border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass} hover:bg-gray-900/60 transition-all uppercase tracking-wider`}
                 >
-                  + Bury something new
+                  + Dump something new
                 </button>
               </div>
             </div>
