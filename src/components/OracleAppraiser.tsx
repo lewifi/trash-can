@@ -7,11 +7,11 @@ interface OracleAppraiserProps {
 }
 
 const ROAST_PRESETS = [
-  { label: "\uD83E\uDD84 Raised $100M", category: "startup", claim: "Raised a $100M Series B at a $2B valuation", tech: "Money, momentum, and a foosball table", desc: "Backed by every top-tier VC on Sand Hill Road. Hired 200 people in a year and bought billboards at the airport. Surely nothing could go wrong." },
-  { label: "\uD83D\uDD14 IPO'd", category: "bigtech", claim: "Went public to a standing ovation on the NYSE floor", tech: "Investor hype and a confetti cannon", desc: "Founders rang the bell, the stock popped 80% on day one, and the whole team bought matching Teslas. Peak everything." },
-  { label: "\uD83E\uDD1D Acquired by Google", category: "bigtech", claim: "Acqui-hired by Google for an undisclosed (enormous) sum", tech: "A demo that worked exactly once", desc: "The team got golden handcuffs and a shiny campus badge. The product was lovingly sunset six months later." },
-  { label: "\uD83D\uDE80 Went viral", category: "influencer", claim: "Hit #1 on Product Hunt and trended worldwide", tech: "Virality, vibes, and a melting server", desc: "Three million signups in a single weekend. The founder did a TED talk about disruption before the load balancer recovered." },
-  { label: "\uD83D\uDC96 Beloved & profitable", category: "app", claim: "Profitable, adored, and growing 40% a year", tech: "Actually good decisions", desc: "Happy customers, sustainable revenue, zero drama. Annoyingly wholesome and somehow still begging to be roasted." },
+  { label: "💼 Smug small-biz owner", category: "other", good: "Happy boss, sustainable revenue, zero drama", embarrassing: "Annoyingly opinionated and somehow still begging to be roasted", fav: "their golden-retriever office dog" },
+  { label: "💪 Gym mate", category: "mate", good: "Genuinely in great shape and disciplined as hell", embarrassing: "Films every set, grunts for the camera, and works his deadlift number into every chat", fav: "his protein shaker" },
+  { label: "🪙 Crypto guy", category: "crypto", good: "Called one coin right back in 2021", embarrassing: "Still dines out on that one trade and has 'web3' in his bio", fav: "his hardware wallet" },
+  { label: "📈 LinkedIn poster", category: "influencer", good: "Big following and genuinely strong engagement", embarrassing: "Opens every post with 'Agree?' and once cried for the algorithm", fav: "their personal brand" },
+  { label: "🚀 Seed-stage founder", category: "startup", good: "Raised a tidy seed round with real customers", embarrassing: "Calls a 4-person team 'the family' and is 'in stealth' on a to-do list app", fav: "their long-suffering cofounder" },
 ] as const;
 
 export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraiserProps) {
@@ -23,9 +23,9 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   const applyPreset = (p: typeof ROAST_PRESETS[number]) => {
     setCategory(p.category as any);
-    setCauseOfDeath(p.claim);
-    setTechStack(p.tech);
-    setDescription(p.desc);
+    setCauseOfDeath(p.good);
+    setCreator(p.fav);
+    setDescription(p.embarrassing);
   };
   const [creator, setCreator] = useState("");
   const [emotionalTragedy, setEmotionalTragedy] = useState(5);
@@ -42,7 +42,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const handleConsult = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description) {
-      setErrorMsg("Give me a name and the setup, then I'll roast it.");
+      setErrorMsg("Give me a name and something embarrassing, then I'll roast it.");
       return;
     }
 
@@ -60,10 +60,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         body: JSON.stringify({
           name,
           mode: "roast",
-          description: creator ? `${description}\n\nExtra ammo: ${creator}` : description,
           category,
-          causeOfDeath: causeOfDeath || "suspiciously successful",
-          techStack: techStack || "pure vibes and good PR"
+          causeOfDeath: causeOfDeath || "annoyingly successful",
+          techStack: creator || "their loyal hype-man",
+          description
         })
       });
 
@@ -207,7 +207,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         <form onSubmit={handleConsult} className="lg:col-span-3 space-y-4">
           <div>
             <span className="block text-[10px] font-mono-tech text-amber-300 uppercase tracking-widest mb-2 font-bold">
-              Quick brag &mdash; one tap, then let the roast do its worst
+              Quick targets &mdash; one tap to load a realistic roast-me type
             </span>
             <div className="flex flex-wrap gap-2">
               {ROAST_PRESETS.map((p) => (
@@ -239,13 +239,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             </div>
             <div>
               <label id="lbl-project-creator" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Their Ride-or-Die or Red Flag (optional)
+                Their Favourite Person
               </label>
               <input
                 type="text"
                 value={creator}
                 onChange={(e) => setCreator(e.target.value)}
-                placeholder="e.g. their co-founder, or that they love a cold plunge"
+                placeholder="e.g. their cofounder, their dog, their personal brand"
                 className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
@@ -268,46 +268,32 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               <option value="publicfigure">Public Figure / Main Character</option>
               <option value="mate">Your Mate / Personal Attack</option>
               <option value="app">App / Product</option>
-              <option value="other">Other Roastable Entity</option>
+              <option value="other">Some Forgettable Nobody</option>
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label id="lbl-cause-death" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Claim to Fame
-              </label>
-              <input
-                type="text"
-                value={causeOfDeath}
-                onChange={(e) => setCauseOfDeath(e.target.value)}
-                placeholder="best attribute / flex — e.g. Raised $20M, 4M users"
-                className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
-              />
-            </div>
-            <div>
-              <label id="lbl-tech-stack" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Their Whole Deal
-              </label>
-              <input
-                type="text"
-                value={techStack}
-                onChange={(e) => setTechStack(e.target.value)}
-                placeholder="their vibe, their stack, their whole personality"
-                className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
-              />
-            </div>
+          <div>
+            <label id="lbl-cause-death" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
+              One Good Thing About Them
+            </label>
+            <input
+              type="text"
+              value={causeOfDeath}
+              onChange={(e) => setCauseOfDeath(e.target.value)}
+              placeholder="the genuinely impressive bit — money, looks, talent, success"
+              className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
+            />
           </div>
 
           <div>
             <label id="lbl-description" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-              * The Setup \u2014 why they deserve it
+              * Something Embarrassing About Them
             </label>
             <textarea
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What does everyone love about them? The more glowing the setup, the harder the roast lands..."
+              placeholder="The cringe, the red flag, the thing everyone notices. This is the ammo..."
               className="w-full bg-[#060913] border border-cyan-500/30 rounded p-3 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               required
             ></textarea>

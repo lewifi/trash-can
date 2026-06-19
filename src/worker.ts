@@ -526,9 +526,9 @@ SAFETY (overrides everything above): This is only for dead software projects and
 
 Target: ${name}
 Type: ${category}
-Their flex / claim to fame: ${causeOfDeath}
-Their whole deal: ${techStack}
-The setup: ${description}
+One good thing about them: ${causeOfDeath}
+Their favourite person (fair game to drag in): ${techStack}
+Something embarrassing they did (your sharpest ammo - lean on this): ${description}
 
 Return ONLY raw JSON (no markdown, no backticks, no commentary):
 {

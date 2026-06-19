@@ -119,6 +119,8 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
+const APP_VERSION = "1.0.0";
+
 export default function App() {
   // Navigation tabs
   type TabId = "dump" | "memorials" | "oracle" | "disposal" | "contracts" | "log";
@@ -1935,7 +1937,7 @@ export default function App() {
       <footer className="border-t border-gray-900 bg-[#02050c] px-4 py-8 mt-12 text-center text-xs text-gray-500 space-y-3 font-mono-tech">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="tracking-wide">
-            © 2026 Glitch Graveyard™ Central Administration. Built on top of the world's finest garbage.
+            © 2026 Glitch Graveyard™ Central Administration. Built on top of the world's finest garbage. <span className="text-gray-600">v{APP_VERSION}</span>
           </p>
           <div className="flex gap-4">
             <a href="#" onClick={(e) => { e.preventDefault(); alert("RULE 1: there are no rules. RULE 2: you just wasted a click on Rule 1."); }} className="hover:text-cyan-400 transition-colors uppercase cursor-pointer">Security Containment rules</a>
