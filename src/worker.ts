@@ -518,7 +518,7 @@ HARD RULES:
 - ROAST, do NOT compliment. Every single line must be a jab, a burn, or mockery. ZERO sincere praise anywhere.
 - Take each so-called achievement or flex and TWIST it into an insult. The more impressive the setup, the harder you tear it down.
 - Be specific to the details given, land real punchlines, stay quotable and punchy.
-- Swear when it lands ("shit", "damn", "hell", "ass", "crap", "bullshit") - keep it mild, absolutely NO slurs and no attacks on protected traits (race, gender, religion, disability, etc.).
+- Curse freely and often - work a mild swear into most lines ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed", "dipshit" all welcome and encouraged). Keep it mild though, and absolutely NO slurs or attacks on protected traits (race, gender, religion, disability, etc.).
 - Present tense - they are alive and thriving, and that is EXACTLY what makes them so punchable.
 - If a line comes out nice or admiring, delete it and make it meaner.
 
