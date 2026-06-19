@@ -19,6 +19,8 @@ interface Dump {
   isPrivate?: boolean;
   roomName?: string;
   imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 const CATEGORIES = ["saas", "web3", "mobile", "ai", "hardware", "game", "dev_tool", "other"];
@@ -33,6 +35,7 @@ export default function Incinerator() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Dump | null>(null);
   const [saving, setSaving] = useState(false);
+  const [coordsInput, setCoordsInput] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -81,6 +84,9 @@ export default function Incinerator() {
   const startEdit = (d: Dump) => {
     setEditingId(d.id);
     setDraft({ ...d });
+    setCoordsInput(
+      d.latitude !== undefined && d.longitude !== undefined ? `${d.latitude}, ${d.longitude}` : ""
+    );
   };
   const cancelEdit = () => {
     setEditingId(null);
@@ -111,7 +117,9 @@ export default function Incinerator() {
     if (!draft) return;
     setSaving(true);
     try {
-      const payload = {
+      const parts = coordsInput.split(",").map((x) => parseFloat(x.trim()));
+      const hasCoords = parts.length === 2 && !Number.isNaN(parts[0]) && !Number.isNaN(parts[1]);
+      const payload: Record<string, unknown> = {
         name: draft.name,
         description: draft.description,
         creator: draft.creator,
@@ -121,6 +129,10 @@ export default function Incinerator() {
         emotionalTragedy: draft.emotionalTragedy,
         imageUrl: draft.imageUrl ?? "",
       };
+      if (hasCoords) {
+        payload.latitude = parts[0];
+        payload.longitude = parts[1];
+      }
       const res = await fetch(`/api/incinerator/dumps/${encodeURIComponent(draft.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -222,6 +234,7 @@ export default function Incinerator() {
                       <input className={inputCls} placeholder="Cause of death" value={draft.causeOfDeath || ""} onChange={(e) => setField("causeOfDeath", e.target.value)} />
                     </div>
                     <input className={inputCls} placeholder="Tech stack" value={draft.techStack || ""} onChange={(e) => setField("techStack", e.target.value)} />
+                    <input className={inputCls} placeholder="GPS coords: lat, lng (e.g. 40.7128, -74.0060)" value={coordsInput} onChange={(e) => setCoordsInput(e.target.value)} />
                     <label className="block text-[10px] uppercase font-mono text-gray-500">
                       Tragedy {draft.emotionalTragedy ?? 5}/10
                       <input type="range" min={1} max={10} value={draft.emotionalTragedy ?? 5}
