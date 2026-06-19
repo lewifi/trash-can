@@ -9,7 +9,7 @@ interface OracleAppraiserProps {
 export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraiserProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<"saas" | "web3" | "mobile" | "ai" | "hardware" | "game" | "dev_tool" | "other">("saas");
+  const [category, setCategory] = useState<"saas" | "web" | "web3" | "mobile" | "ai" | "tech" | "hardware" | "game" | "dev_tool" | "entertainment" | "other">("saas");
   const [causeOfDeath, setCauseOfDeath] = useState("");
   const [techStack, setTechStack] = useState("");
   const [creator, setCreator] = useState("");
@@ -189,12 +189,15 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-cyan-400 transition"
             >
               <option value="saas">SaaS (Software as a Struggle)</option>
+              <option value="web">Web / Abandoned Landing Page</option>
               <option value="web3">Web3 / High-risk Ponzi Speculation</option>
-              <option value="mobile">Mobile / Swiper Addicted App</option>
+              <option value="mobile">Mobile / Swiper-Addicted App</option>
               <option value="ai">AI / Infinite Token-Sponge Agent</option>
+              <option value="tech">Tech / Overengineered Gadget Dream</option>
               <option value="hardware">Hardware / Expensive Desk Paperweight</option>
               <option value="game">Game / Half-Finished Unity Lagfest</option>
-              <option value="dev_tool">Developer Tool / Dev-Ops Loop of Doom</option>
+              <option value="dev_tool">Dev Tool / Dev-Ops Loop of Doom</option>
+              <option value="entertainment">Entertainment / Fyre-Festival-Grade Disaster</option>
               <option value="other">Other Digital Rubble</option>
             </select>
           </div>

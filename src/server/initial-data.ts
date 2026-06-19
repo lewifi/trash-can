@@ -2,7 +2,7 @@ export interface DeadProject {
   id: string;
   name: string;
   description: string;
-  category: "saas" | "web3" | "mobile" | "ai" | "hardware" | "game" | "dev_tool" | "other";
+  category: "saas" | "web" | "web3" | "mobile" | "ai" | "tech" | "hardware" | "game" | "dev_tool" | "entertainment" | "other";
   causeOfDeath: string;
   emotionalTragedy: number; // 1 to 10
   techStack: string;

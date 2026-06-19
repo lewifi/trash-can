@@ -49,7 +49,7 @@ interface DeadProject {
   id: string;
   name: string;
   description: string;
-  category: "saas" | "web3" | "mobile" | "ai" | "hardware" | "game" | "dev_tool" | "other";
+  category: "saas" | "web" | "web3" | "mobile" | "ai" | "tech" | "hardware" | "game" | "dev_tool" | "entertainment" | "other";
   causeOfDeath: string;
   emotionalTragedy: number;
   techStack: string;
@@ -117,11 +117,10 @@ export default function App() {
   const [dumps, setDumps] = useState<DeadProject[]>([]);
   const [filteredDumps, setFilteredDumps] = useState<DeadProject[]>([]);
   const [selectedDump, setSelectedDump] = useState<DeadProject | null>(null);
-  // When an anomaly is inspected, scroll its detail panel into view (key on mobile).
+  // When a different grave is opened, drop the previous Chef appraisal so stale text
+  // doesn't carry over. (No scroll-into-view: stay where the grave was clicked.)
   useEffect(() => {
-    if (selectedDump && detailRef.current) {
-      detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setAppraiseResult(null);
   }, [selectedDump?.id]);
 
   // Deep-link: open /grave/:id straight to that grave once the dumps load.
@@ -163,6 +162,9 @@ export default function App() {
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [formCategory, setFormCategory] = useState<DeadProject["category"]>("saas");
+  const [formPlace, setFormPlace] = useState("");
+  const [formCoords, setFormCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [formGeoStatus, setFormGeoStatus] = useState("");
   const [formCause, setFormCause] = useState("");
   const [formTech, setFormTech] = useState("");
   const [formCreator, setFormCreator] = useState("");
@@ -247,7 +249,7 @@ export default function App() {
 
   // Filter and sort handlers
   useEffect(() => {
-    let result = [...dumps];
+    let result = dumps.filter((d) => !d.isPrivate);
 
     // Filter by category
     if (selectedCategory && selectedCategory !== "all") {
@@ -283,6 +285,21 @@ export default function App() {
 
   // Form submission handler
   const [submitting, setSubmitting] = useState(false);
+  const lookupDumpPlace = async () => {
+    const q = formPlace.trim();
+    if (!q) return;
+    setFormGeoStatus("Searching\u2026");
+    try {
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (!res.ok) { setFormGeoStatus(data.error || "Not found."); return; }
+      setFormCoords({ lat: Number(data.lat), lng: Number(data.lng) });
+      setFormGeoStatus(`\uD83D\uDCCD ${data.display}`);
+    } catch {
+      setFormGeoStatus("Lookup failed.");
+    }
+  };
+
   const handleDumpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName || !formDescription) {
@@ -303,6 +320,7 @@ export default function App() {
       roomName: formIsPrivate ? formRoomName : undefined,
       roomPassword: formIsPrivate ? formRoomPassword : undefined,
       imageUrl: formImageUrl || undefined,
+      ...(formCoords ? { latitude: formCoords.lat, longitude: formCoords.lng } : {}),
     };
 
     setSubmitting(true);
@@ -325,6 +343,9 @@ export default function App() {
         setFormRoomName("");
         setFormRoomPassword("");
         setFormImageUrl("");
+        setFormPlace("");
+        setFormCoords(null);
+        setFormGeoStatus("");
         
         // Refresh & announce
         await fetchDumps();
@@ -564,10 +585,10 @@ export default function App() {
               <button
                 key={id}
                 onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border ${skin.accentBorder} ${
                   activeTab === id
-                    ? `bg-slate-900 border ${skin.accentBorder} ${skin.accentColor} shadow-[0_0_10px_rgba(6,182,212,0.15)]`
-                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-900 border border-transparent"
+                    ? `bg-slate-900 ${skin.accentColor} ${skin.glowClass} animate-pulse`
+                    : `text-gray-400 hover:text-gray-100 hover:bg-gray-900 ${skin.glowClass} opacity-90 hover:opacity-100`
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -784,14 +805,17 @@ export default function App() {
                       onChange={(e) => setFormCategory(e.target.value as DeadProject["category"])}
                       className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200"
                     >
-                      <option value="saas">SaaS Venture</option>
-                      <option value="web3">Web3 / Crypto NFT</option>
-                      <option value="mobile">Mobile Application</option>
-                      <option value="ai">AI Agent / GPT Prompt</option>
-                      <option value="hardware">Hardware / Gadgets</option>
-                      <option value="game">Gaming / Metaverse</option>
-                      <option value="dev_tool">Developer Tooling</option>
-                      <option value="other">Other Trash</option>
+                      <option value="saas">SaaS (Software as a Struggle)</option>
+                      <option value="web">Web / Abandoned Landing Page</option>
+                      <option value="web3">Web3 / High-risk Ponzi Speculation</option>
+                      <option value="mobile">Mobile / Swiper-Addicted App</option>
+                      <option value="ai">AI / Infinite Token-Sponge Agent</option>
+                      <option value="tech">Tech / Overengineered Gadget Dream</option>
+                      <option value="hardware">Hardware / Expensive Desk Paperweight</option>
+                      <option value="game">Game / Half-Finished Unity Lagfest</option>
+                      <option value="dev_tool">Dev Tool / Dev-Ops Loop of Doom</option>
+                      <option value="entertainment">Entertainment / Fyre-Festival-Grade Disaster</option>
+                      <option value="other">Other Digital Rubble</option>
                     </select>
                   </div>
 
@@ -809,6 +833,22 @@ export default function App() {
                       <option value="server">🖨️ Burnt Out Cloud Server</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono-tech text-gray-400 mb-1">LOCATION (CITY, COUNTRY) — OPTIONAL</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={formPlace}
+                      onChange={(e) => setFormPlace(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); lookupDumpPlace(); } }}
+                      placeholder="e.g. San Francisco, USA (drops your grave on the map)"
+                      className="flex-1 bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200 placeholder:text-gray-600"
+                    />
+                    <button type="button" onClick={lookupDumpPlace} className="text-xs font-mono-tech uppercase text-cyan-300 border border-cyan-500/40 px-3 rounded-lg hover:bg-cyan-950">Find</button>
+                  </div>
+                  {formGeoStatus && <p className="text-[11px] text-gray-400 mt-1 break-words">{formGeoStatus}</p>}
                 </div>
 
                 <div>
@@ -1070,7 +1110,7 @@ export default function App() {
               <div>
                 <span className="text-[10px] uppercase tracking-widest text-fuchsia-400 font-mono-tech">Hall of Legendary Failures</span>
                 <h3 className="text-2xl font-bold font-monument tracking-wider text-pink-400">
-                  🏛️ NEON-LIT MUSEUM ZONE
+                  NEON-LIT MUSEUM ZONE
                 </h3>
               </div>
               <span className="text-[11px] text-gray-400 font-mono-tech max-w-xs text-right hidden sm:block">
@@ -1159,14 +1199,17 @@ export default function App() {
                       className="w-full bg-[#05070e] border border-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-cyan-500"
                     >
                       <option value="all">📁 All Categories</option>
-                      <option value="saas">SaaS Projects</option>
+                      <option value="saas">SaaS</option>
+                      <option value="web">Web</option>
                       <option value="web3">Web3 / Crypto</option>
-                      <option value="mobile">Mobile Apps</option>
+                      <option value="mobile">Mobile</option>
                       <option value="ai">AI / Prompts</option>
+                      <option value="tech">Tech</option>
                       <option value="hardware">Hardware</option>
                       <option value="game">Gaming</option>
-                      <option value="dev_tool">Developer Tools</option>
-                      <option value="other">Other Residuals</option>
+                      <option value="dev_tool">Dev Tools</option>
+                      <option value="entertainment">Entertainment</option>
+                      <option value="other">Other</option>
                     </select>
 
                     <select
@@ -1407,24 +1450,23 @@ export default function App() {
 
                     {/* AI LANDFILL APPRAISAL COMPONENT */}
                     <div className="border-t border-gray-900 pt-4 space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="space-y-2">
                         <span className="text-xs font-mono-tech text-purple-400 flex items-center gap-1">
                           <Sparkles className="w-3.5 h-3.5" /> AI CHEF APPRAISAL
                         </span>
-                        
                         <button
                           onClick={() => handleAppraise(selectedDump)}
                           disabled={appraiseLoading}
-                          className="text-[10px] bg-purple-950/40 hover:bg-purple-900/40 border border-purple-800 text-purple-300 px-2.5 py-1 rounded flex items-center gap-1 font-mono-tech transition-all uppercase cursor-pointer"
+                          className={`w-full text-sm bg-purple-600/25 hover:bg-purple-600/45 border border-purple-400/70 text-purple-100 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-mono-tech font-bold uppercase transition-all cursor-pointer shadow-[0_0_18px_rgba(168,85,247,0.45)] disabled:opacity-60 ${appraiseResult || appraiseLoading ? "" : "animate-pulse"}`}
                         >
                           {appraiseLoading ? (
                             <>
-                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                              RECOMPILING...
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              SERVING UP THE ROAST...
                             </>
                           ) : (
                             <>
-                              <RefreshCw className="w-3.5 h-3.5" />
+                              <RefreshCw className="w-4 h-4" />
                               RUN CRITIQUE
                             </>
                           )}
@@ -1506,7 +1548,7 @@ export default function App() {
         {activeTab === "disposal" && (
           <div className="mb-8">
             <TeamVenting onAddProjectDirectly={(added) => {
-              setDumps(prev => [...prev, added]);
+              if (!added.isPrivate) setDumps(prev => [...prev, added]);
             }} />
           </div>
         )}

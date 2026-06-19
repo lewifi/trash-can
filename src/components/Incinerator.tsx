@@ -23,7 +23,7 @@ interface Dump {
   longitude?: number;
 }
 
-const CATEGORIES = ["saas", "web3", "mobile", "ai", "hardware", "game", "dev_tool", "other"];
+const CATEGORIES = ["saas", "web", "web3", "mobile", "ai", "tech", "hardware", "game", "dev_tool", "entertainment", "other"];
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 export default function Incinerator() {
