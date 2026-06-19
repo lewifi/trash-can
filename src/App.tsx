@@ -696,6 +696,14 @@ export default function App() {
                 {label}
               </button>
             ))}
+            <a
+              href="/incinerator"
+              title="Incinerator (admin)"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border border-red-500/30 text-red-400 hover:bg-red-950/30 hover:text-red-300"
+            >
+              <Flame className="w-4 h-4" />
+              Incinerator
+            </a>
           </nav>
 
         </div>
