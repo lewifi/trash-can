@@ -630,7 +630,7 @@ export default function App() {
   const NAV_ITEMS = [
     { id: "dump", label: "Dump", Icon: Plus },
     { id: "memorials", label: "Landfill", Icon: Compass },
-    { id: "oracle", label: "Oracle", Icon: Star },
+    { id: "oracle", label: "Roast Oracle", Icon: Star },
     { id: "disposal", label: "Vent", Icon: Shield },
     { id: "contracts", label: "Salvage", Icon: Coins },
     { id: "log", label: "Notes", Icon: ScrollText },

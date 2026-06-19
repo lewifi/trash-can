@@ -7,17 +7,17 @@ interface OracleAppraiserProps {
 }
 
 const ROAST_PRESETS = [
-  { label: "\uD83E\uDD84 Raised $100M", category: "saas", claim: "Raised a $100M Series B at a $2B valuation", tech: "Money, momentum, and a foosball table", desc: "Backed by every top-tier VC on Sand Hill Road. Hired 200 people in a year and bought billboards at the airport. Surely nothing could go wrong." },
-  { label: "\uD83D\uDD14 IPO'd", category: "tech", claim: "Went public to a standing ovation on the NYSE floor", tech: "Investor hype and a confetti cannon", desc: "Founders rang the bell, the stock popped 80% on day one, and the whole team bought matching Teslas. Peak everything." },
-  { label: "\uD83E\uDD1D Acquired by Google", category: "ai", claim: "Acqui-hired by Google for an undisclosed (enormous) sum", tech: "A demo that worked exactly once", desc: "The team got golden handcuffs and a shiny campus badge. The product was lovingly sunset six months later." },
-  { label: "\uD83D\uDE80 Went viral", category: "web", claim: "Hit #1 on Product Hunt and trended worldwide", tech: "Virality, vibes, and a melting server", desc: "Three million signups in a single weekend. The founder did a TED talk about disruption before the load balancer recovered." },
-  { label: "\uD83D\uDC96 Beloved & profitable", category: "other", claim: "Profitable, adored, and growing 40% a year", tech: "Actually good decisions", desc: "Happy customers, sustainable revenue, zero drama. Annoyingly wholesome and somehow still begging to be roasted." },
+  { label: "\uD83E\uDD84 Raised $100M", category: "startup", claim: "Raised a $100M Series B at a $2B valuation", tech: "Money, momentum, and a foosball table", desc: "Backed by every top-tier VC on Sand Hill Road. Hired 200 people in a year and bought billboards at the airport. Surely nothing could go wrong." },
+  { label: "\uD83D\uDD14 IPO'd", category: "bigtech", claim: "Went public to a standing ovation on the NYSE floor", tech: "Investor hype and a confetti cannon", desc: "Founders rang the bell, the stock popped 80% on day one, and the whole team bought matching Teslas. Peak everything." },
+  { label: "\uD83E\uDD1D Acquired by Google", category: "bigtech", claim: "Acqui-hired by Google for an undisclosed (enormous) sum", tech: "A demo that worked exactly once", desc: "The team got golden handcuffs and a shiny campus badge. The product was lovingly sunset six months later." },
+  { label: "\uD83D\uDE80 Went viral", category: "influencer", claim: "Hit #1 on Product Hunt and trended worldwide", tech: "Virality, vibes, and a melting server", desc: "Three million signups in a single weekend. The founder did a TED talk about disruption before the load balancer recovered." },
+  { label: "\uD83D\uDC96 Beloved & profitable", category: "app", claim: "Profitable, adored, and growing 40% a year", tech: "Actually good decisions", desc: "Happy customers, sustainable revenue, zero drama. Annoyingly wholesome and somehow still begging to be roasted." },
 ] as const;
 
 export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraiserProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<"saas" | "web" | "web3" | "mobile" | "ai" | "tech" | "hardware" | "game" | "dev_tool" | "entertainment" | "other">("saas");
+  const [category, setCategory] = useState<string>("startup");
   const [causeOfDeath, setCauseOfDeath] = useState("");
   const [techStack, setTechStack] = useState("");
 
@@ -42,7 +42,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const handleConsult = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description) {
-      setErrorMsg("Project name and description are absolutely mandatory to scan!");
+      setErrorMsg("Give me a name and the setup, then I'll roast it.");
       return;
     }
 
@@ -59,10 +59,11 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         },
         body: JSON.stringify({
           name,
-          description,
+          mode: "roast",
+          description: creator ? `${description}\n\nExtra ammo: ${creator}` : description,
           category,
-          causeOfDeath: causeOfDeath || "Sudden developer fatigue",
-          techStack: techStack || "Existential dread"
+          causeOfDeath: causeOfDeath || "suspiciously successful",
+          techStack: techStack || "pure vibes and good PR"
         })
       });
 
@@ -193,10 +194,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         <Activity className="w-6 h-6 text-cyan-400 animate-pulse" />
         <div>
           <h3 className="font-monument text-lg tracking-wider text-cyan-400 uppercase">
-            THE TRASH ORACLE
+            THE ROAST ORACLE
           </h3>
           <p className="text-xs text-gray-400 font-mono-tech mt-0.5">
-            AI Waste Appraiser & Diagnostics Suite
+            AI roast machine \u2014 savage verdicts on demand
           </p>
         </div>
       </div>
@@ -225,26 +226,26 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label id="lbl-project-name" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                * Project Name
+                * Target
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. LaserShoe, Juicero..."
+                placeholder="e.g. Cloudflare, your mate Dave, that one startup"
                 className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
                 required
               />
             </div>
             <div>
               <label id="lbl-project-creator" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Creator / Tombstone Name
+                Their Ride-or-Die or Red Flag (optional)
               </label>
               <input
                 type="text"
                 value={creator}
                 onChange={(e) => setCreator(e.target.value)}
-                placeholder="e.g. Elon Mask Jr."
+                placeholder="e.g. their co-founder, or that they love a cold plunge"
                 className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
@@ -259,17 +260,15 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               onChange={(e) => setCategory(e.target.value as any)}
               className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-cyan-400 transition"
             >
-              <option value="saas">SaaS (Software as a Struggle)</option>
-              <option value="web">Web / Abandoned Landing Page</option>
-              <option value="web3">Web3 / High-risk Ponzi Speculation</option>
-              <option value="mobile">Mobile / Swiper-Addicted App</option>
-              <option value="ai">AI / Infinite Token-Sponge Agent</option>
-              <option value="tech">Tech / Overengineered Gadget Dream</option>
-              <option value="hardware">Hardware / Expensive Desk Paperweight</option>
-              <option value="game">Game / Half-Finished Unity Lagfest</option>
-              <option value="dev_tool">Dev Tool / Dev-Ops Loop of Doom</option>
-              <option value="entertainment">Entertainment / Fyre-Festival-Grade Disaster</option>
-              <option value="other">Other Digital Rubble</option>
+              <option value="startup">Startup / Overfunded Dream</option>
+              <option value="bigtech">Big Tech / Too Big to Care</option>
+              <option value="crypto">Crypto Bro / Web3 Prophet</option>
+              <option value="ai">AI Hype / Thin GPT Wrapper</option>
+              <option value="influencer">Influencer / Content Machine</option>
+              <option value="publicfigure">Public Figure / Main Character</option>
+              <option value="mate">Your Mate / Personal Attack</option>
+              <option value="app">App / Product</option>
+              <option value="other">Other Roastable Entity</option>
             </select>
           </div>
 
@@ -288,13 +287,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             </div>
             <div>
               <label id="lbl-tech-stack" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-                Fragile Tech Stack
+                Their Whole Deal
               </label>
               <input
                 type="text"
                 value={techStack}
                 onChange={(e) => setTechStack(e.target.value)}
-                placeholder="e.g. React Native, Fortran, bad advice"
+                placeholder="their vibe, their stack, their whole personality"
                 className="w-full bg-[#060913] border border-cyan-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               />
             </div>
@@ -302,13 +301,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
           <div>
             <label id="lbl-description" className="block text-xs font-mono-tech text-cyan-300 uppercase tracking-widest mb-1.5 font-bold">
-              * Tragedy Narrative (Confession / Retrospective)
+              * The Setup \u2014 why they deserve it
             </label>
             <textarea
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us the exact moment you realized it was garbage. Or dump your unrequested project ideas here so our AI chef of staff can review..."
+              placeholder="What does everyone love about them? The more glowing the setup, the harder the roast lands..."
               className="w-full bg-[#060913] border border-cyan-500/30 rounded p-3 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-cyan-400 transition"
               required
             ></textarea>
@@ -380,7 +379,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-cyan-200" />
-                  <span>CONSULT WASTE LIBRARIAN</span>
+                  <span>RUN THE ROAST</span>
                 </>
               )}
             </button>
@@ -398,7 +397,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               <div className="flex justify-between items-center mb-3 border-b border-cyan-500/10 pb-2">
                 <span className="text-[10px] font-mono-tech text-cyan-400 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
-                  ORACLE APPARATUS OK-3000
+                  ROAST ORACLE OK-3000
                 </span>
                 <span className="text-[9px] font-mono-tech text-gray-500">REV: 03.5.FL</span>
               </div>
@@ -417,7 +416,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     Parsing code smells, analyzing repository dust...
                   </div>
                   <div className="text-[10px] text-gray-500 italic max-w-xs mx-auto">
-                    "Sometimes burying it is the best architectural pivot."
+                    "Feed me a target. I'll find the soft spot."
                   </div>
                 </div>
               )}
@@ -437,13 +436,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               {result && (
                 <div className="space-y-4 animate-fade-in text-xs text-gray-300">
                   <div className="flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 p-2.5 rounded">
-                    <span className="font-mono-tech text-cyan-300 uppercase">Tragic Glitch Score:</span>
+                    <span className="font-mono-tech text-cyan-300 uppercase">Roast Rating:</span>
                     <span className="text-sm font-bold text-red-400 font-mono-tech">{result.score}/100</span>
                   </div>
 
                   <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
                     <span className="text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
-                      Chef Consultant's Appraisal
+                      The Verdict
                     </span>
                     <p className="italic text-gray-300 leading-relaxed font-sans font-medium text-sm">
                       "{result.appraisal}"
@@ -452,7 +451,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono-tech text-red-400 uppercase tracking-widest block">
-                      Autopsy Report (Failure Anatomy)
+                      The Deep Cut
                     </span>
                     <p className="leading-relaxed text-gray-400 text-[11px]">
                       {result.postMortem}
@@ -462,7 +461,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-300">
                     <span className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
                       <Coins className="w-3.5 h-3.5" />
-                      Wasteland Recycling Plan (Pivots)
+                      Unsolicited Advice
                     </span>
                     <p className="leading-relaxed text-[11px]">
                       {result.recyclingPlan}
