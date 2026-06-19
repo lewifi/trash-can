@@ -165,10 +165,15 @@ function esc(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
+const OG_LOGO = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNlZjQ0NDQiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwNmI2ZDQiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iNTQiIGhlaWdodD0iNTQiIHJ4PSIxNSIgZmlsbD0iIzExMTgyNyIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjMiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMiAzMi41KSBzY2FsZSgxLjU1KSB0cmFuc2xhdGUoLTEyIC0xMikiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzIyZDNlZSIgc3Ryb2tlLXdpZHRoPSIyLjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTMgNmgxOCIvPjxwYXRoIGQ9Ik0xOSA2djE0YTIgMiAwIDAgMS0yIDJIN2EyIDIgMCAwIDEtMi0yVjYiLz48cGF0aCBkPSJNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjxsaW5lIHgxPSIxMCIgeDI9IjEwIiB5MT0iMTEiIHkyPSIxNyIvPjxsaW5lIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTEiIHkyPSIxNyIvPjwvZz48L3N2Zz4=";
+
 function ogImageHtml(name: string, appraisal: string, cause: string, score: number): string {
   return `
   <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:70px;font-family:sans-serif;">
-    <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">GLITCH GRAVEYARD</div>
+    <div style="display:flex;align-items:center;">
+      <img src="${OG_LOGO}" width="72" height="72" style="margin-right:20px;" />
+      <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">GLITCH GRAVEYARD</div>
+    </div>
     <div style="display:flex;margin-top:34px;color:#ffffff;font-size:70px;font-weight:800;line-height:1.05;">${name}</div>
     <div style="display:flex;margin-top:14px;color:#f43f5e;font-size:28px;">Cause of death: ${cause}</div>
     <div style="display:flex;margin-top:34px;color:#cbd5e1;font-size:34px;line-height:1.35;">${appraisal}</div>
