@@ -98,7 +98,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* The Map visual stage */}
-        <div className="lg:col-span-3 relative bg-[#060913] border border-cyan-500/10 rounded-lg min-h-[350px] flex flex-col justify-between overflow-hidden p-2">
+        <div className="lg:col-span-3 relative bg-[#060913] border border-cyan-500/10 rounded-lg min-h-[180px] sm:min-h-[350px] flex flex-col justify-between overflow-hidden p-2">
           {/* Cyber grid lines */}
           <div className="absolute inset-0 scanlines opacity-40 pointer-events-none"></div>
           <div className="absolute inset-0 bg-grid-cyan opacity-5 pointer-events-none" 
@@ -142,7 +142,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
           </div>
 
           {/* Sizable items mapped */}
-          <div className="relative w-full h-[320px] bg-gradient-to-b from-cyan-950/10 to-transparent">
+          <div className="relative w-full h-[180px] sm:h-[320px] bg-gradient-to-b from-cyan-950/10 to-transparent">
             {projects.map((project) => {
               const { x, y } = getCoordinates(project.latitude, project.longitude);
               const isTragic = project.emotionalTragedy >= 8;

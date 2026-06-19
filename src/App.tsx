@@ -574,7 +574,7 @@ export default function App() {
 
       {/* SUB-ACCENT BANNER */}
       <div className={`p-1 bg-gradient-to-r from-cyan-500/20 via-red-500/20 to-purple-500/20 border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech`}>
-        🗑️ "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO 🗑️
+        "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
