@@ -38,7 +38,9 @@ import {
   ExternalLink,
   Shield,
   FileCode2,
-  RefreshCw
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface DeadProject {
@@ -92,6 +94,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
   const detailRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   // State for original/fetched dumps
   const [dumps, setDumps] = useState<DeadProject[]>([]);
@@ -1091,10 +1094,10 @@ export default function App() {
 
         {/* PRIMARY EXPLORATION & FILTERING GRID */}
         {activeTab === "memorials" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="space-y-6">
             
-            {/* LEFT SEARCH AND TILES (8 cols) */}
-            <div className="lg:col-span-8 space-y-6">
+            {/* SEARCH + CAROUSEL (full width) */}
+            <div className="space-y-6">
               
               {/* FILTERS TOOLBAR */}
               <div className="bg-gray-950 border border-gray-800 p-4 rounded-xl space-y-3">
@@ -1158,26 +1161,28 @@ export default function App() {
                   </p>
                 </div>
               ) : (
-                <div
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                  onClick={(e) => { if (e.target === e.currentTarget) setSelectedDump(null); }}
-                >
+                <div className="relative">
+                  <button type="button" aria-label="Scroll left" onClick={() => carouselRef.current?.scrollBy({ left: -380, behavior: "smooth" })} className="hidden sm:flex absolute left-1 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-gray-900/90 border border-cyan-500/40 text-cyan-300 hover:bg-gray-800 hover:border-cyan-400 transition">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button type="button" aria-label="Scroll right" onClick={() => carouselRef.current?.scrollBy({ left: 380, behavior: "smooth" })} className="hidden sm:flex absolute right-1 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-gray-900/90 border border-cyan-500/40 text-cyan-300 hover:bg-gray-800 hover:border-cyan-400 transition">
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <div
+                    ref={carouselRef}
+                    onWheel={(e) => { if (carouselRef.current) carouselRef.current.scrollLeft += e.deltaY; }}
+                    className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory px-[9%] sm:px-14 py-2 no-scrollbar"
+                  >
                   {filteredDumps.map((d) => (
                     <div
                       key={d.id}
                       onClick={() => {
-                        if (selectedDump?.id === d.id) { setSelectedDump(null); return; }
                         setSelectedDump(d);
-                        // Auto appraisal call if not present
                         if (!d.aiAppraisal && !appraiseResult) {
                           handleAppraise(d);
                         }
                       }}
-                      className={`group p-5 bg-gray-950 border transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between ${
-                        selectedDump?.id === d.id
-                          ? "border-cyan-400 bg-slate-950/80 shadow-[0_0_28px_rgba(6,182,212,0.4)] ring-1 ring-cyan-400/50"
-                          : "border-gray-800 hover:border-gray-600 hover:bg-gray-900/60"
-                      } ${selectedDump && selectedDump.id !== d.id ? "opacity-30 hover:opacity-100" : ""}`}
+                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between flex-shrink-0 snap-center w-[82%] sm:w-[360px]"
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
@@ -1246,16 +1251,19 @@ export default function App() {
                       </div>
                     </div>
                   ))}
+                  </div>
                 </div>
               )}
 
             </div>
 
-            {/* RIGHT WORKBENCH DETAIL SYSTEM (4 cols) */}
-            <div className="lg:col-span-4">
-              
-              {selectedDump ? (
-                <div ref={detailRef} className="bg-gray-950/90 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40">
+            {/* DETAIL MODAL */}
+            {selectedDump && (
+              <div
+                className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-8"
+                onClick={() => setSelectedDump(null)}
+              >
+                <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
@@ -1444,20 +1452,8 @@ export default function App() {
 
                   </div>
                 </div>
-              ) : (
-                <div className="bg-gray-950 border border-gray-900 rounded-2xl p-6 text-center text-xs text-gray-500 space-y-4">
-                  <div className="w-12 h-12 rounded-full border border-gray-800 flex items-center justify-center mx-auto text-cyan-400/60 font-mono-tech animate-pulse-slow">
-                    [T_6]
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-gray-300 mb-1">NO ANOMALY INSPECTED</h5>
-                    <p className="max-w-xs mx-auto">
-                      Review other developers' wreckage. Click on any block in the landfill list or tap points on the global Heartbreak map to query trace materials.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
