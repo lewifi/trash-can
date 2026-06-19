@@ -660,14 +660,14 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-wider font-monument bg-gradient-to-r from-cyan-400 via-teal-200 to-red-400 bg-clip-text text-transparent">
-                  Glitch Graveyard
+                  Roast Graveyard
                 </span>
                 <span className="text-[10px] font-mono-tech border border-red-500/30 text-red-400 px-1.5 py-0.2 rounded uppercase animate-flicker">
                   trash-can.net
                 </span>
               </div>
               <p className="text-xs text-gray-500 tracking-wide">
-                Est. 2026 • The Digital Landfill & Museum of Broken Restless Hopes
+                Est. 2026 • Where dead projects rest and the living get roasted
               </p>
             </div>
             </div>{/* /logo group */}
@@ -915,7 +915,7 @@ export default function App() {
                 <p className="text-xs text-gray-400 italic">
                   "The average developer owns 12 domains that will never launch and 5 repo drafts that give them severe imposter syndrome. We gave them a home."
                 </p>
-                <span className="text-[10px] text-gray-600 font-mono-tech block mt-1">— Glitch Graveyard Conservator Code</span>
+                <span className="text-[10px] text-gray-600 font-mono-tech block mt-1">— Roast Graveyard Conservator Code</span>
               </div>
 
             </div>
@@ -1937,7 +1937,7 @@ export default function App() {
       <footer className="border-t border-gray-900 bg-[#02050c] px-4 py-8 mt-12 text-center text-xs text-gray-500 space-y-3 font-mono-tech">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="tracking-wide">
-            © 2026 Glitch Graveyard™ Central Administration. Built on top of the world's finest garbage. <span className="text-gray-600">v{APP_VERSION}</span>
+            © 2026 Roast Graveyard™ Central Administration. Built on top of the world's finest garbage. <span className="text-gray-600">v{APP_VERSION}</span>
           </p>
           <div className="flex gap-4">
             <a href="#" onClick={(e) => { e.preventDefault(); alert("RULE 1: there are no rules. RULE 2: you just wasted a click on Rule 1."); }} className="hover:text-cyan-400 transition-colors uppercase cursor-pointer">Security Containment rules</a>

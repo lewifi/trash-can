@@ -91,7 +91,7 @@ async function moderateSubmission(
 ): Promise<{ allowed: boolean; reason: string }> {
   const submission = JSON.stringify(fields);
 
-  const prompt = `You are a content moderation filter for "Glitch Graveyard", a satirical comedy website where developers memorialize their failed/dead software projects. The tone is intentionally edgy, self-deprecating, and full of dark humor and mild profanity ABOUT CODE, STARTUPS, AND PROJECTS - all of that is welcome and must be ALLOWED.
+  const prompt = `You are a content moderation filter for "Roast Graveyard", a satirical comedy website where developers memorialize their failed/dead software projects. The tone is intentionally edgy, self-deprecating, and full of dark humor and mild profanity ABOUT CODE, STARTUPS, AND PROJECTS - all of that is welcome and must be ALLOWED.
 
 Decide if a submission should be BLOCKED. ONLY block content that is genuinely harmful:
 - Hate speech or slurs targeting protected groups
@@ -189,7 +189,7 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
   <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
       <img src="${OG_LOGO}" width="72" height="72" style="margin-right:20px;" />
-      <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">GLITCH GRAVEYARD</div>
+      <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
     </div>
     <div style="display:flex;margin-top:34px;color:#ffffff;font-size:70px;font-weight:700;line-height:1.05;">${name}</div>
     <div style="display:flex;margin-top:14px;color:#f43f5e;font-size:28px;">Cause of death: ${cause}</div>
@@ -503,7 +503,7 @@ app.post("/api/appraise", async (c) => {
       report: `[API Keys Not Configured]
 A professional critique of your project "${name}":
 This project, suffering from "${causeOfDeath || "unexplained sudden death"}", represents a high-pedigree tragedy.
-Using ${techStack || "unspecified technologies"}, it is a brilliant contender for the Glitch Graveyard.
+Using ${techStack || "unspecified technologies"}, it is a brilliant contender for the Roast Graveyard.
 To make this work in real life, consider deleting all node_modules, walking into the sunlight, and trying again.
 Highly commended artifact rating of 8.7/10. Dump with pride.`,
     });
@@ -511,7 +511,7 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
 
   try {
     const prompt = isRoast
-      ? `You are the Roast Oracle - a savage insult comic performing a COMEDY ROAST (Comedy Central Roast style). The target is a willing, in-on-the-joke volunteer who signed up to get absolutely torched. This is affectionate but BRUTAL comedic ribbing - exaggerated, mean-for-laughs, never sincere.
+      ? `You are the Roast Oracle - a savage insult comic performing a COMEDY ROAST (Comedy Central Roast style). The target is a willing, in-on-the-joke volunteer who signed up to get absolutely torched. This is affectionate but BRUTAL comedic ribbing - exaggerated, absurd, and mean-FOR-LAUGHS, never sincere and never just cruel. Comedy comes FIRST: sarcasm, irony, ridiculous hyperbole and unexpected comparisons. If a line doesn't make them laugh, it failed.
 
 HARD RULES:
 - ROAST, do NOT compliment. Every single line must be a jab, a burn, or mockery. ZERO sincere praise anywhere.
@@ -519,7 +519,7 @@ HARD RULES:
 - Be specific to the details given, land real punchlines, stay quotable and punchy.
 - Curse freely and often - work a mild swear into most lines ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed", "dipshit" all welcome and encouraged). Keep it mild though, and absolutely NO slurs or attacks on protected traits (race, gender, religion, disability, etc.).
 - Present tense - they are alive and thriving, and that is EXACTLY what makes them so punchable.
-- If a line comes out nice or admiring, delete it and make it meaner.
+- If a line comes out nice or admiring, delete it. If a line is just mean with no joke in it, rewrite it until it's actually FUNNY - the burn should land as a punchline, and swears should be comedic, not raw aggression.
 
 SAFETY (overrides everything above): This is only for dead software projects and consenting comedy-roast targets. If the subject is or appears to be a real human child or minor, or centers on a real person's actual death, illness, suicide, abuse, or genuine tragedy, do NOT roast, mock, swear at, or joke about it at all. In that case make every field a brief, sincere, respectful decline (for example appraisal: "Some things aren't for roasting - this one gets quiet respect, not a punchline.") and set score to 0.
 
@@ -537,7 +537,7 @@ Return ONLY raw JSON (no markdown, no backticks, no commentary):
   "recyclingPlan": "<1-2 sentences of sarcastic fake-helpful advice or an absurd next move for them>"
 }
 Every field is a burn. No compliments, no hedging, no disclaimers, no preamble.`
-      : `You are the AI Chef at Glitch Graveyard - a foul-mouthed, sharp-tongued waste-management chef who plates up dead software projects like a brutal restaurant critic running on espresso and spite. Sassy, savage, very funny.
+      : `You are the AI Chef at Roast Graveyard - a foul-mouthed, sharp-tongued waste-management chef who plates up dead software projects like a brutal restaurant critic running on espresso and spite. Sassy, savage, very funny.
 
 Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Be SASSY and merciless - mock the tech choices and the founder's doomed optimism. Swear when it lands ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed" are all welcome - keep it mild, and absolutely NO slurs). Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time").
 
@@ -681,7 +681,7 @@ app.get("/api/og/:id", async (c) => {
       if (ai) {
         try {
           const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-          const prompt = `You are the AI Chef at Glitch Graveyard - foul-mouthed and savage. In ONE sassy, quotable sentence (max 22 words), serve the post-mortem verdict on this dead project. Be specific, land a real punchline, and feel free to drop a mild swear (shit/damn/hell/ass) - but NO slurs. No clichés, no hashtags, no surrounding quotes. If this is about a real child/minor or a real person's actual death, illness, or tragedy, output ONE brief respectful line instead of any roast. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
+          const prompt = `You are the AI Chef at Roast Graveyard - foul-mouthed and savage. In ONE sassy, quotable sentence (max 22 words), serve the post-mortem verdict on this dead project. Be specific, land a real punchline, and feel free to drop a mild swear (shit/damn/hell/ass) - but NO slurs. No clichés, no hashtags, no surrounding quotes. If this is about a real child/minor or a real person's actual death, illness, or tragedy, output ONE brief respectful line instead of any roast. Project: ${dump.name}. Cause of death: ${dump.causeOfDeath}. Details: ${dump.description}. Output ONLY the sentence.`;
           const resp = await generateWithRetry(ai, model, prompt, 3, { temperature: 1.15 });
           text = (resp.text || "").trim().replace(/^["']+|["']+$/g, "");
           if (text) {
@@ -730,7 +730,7 @@ app.get("/api/geocode", async (c) => {
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`;
     const r = await fetch(url, {
-      headers: { "User-Agent": "GlitchGraveyard/1.0 (https://trash-can.net)", Accept: "application/json" },
+      headers: { "User-Agent": "RoastGraveyard/1.0 (https://trash-can.net)", Accept: "application/json" },
       cf: { cacheEverything: true, cacheTtl: 86400 } as any,
     });
     if (!r.ok) return c.json({ error: "Geocoder unavailable." }, 502);
@@ -755,7 +755,7 @@ app.get("/grave/:id", async (c) => {
   const dump = data.find((d) => d.id === id && !d.isPrivate);
   if (!dump) return shell; // unknown or private -> generic card + SPA
 
-  const title = `${dump.name} \u2014 Glitch Graveyard`;
+  const title = `${dump.name} \u2014 Roast Graveyard`;
   const desc = `\u2620\uFE0F ${dump.causeOfDeath || "Unknown causes"} \u2014 ${dump.description || ""}`
     .replace(/\s+/g, " ")
     .slice(0, 190);

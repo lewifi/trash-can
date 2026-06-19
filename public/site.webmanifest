@@ -1,6 +1,6 @@
 {
-  "name": "Glitch Graveyard",
-  "short_name": "Glitch Graveyard",
+  "name": "Roast Graveyard",
+  "short_name": "Roast Graveyard",
   "description": "A digital memorial for dead software projects. trash-can.net",
   "icons": [
     { "src": "/favicon-32x32.png", "type": "image/png", "sizes": "32x32" },
