@@ -64,7 +64,7 @@ export default function RoastPage() {
             The link is broken or the roast expired. Fire up a fresh one instead.
           </p>
           <a
-            href="/oracle"
+            href="/roastoracle"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-xs font-mono-tech font-bold uppercase py-2.5 px-5 rounded-lg transition"
           >
             Roast something <ArrowRight className="w-3.5 h-3.5" />
@@ -79,7 +79,7 @@ export default function RoastPage() {
               <span className="text-[10px] font-mono-tech text-gray-500 uppercase tracking-[0.3em]">
                 {roast.category}
               </span>
-              <span className="text-sm font-bold font-mono-tech text-red-400">{roast.score}/100</span>
+              <span className="text-sm font-bold font-mono-tech text-red-400">{Math.round(roast.score)}/100</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-bold font-monument text-white leading-tight mb-5">
@@ -93,7 +93,7 @@ export default function RoastPage() {
             {roast.postMortem && (
               <div className="mb-5">
                 <span className="text-[10px] font-mono-tech text-red-400 uppercase tracking-widest block mb-1">
-                  Autopsy Report
+                  The Deep Cut
                 </span>
                 <p className="text-sm text-gray-400 leading-relaxed">{roast.postMortem}</p>
               </div>
@@ -126,7 +126,7 @@ export default function RoastPage() {
               <Download className="w-3.5 h-3.5" /> Download card
             </a>
             <a
-              href="/oracle"
+              href="/roastoracle"
               className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-xs font-mono-tech font-bold uppercase py-2.5 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]"
             >
               Roast your own <ArrowRight className="w-3.5 h-3.5" />

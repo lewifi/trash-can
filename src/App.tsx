@@ -127,7 +127,7 @@ export default function App() {
   const tabFromPath = (): TabId => {
     const pth = window.location.pathname.replace(/\/+$/, "");
     if (pth === "/memorials") return "memorials";
-    if (pth === "/oracle") return "oracle";
+    if (pth === "/oracle" || pth === "/roastoracle") return "oracle";
     if (pth === "/disposal") return "disposal";
     if (pth === "/contracts") return "contracts";
     if (pth === "/log") return "log";
@@ -139,7 +139,7 @@ export default function App() {
   // Tab navigation with clean URLs, so refresh / back-button stay on the page.
   const navTab = (tab: TabId) => {
     setActiveTab(tab);
-    const path = tab === "dump" ? "/" : `/${tab}`;
+    const path = tab === "dump" ? "/" : tab === "oracle" ? "/roastoracle" : `/${tab}`;
     if (window.location.pathname !== path) window.history.pushState({}, "", path);
   };
   useEffect(() => {

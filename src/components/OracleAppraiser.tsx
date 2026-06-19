@@ -423,7 +423,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 <div className="space-y-4 animate-fade-in text-xs text-gray-300">
                   <div className="flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 p-2.5 rounded">
                     <span className="font-mono-tech text-cyan-300 uppercase">Roast Rating:</span>
-                    <span className="text-sm font-bold text-red-400 font-mono-tech">{result.score}/100</span>
+                    <span className="text-sm font-bold text-red-400 font-mono-tech">{Math.round(result.score)}/100</span>
                   </div>
 
                   <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">

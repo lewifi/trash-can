@@ -532,7 +532,7 @@ Something embarrassing they did (your sharpest ammo - lean on this): ${descripti
 
 Return ONLY raw JSON (no markdown, no backticks, no commentary):
 {
-  "score": <0-100 "overrated" rating; be stingy and oddly specific>,
+  "score": <integer 0-100: how overrated/punchable they are; use the FULL range, higher = more insufferable; whole number only, no decimals>,
   "appraisal": "<one savage, quotable burn, ~18 words max>",
   "postMortem": "<2-4 sentences tearing into why they are insufferable or overrated, mocking the specifics - present tense>",
   "recyclingPlan": "<1-2 sentences of sarcastic fake-helpful advice or an absurd next move for them>"
@@ -552,7 +552,7 @@ Tech Stack: ${techStack}
 
 Return ONLY raw JSON (no markdown, no backticks, no commentary):
 {
-  "score": <0-100 glitch rating; be stingy and oddly specific>,
+  "score": <integer 0-100 glitch rating; use the full range; whole number only, no decimals>,
   "appraisal": "<one savage, quotable verdict, ~18 words max>",
   "postMortem": "<2-4 sentences of autopsy: why it REALLY died, mocking the specifics>",
   "recyclingPlan": "<1-2 sentences: an absurd but weirdly plausible pivot or cash-grab>"
@@ -827,7 +827,7 @@ app.get("/api/og/roast/:id", async (c) => {
     const html = roastImageHtml(
       esc(String(r.name).slice(0, 70)),
       esc(String(r.category || "").toUpperCase().slice(0, 30)),
-      Number(r.score) || 0,
+      Math.round(Number(r.score)) || 0,
       esc(String(r.appraisal || "").slice(0, 180)),
       esc(String(r.recyclingPlan || "").slice(0, 200))
     );
