@@ -56,6 +56,24 @@ function getAIClient(apiKey: string | undefined): GoogleGenAI | null {
   return null;
 }
 
+// Call Gemini with retry/backoff on 429 (rate limit) so transient limits
+// don't fail user actions.
+async function generateWithRetry(ai: GoogleGenAI, model: string, prompt: string, tries = 3) {
+  let lastErr: any;
+  for (let i = 0; i < tries; i++) {
+    try {
+      return await ai.models.generateContent({ model, contents: prompt });
+    } catch (e: any) {
+      lastErr = e;
+      const msg = String(e?.message || e);
+      const rateLimited = msg.includes("429") || /rate limit|RESOURCE_EXHAUSTED|quota/i.test(msg);
+      if (!rateLimited || i === tries - 1) throw e;
+      await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 // AI pre-screen: block genuinely harmful submissions while allowing the
 // site's dark humor / profanity about dead projects. Fails OPEN on any error
 // so a Gemini hiccup never blocks legitimate users.
@@ -92,7 +110,7 @@ ${submission}
 Respond with ONLY raw JSON, no markdown, no backticks:
 { "allowed": true or false, "reason": "short reason if blocked, otherwise empty" }`;
 
-  const resp = await ai.models.generateContent({ model, contents: prompt });
+  const resp = await generateWithRetry(ai, model, prompt);
   let txt = (resp.text || "").trim();
   if (txt.includes("```")) {
     txt = txt.replace(/```json/g, "").replace(/```/g, "").trim();
@@ -330,10 +348,7 @@ Respond strictly in a valid JSON format with the following keys and data types:
 Ensure the response is clean, formatted as JSON, and contains no raw markdown, backticks, or comments around it other than the raw JSON output. Do not mention any API restrictions. Make it full of personality!`;
 
     const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const response = await aiClient.models.generateContent({
-      model,
-      contents: prompt,
-    });
+    const response = await generateWithRetry(aiClient, model, prompt);
 
     let resultText = response.text || "";
     if (resultText.includes("```json")) {
@@ -357,6 +372,16 @@ Ensure the response is clean, formatted as JSON, and contains no raw markdown, b
   } catch (err: any) {
     const detail = String(err?.message || err);
     console.error("Gemini API Error:", detail);
+    const rateLimited = detail.includes("429") || /rate limit|RESOURCE_EXHAUSTED|quota/i.test(detail);
+    if (rateLimited) {
+      // Degrade gracefully instead of erroring out.
+      return c.json({
+        score: Math.floor(Math.random() * 25) + 70,
+        appraisal: `The Oracle is swamped with grief (and traffic) right now \u2014 here's a provisional reading for "${name}".`,
+        postMortem: `Too many autopsies in flight (rate limit hit). At a glance, "${causeOfDeath || "the usual suspects"}" did it in, and relying on "${techStack || "questionable choices"}" did not help.`,
+        recyclingPlan: `Give the Oracle a minute to breathe, then consult again for the full diagnosis.`,
+      });
+    }
     return c.json(
       {
         error: "The AI consultant is currently mourning a dead script. Please try calling later.",

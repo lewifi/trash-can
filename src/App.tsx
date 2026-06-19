@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HeartbreakMap from "./components/HeartbreakMap";
 import OracleAppraiser from "./components/OracleAppraiser";
 import RescueRemix from "./components/RescueRemix";
@@ -68,12 +68,40 @@ interface DeadProject {
 
 export default function App() {
   // Navigation tabs
-  const [activeTab, setActiveTab] = useState<"dump" | "memorials" | "oracle" | "disposal" | "contracts">("dump");
+  type TabId = "dump" | "memorials" | "oracle" | "disposal" | "contracts";
+  const tabFromPath = (): TabId => {
+    const pth = window.location.pathname.replace(/\/+$/, "");
+    if (pth === "/memorials") return "memorials";
+    if (pth === "/oracle") return "oracle";
+    if (pth === "/disposal") return "disposal";
+    if (pth === "/contracts") return "contracts";
+    return "dump";
+  };
+  const [activeTab, setActiveTab] = useState<TabId>(tabFromPath());
+
+  // Tab navigation with clean URLs, so refresh / back-button stay on the page.
+  const navTab = (tab: TabId) => {
+    setActiveTab(tab);
+    const path = tab === "dump" ? "/" : `/${tab}`;
+    if (window.location.pathname !== path) window.history.pushState({}, "", path);
+  };
+  useEffect(() => {
+    const onPop = () => setActiveTab(tabFromPath());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  const detailRef = useRef<HTMLDivElement>(null);
 
   // State for original/fetched dumps
   const [dumps, setDumps] = useState<DeadProject[]>([]);
   const [filteredDumps, setFilteredDumps] = useState<DeadProject[]>([]);
   const [selectedDump, setSelectedDump] = useState<DeadProject | null>(null);
+  // When an anomaly is inspected, scroll its detail panel into view (key on mobile).
+  useEffect(() => {
+    if (selectedDump && detailRef.current) {
+      detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selectedDump?.id]);
 
   // Search and Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -254,7 +282,7 @@ export default function App() {
         
         // Refresh & announce
         await fetchDumps();
-        setActiveTab("memorials");
+        navTab("memorials");
         
         // Auto select the new dump for detail preview
         const data = await res.json();
@@ -507,7 +535,7 @@ export default function App() {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-gray-950 border border-gray-800/80 p-2 rounded-xl">
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => { setActiveTab("dump"); setSelectedDump(null); }}
+              onClick={() => { navTab("dump"); setSelectedDump(null); }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
                 activeTab === "dump"
                   ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
@@ -519,7 +547,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab("memorials")}
+              onClick={() => navTab("memorials")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
                 activeTab === "memorials"
                   ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
@@ -531,7 +559,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab("oracle")}
+              onClick={() => navTab("oracle")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
                 activeTab === "oracle"
                   ? "bg-slate-900 border border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.15)]"
@@ -543,7 +571,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab("disposal")}
+              onClick={() => navTab("disposal")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
                 activeTab === "disposal"
                   ? "bg-slate-900 border border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.15)]"
@@ -555,7 +583,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab("contracts")}
+              onClick={() => navTab("contracts")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
                 activeTab === "contracts"
                   ? "bg-slate-900 border border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
@@ -962,7 +990,7 @@ export default function App() {
               projects={dumps} 
               onSelectProject={(p) => { 
                 setSelectedDump(p); 
-                setActiveTab("memorials"); 
+                navTab("memorials"); 
               }} 
             />
           </div>
@@ -1199,7 +1227,7 @@ export default function App() {
             <div className="lg:col-span-4">
               
               {selectedDump ? (
-                <div className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                <div ref={detailRef} className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
