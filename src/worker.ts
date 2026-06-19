@@ -483,6 +483,12 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
   if (body.roomName !== undefined) cur.roomName = body.roomName ? String(body.roomName) : undefined;
   if (body.isPrivate !== undefined) cur.isPrivate = !!body.isPrivate;
   if (body.imageUrl !== undefined) cur.imageUrl = body.imageUrl ? String(body.imageUrl) : undefined;
+  if (body.latitude !== undefined && body.latitude !== null && !Number.isNaN(Number(body.latitude))) {
+    cur.latitude = Number(body.latitude);
+  }
+  if (body.longitude !== undefined && body.longitude !== null && !Number.isNaN(Number(body.longitude))) {
+    cur.longitude = Number(body.longitude);
+  }
 
   data[idx] = cur;
   await saveGraveyardData(c.env.GRAVEYARD_KV, data);
