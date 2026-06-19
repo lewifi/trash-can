@@ -102,7 +102,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [exposeName, setExposeName] = useState("");
-  const [exposeJob, setExposeJob] = useState("");
+  const [exposeFriend, setExposeFriend] = useState("");
   const [prankCopied, setPrankCopied] = useState(false);
 
   const handleSaveAndShare = async () => {
@@ -141,16 +141,15 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   const handleExpose = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!exposeName) { setErrorMsg("Drop a name in and we'll dig up the dirt."); return; }
+    if (!exposeName || !exposeFriend) { setErrorMsg("Need your mate's name and your own."); return; }
     setLoading(true); setErrorMsg(null); setResult(null); setShareUrl(null);
-    const job = exposeJob || "person of interest";
     setName(exposeName);
-    setCategory(job);
+    setCategory("freshly roasted");
     try {
       const response = await fetch("/api/appraise", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: exposeName, mode: "scandal", category: job }),
+        body: JSON.stringify({ name: exposeName, mode: "scandal", category: "freshly roasted" }),
       });
       if (!response.ok) {
         let detail = "";
@@ -242,8 +241,19 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         <form onSubmit={handleExpose} className="lg:col-span-3 space-y-4">
           <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4">
             <p className="text-xs text-gray-400 leading-relaxed">
-              Roast your mates. Pop your name and job in to get set up, then fire the link round and watch them squirm.
+              Roast a mate. Pop in who you're roasting, sign your own name so they know who to blame, and we'll cook it up.
             </p>
+            <div>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Who are you roasting?</label>
+              <input
+                type="text"
+                value={exposeFriend}
+                onChange={(e) => setExposeFriend(e.target.value)}
+                placeholder="Your mate's name"
+                className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
+                required
+              />
+            </div>
             <div>
               <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Your name</label>
               <input
@@ -254,16 +264,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
-            </div>
-            <div>
-              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">Your occupation</label>
-              <input
-                type="text"
-                value={exposeJob}
-                onChange={(e) => setExposeJob(e.target.value)}
-                placeholder="e.g. dentist, founder, barista"
-                className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
-              />
+              <p className="text-[10px] text-gray-500 mt-1">Sign it so they know the roast came from a mate.</p>
             </div>
             <button
               type="submit"
@@ -271,7 +272,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               className="w-full bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-3 px-4 rounded flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 shadow-[0_0_18px_rgba(217,70,239,0.45)]"
             >
               <Sparkles className="w-4 h-4" />
-              {loading ? "Setting you up..." : "Start roasting"}
+              {loading ? `Roasting ${exposeFriend || "them"}...` : "Roast them"}
             </button>
             {errorMsg && (
               <p className="text-xs text-red-400 font-mono-tech bg-red-950/20 p-2 border border-red-500/20 rounded">⚠️ {errorMsg}</p>
@@ -362,19 +363,21 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   </div>
 
                   <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
-                    <p className="text-sm font-bold text-fuchsia-200">😈 Gotcha &mdash; we roasted YOU.</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Now send <span className="text-fuchsia-300">this link</span> to someone else and prank them secretly:</p>
+                    <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">Get them back: send {exposeFriend} this and they'll prank themselves too.</p>
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard?.writeText(`${window.location.origin}/roastoracle`).then(() => {
+                        const msg = `${exposeFriend}, AHA! You've just been roasted 😈 your turn - see for yourself: ${window.location.origin}/roastoracle (from ${exposeName})`;
+                        navigator.clipboard?.writeText(msg).then(() => {
                           setPrankCopied(true);
-                          setTimeout(() => setPrankCopied(false), 1800);
+                          setTimeout(() => setPrankCopied(false), 2000);
                         });
                       }}
                       className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
                     >
-                      {prankCopied ? "Link copied! Go prank someone" : "Copy the prank link"}
+                      {prankCopied ? "Copied! Go send it" : `Copy message for ${exposeFriend}`}
                     </button>
                   </div>
                 </div>
