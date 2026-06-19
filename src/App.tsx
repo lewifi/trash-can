@@ -43,7 +43,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
-  ScrollText
+  ScrollText,
+  Menu
 } from "lucide-react";
 
 interface DeadProject {
@@ -589,6 +590,16 @@ export default function App() {
   // Let's filter some coordinate groups
   const coordinateDumps = dumps.filter(d => d.latitude && d.longitude);
 
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const NAV_ITEMS = [
+    { id: "dump", label: "Dump", Icon: Plus },
+    { id: "memorials", label: "Landfill", Icon: Compass },
+    { id: "oracle", label: "Oracle", Icon: Star },
+    { id: "disposal", label: "Vent", Icon: Shield },
+    { id: "contracts", label: "Salvage", Icon: Coins },
+    { id: "log", label: "Notes", Icon: ScrollText },
+  ] as const;
+
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
       
@@ -602,7 +613,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
           {/* Logo Brand Zone */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-3">
             <div className="relative p-2 bg-gray-900 rounded-lg border border-gray-700/80 group">
               <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-red-500 to-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity blur" />
               <Trash2 className="w-7 h-7 text-cyan-400 relative z-10 animate-flicker" />
@@ -620,18 +632,21 @@ export default function App() {
                 Est. 2026 • The Digital Landfill & Museum of Broken Restless Hopes
               </p>
             </div>
+            </div>{/* /logo group */}
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileNavOpen(true)}
+              className={`md:hidden p-2 rounded-lg border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass}`}
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
 
-          {/* Nav (sticky with header) */}
-          <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
-            {([
-              { id: "dump", label: "Dump", Icon: Plus },
-              { id: "memorials", label: "Landfill", Icon: Compass },
-              { id: "oracle", label: "Oracle", Icon: Star },
-              { id: "disposal", label: "Vent", Icon: Shield },
-              { id: "contracts", label: "Salvage", Icon: Coins },
-              { id: "log", label: "Notes", Icon: ScrollText },
-            ] as const).map(({ id, label, Icon }) => (
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
+            {NAV_ITEMS.map(({ id, label, Icon }) => (
               <button
                 key={id}
                 onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
@@ -649,6 +664,43 @@ export default function App() {
 
         </div>
       </header>
+
+      {/* MOBILE NAV DRAWER */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
+          <div className={`absolute top-0 right-0 h-full w-72 max-w-[80%] bg-[#0b0f19] border-l ${skin.accentBorder} shadow-2xl p-5 flex flex-col gap-2 animate-fade-in`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className={`font-monument text-sm tracking-wider ${skin.accentColor}`}>MENU</span>
+              <button onClick={() => setMobileNavOpen(false)} aria-label="Close menu" className="p-1.5 rounded-lg border border-gray-700 text-gray-400 hover:text-gray-100">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {NAV_ITEMS.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); setMobileNavOpen(false); }}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm transition-all border ${skin.accentBorder} ${
+                  activeTab === id
+                    ? `bg-slate-900 ${skin.accentColor} ${skin.glowClass}`
+                    : "text-gray-300 hover:text-gray-100 hover:bg-gray-900"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {label}
+              </button>
+            ))}
+            <div className="my-2 border-t border-gray-800" />
+            <a
+              href="/incinerator"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm text-red-400 border border-red-500/30 hover:bg-red-950/30 transition-all"
+            >
+              <Flame className="w-5 h-5" />
+              Incinerator
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* SUB-ACCENT BANNER */}
       <div className={`p-1 bg-gradient-to-r ${skin.bannerBg} border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech ${skin.accentColor}`}>
