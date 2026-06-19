@@ -1631,7 +1631,7 @@ export default function App() {
             <span>•</span>
             <a href="#" className="hover:text-amber-500 transition-colors uppercase">Domain Lease terms</a>
             <span>•</span>
-            <a href="https://ephix.net" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors uppercase">Built by Ephix</a>
+            <a href="https://ephix.net" target="_blank" rel="noopener noreferrer" title="Ephix Pulse — live top-100 TV & movie trending" className="text-cyan-400 hover:text-cyan-300 transition-colors uppercase">Built by Ephix Pulse</a>
           </div>
         </div>
         <p className="text-[10px] text-gray-600 uppercase">
