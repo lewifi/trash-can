@@ -5,6 +5,7 @@ import RescueRemix from "./components/RescueRemix";
 import TeamVenting from "./components/TeamVenting";
 import TiersUpgrades from "./components/TiersUpgrades";
 import ArtifactVisualizer from "./components/ArtifactVisualizer";
+import GhostRating from "./components/GhostRating";
 import {
   Trash2,
   Skull,
@@ -40,7 +41,8 @@ import {
   FileCode2,
   RefreshCw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Star
 } from "lucide-react";
 
 interface DeadProject {
@@ -95,6 +97,18 @@ export default function App() {
   }, []);
   const detailRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  // Wheel: vertical scroll drives the carousel horizontally without page-jump (fixes Windows jumpiness).
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [activeTab]);
 
   // State for original/fetched dumps
   const [dumps, setDumps] = useState<DeadProject[]>([]);
@@ -531,22 +545,29 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Stats Live Counter */}
-          <div className="flex items-center gap-6 text-xs font-mono-tech text-gray-400 bg-gray-950 border border-gray-800 rounded-lg px-4 py-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-              <span>TOTAL DUMPS: <strong className="text-gray-100 font-bold">{dumps.length + 1840}</strong></span>
-            </div>
-            <div className="hidden sm:block text-gray-600">|</div>
-            <div className="hidden sm:flex items-center gap-2">
-              <Flower2 className="w-3.5 h-3.5 text-pink-400" />
-              <span>MOURNED: <strong className="text-gray-100 font-bold">12,492</strong></span>
-            </div>
-            <div className="hidden md:block text-gray-600">|</div>
-            <div className="hidden md:block">
-              <span>TRAGEDY RATIO: <strong className="text-red-400">8.9/10 (EXTREME)</strong></span>
-            </div>
-          </div>
+          {/* Nav (sticky with header) */}
+          <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1">
+            {([
+              { id: "dump", label: "Dump", Icon: Plus },
+              { id: "memorials", label: "Landfill", Icon: Compass },
+              { id: "oracle", label: "Oracle", Icon: Star },
+              { id: "disposal", label: "Vent", Icon: Shield },
+              { id: "contracts", label: "Salvage", Icon: Coins },
+            ] as const).map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all ${
+                  activeTab === id
+                    ? "bg-slate-900 border border-cyan-500/50 text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-900 border border-transparent"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </nav>
 
         </div>
       </header>
@@ -560,7 +581,7 @@ export default function App() {
 
         {/* NAVIGATION SYSTEM */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-gray-950 border border-gray-800/80 p-2 rounded-xl">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="hidden">
             <button
               onClick={() => { navTab("dump"); setSelectedDump(null); }}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
@@ -1052,7 +1073,7 @@ export default function App() {
                       <span className="text-xs font-mono-tech text-fuchsia-300 bg-fuchsia-950/40 px-2 py-0.5 rounded border border-fuchsia-900">
                         {item.category.toUpperCase()}
                       </span>
-                      <strong className="text-xs text-red-400 font-mono-tech">🚨 GLITCH SCORE: {item.diagnosticScore || 90}%</strong>
+                      <GhostRating score={item.diagnosticScore || 90} size={16} />
                     </div>
 
                     {/* Interactive Showcase holographic blueprint */}
@@ -1065,6 +1086,7 @@ export default function App() {
                         causeOfDeath={item.causeOfDeath}
                         id={item.id}
                         variant="thumbnail"
+                        imageUrl={item.imageUrl}
                       />
                     </div>
 
@@ -1170,8 +1192,7 @@ export default function App() {
                   </button>
                   <div
                     ref={carouselRef}
-                    onWheel={(e) => { if (carouselRef.current) carouselRef.current.scrollLeft += e.deltaY; }}
-                    className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory px-[9%] sm:px-14 py-2 no-scrollbar"
+                    className="flex gap-5 overflow-x-auto snap-x snap-proximity px-[9%] sm:px-14 py-2 no-scrollbar"
                   >
                   {filteredDumps.map((d) => (
                     <div
@@ -1430,11 +1451,9 @@ export default function App() {
                       ) : selectedDump.aiAppraisal ? (
                         /* Prepopulated diagnostic */
                         <div className="bg-purple-950/15 border border-purple-900/40 p-4 rounded-xl space-y-2">
-                          <div className="flex justify-between items-center border-b border-purple-950/60 pb-1.5">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 border-b border-purple-950/60 pb-1.5">
                             <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
-                            <span className="text-xs font-mono-tech text-red-400 font-extrabold bg-red-950/30 px-2 py-0.5 rounded">
-                              {selectedDump.diagnosticScore || 85}/100
-                            </span>
+                            <GhostRating score={selectedDump.diagnosticScore || 85} size={18} />
                           </div>
                           <p className="text-xs text-gray-300 leading-relaxed italic">
                             "{selectedDump.aiAppraisal}"
