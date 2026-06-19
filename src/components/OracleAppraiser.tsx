@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2 } from "lucide-react";
+import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2 } from "lucide-react";
 import { AppraisalResult } from "../types";
 
 interface OracleAppraiserProps {
@@ -522,21 +522,20 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 )}
                 <button
                   type="button"
-                  onClick={handleBuryInWasteland}
-                  disabled={burying}
-                  className="w-full bg-[#111827] border border-cyan-500/40 hover:bg-cyan-950 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech font-bold uppercase py-2 px-3 rounded flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    setResult(null);
+                    setShareUrl(null);
+                    setErrorMsg(null);
+                    setName("");
+                    setDescription("");
+                    setCauseOfDeath("");
+                    setTechStack("");
+                    setCreator("");
+                  }}
+                  className="w-full bg-[#111827] border border-gray-700 hover:border-red-400 text-gray-400 hover:text-red-300 text-xs font-mono-tech font-bold uppercase py-2 px-3 rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
-                  {burying ? (
-                    <>
-                      <span className="w-3.5 h-3.5 border-2 border-cyan-300/40 border-t-cyan-300 rounded-full animate-spin" />
-                      Sealing the vault...
-                    </>
-                  ) : (
-                    <>
-                      <Archive className="w-3.5 h-3.5" />
-                      Seal & Bury in Graveyard
-                    </>
-                  )}
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Bin it &amp; roast something else
                 </button>
               </div>
             )}
