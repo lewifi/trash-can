@@ -263,6 +263,50 @@ async function rateLimit(
   return null;
 }
 
+// --- Appraisal archive: keep a small pool of real critiques so throttled users
+// still get a genuine roast ("from the archives") instead of an error message. ---
+const APPRAISAL_CACHE_KEY = "appraisal_cache_v1";
+
+async function cacheAppraisal(
+  kv: KVNamespace | undefined,
+  category: string,
+  appr: { score?: number; appraisal?: string; postMortem?: string; recyclingPlan?: string }
+): Promise<void> {
+  if (!kv || !appr || !appr.appraisal) return;
+  try {
+    const raw = await kv.get(APPRAISAL_CACHE_KEY);
+    let arr: any[] = raw ? JSON.parse(raw) : [];
+    arr.unshift({
+      score: appr.score,
+      appraisal: appr.appraisal,
+      postMortem: appr.postMortem,
+      recyclingPlan: appr.recyclingPlan,
+      category: category || "other",
+    });
+    arr = arr.slice(0, 40);
+    await kv.put(APPRAISAL_CACHE_KEY, JSON.stringify(arr));
+  } catch {
+    /* best effort */
+  }
+}
+
+async function getCachedAppraisal(
+  kv: KVNamespace | undefined,
+  category: string
+): Promise<any | null> {
+  if (!kv) return null;
+  try {
+    const raw = await kv.get(APPRAISAL_CACHE_KEY);
+    const arr: any[] = raw ? JSON.parse(raw) : [];
+    if (!arr.length) return null;
+    const sameCat = arr.filter((a) => a.category === category);
+    const pool = sameCat.length ? sameCat : arr;
+    return pool[Math.floor(Math.random() * pool.length)];
+  } catch {
+    return null;
+  }
+}
+
 app.post("/api/dumps", async (c) => {
   const limited = await rateLimit(c, "dumps", [
     { windowMs: 30_000, max: 5 },
@@ -408,11 +452,6 @@ app.get("/api/rooms/:roomName", async (c) => {
 
 // API: Live AI waste management consultant / appraisal
 app.post("/api/appraise", async (c) => {
-  const limited = await rateLimit(c, "appraise", [
-    { windowMs: 30_000, max: 5 },
-    { windowMs: 3_600_000, max: 60 },
-  ]);
-  if (limited) return limited;
   const body = await c.req.json();
   const { name, description, category, causeOfDeath, techStack } = body;
 
@@ -421,6 +460,20 @@ app.post("/api/appraise", async (c) => {
       { error: "Project name and tragedy description are required for an appraisal." },
       400
     );
+  }
+
+  const limited = await rateLimit(c, "appraise", [
+    { windowMs: 30_000, max: 5 },
+    { windowMs: 3_600_000, max: 60 },
+  ]);
+  if (limited) {
+    // Throttled: serve a genuine critique from the archives instead of an error.
+    const archived = await getCachedAppraisal(c.env.GRAVEYARD_KV, category);
+    if (archived) {
+      const { category: _omit, ...rest } = archived;
+      return c.json({ ...rest, cached: true });
+    }
+    return limited;
   }
 
   const aiClient = getAIClient(c.env.GEMINI_API_KEY);
@@ -469,6 +522,11 @@ Every field should land a joke. No disclaimers, no preamble.`;
 
     try {
       const parsed = JSON.parse(resultText);
+      try {
+        c.executionCtx.waitUntil(cacheAppraisal(c.env.GRAVEYARD_KV, category, parsed));
+      } catch {
+        /* executionCtx unavailable; skip caching this one */
+      }
       return c.json(parsed);
     } catch (parseErr) {
       console.error("Failed to parse Gemini response as JSON. Raw text was:", resultText);
