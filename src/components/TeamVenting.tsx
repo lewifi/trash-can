@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Lock, Unlock, AlertTriangle, ShieldCheck, Plus, ListFilter, HelpCircle } from "lucide-react";
+import { Lock, Unlock, AlertTriangle, ShieldCheck, Plus, ListFilter, HelpCircle, Users } from "lucide-react";
 import { DeadProject } from "../types";
 
 interface TeamVentingProps {
@@ -23,18 +23,22 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
   const [vTragedy, setVTragedy] = useState(5);
   const [vCreator, setVCreator] = useState("");
 
-  const handleAccessRoom = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!roomName || !password) {
+  const handleAccessRoom = async (e?: React.FormEvent, codeArg?: string, pwdArg?: string) => {
+    if (e) e.preventDefault();
+    const code = (codeArg ?? roomName).trim();
+    const pwd = pwdArg ?? password;
+    if (!code || !pwd) {
       setErrorMsg("Please enter a room code and access password.");
       return;
     }
+    if (codeArg !== undefined) setRoomName(codeArg);
+    if (pwdArg !== undefined) setPassword(pwdArg);
 
     setLoading(true);
     setErrorMsg(null);
 
     try {
-      const response = await fetch(`/api/rooms/${encodeURIComponent(roomName)}?password=${encodeURIComponent(password)}`);
+      const response = await fetch(`/api/rooms/${encodeURIComponent(code)}?password=${encodeURIComponent(pwd)}`);
       if (!response.ok) {
         if (response.status === 403) {
           throw new Error("Wrong containment credentials. Toxic fumes detected.");
@@ -44,8 +48,8 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
 
       const data = await response.json();
       setRoomDumps(data);
-      setActiveRoomName(roomName);
-      setActiveRoomPassword(password);
+      setActiveRoomName(code);
+      setActiveRoomPassword(pwd);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Failed to authenticate room access.");
@@ -163,6 +167,25 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                 <span className="font-bold uppercase tracking-wider block mb-0.5 text-[10px]">Testing Quick-Guide:</span>
                 Create any virtual room right now by entering a unique Room Code (e.g., <code className="text-white">my-team</code>) and a custom password. You can immediately log back in with the same credentials to retrieve, read, and write logs!
               </div>
+            </div>
+
+            <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded text-xs text-emerald-300 max-w-lg space-y-2.5">
+              <div className="flex items-start gap-2">
+                <Users className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold uppercase tracking-wider block mb-0.5 text-[10px]">General Public Vent Room</span>
+                  Don't have a team? Pile into the shared room — open to everyone. Containment Block Code: <code className="text-white">chat</code> · Containment Hatch Password: <code className="text-white">chat</code>.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleAccessRoom(undefined, "chat", "chat")}
+                disabled={loading}
+                className="w-full bg-emerald-950/40 border border-emerald-500/40 hover:bg-emerald-900/30 text-emerald-200 font-mono-tech text-xs uppercase font-bold py-2 px-4 rounded transition cursor-pointer flex justify-center items-center gap-1.5 disabled:opacity-50"
+              >
+                <Unlock className="w-3.5 h-3.5" />
+                <span>Enter public vent room</span>
+              </button>
             </div>
             
             {errorMsg && (
