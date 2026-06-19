@@ -80,9 +80,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
     }
   };
 
+  const [burying, setBurying] = useState(false);
   const handleBuryInWasteland = async () => {
     if (!name || !description) return;
-
+    setBurying(true);
     try {
       const payload = {
         name,
@@ -125,6 +126,8 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
     } catch (err: any) {
       console.error(err);
       setErrorMsg("Error burying your code artifact.");
+    } finally {
+      setBurying(false);
     }
   };
 
@@ -400,10 +403,20 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 <button
                   type="button"
                   onClick={handleBuryInWasteland}
-                  className="w-full bg-[#111827] border border-cyan-500/40 hover:bg-cyan-950 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech font-bold uppercase py-2 px-3 rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  disabled={burying}
+                  className="w-full bg-[#111827] border border-cyan-500/40 hover:bg-cyan-950 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech font-bold uppercase py-2 px-3 rounded flex items-center justify-center gap-1.5 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <Archive className="w-3.5 h-3.5" />
-                  Seal & Bury in Graveyard
+                  {burying ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-cyan-300/40 border-t-cyan-300 rounded-full animate-spin" />
+                      Sealing the vault...
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="w-3.5 h-3.5" />
+                      Seal & Bury in Graveyard
+                    </>
+                  )}
                 </button>
               </div>
             )}

@@ -282,6 +282,7 @@ export default function App() {
   }, [dumps, searchQuery, selectedCategory, sortBy]);
 
   // Form submission handler
+  const [submitting, setSubmitting] = useState(false);
   const handleDumpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName || !formDescription) {
@@ -304,6 +305,7 @@ export default function App() {
       imageUrl: formImageUrl || undefined,
     };
 
+    setSubmitting(true);
     try {
       const res = await fetch("/api/dumps", {
         method: "POST",
@@ -338,6 +340,8 @@ export default function App() {
     } catch (e) {
       console.error(e);
       alert("Failed to record the tragedy. Database signals blocked.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -1023,10 +1027,20 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className={`w-full py-3 ${skin.buttonColor} font-mono-tech font-bold tracking-wider rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer`}
+                  disabled={submitting}
+                  className={`w-full py-3 ${skin.buttonColor} font-mono-tech font-bold tracking-wider rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed`}
                 >
-                  <Trash2 className="w-4 h-4 relative group-hover:rotate-12 transition-transform" />
-                  DUMP TRASH TO WEB-SERVER
+                  {submitting ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      INSPECTING & DUMPING...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 relative group-hover:rotate-12 transition-transform" />
+                      DUMP TRASH TO WEB-SERVER
+                    </>
+                  )}
                 </button>
               </form>
 

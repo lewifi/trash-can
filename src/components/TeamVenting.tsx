@@ -54,6 +54,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
     }
   };
 
+  const [creating, setCreating] = useState(false);
   const handleCreateVentingLog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!vName || !vDesc || !activeRoomName || !activeRoomPassword) {
@@ -61,6 +62,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
       return;
     }
 
+    setCreating(true);
     try {
       const payload = {
         name: vName,
@@ -103,6 +105,8 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
     } catch (err) {
       console.error(err);
       setErrorMsg("Failed to emit venting log.");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -353,9 +357,17 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
 
             <button
               type="submit"
-              className="w-full bg-red-900/30 hover:bg-red-800/20 border border-red-500/50 text-red-300 font-mono-tech text-xs uppercase font-bold py-2 rounded transition cursor-pointer flex justify-center items-center gap-1.5"
+              disabled={creating}
+              className="w-full bg-red-900/30 hover:bg-red-800/20 border border-red-500/50 text-red-300 font-mono-tech text-xs uppercase font-bold py-2 rounded transition cursor-pointer flex justify-center items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>LOCK AND SEAL TO COLD VAULT</span>
+              {creating ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-red-300/40 border-t-red-300 rounded-full animate-spin" />
+                  <span>SEALING THE VAULT...</span>
+                </>
+              ) : (
+                <span>LOCK AND SEAL TO COLD VAULT</span>
+              )}
             </button>
           </form>
         </div>
