@@ -152,7 +152,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
 
       {!activeRoomName ? (
         /* LOCK SCREEN FOR PRIVATE TEAM VAULT */
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
           <div className="lg:col-span-3 space-y-4">
             <h4 className="font-mono-tech text-xs tracking-wider text-yellow-500 uppercase flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5" />
