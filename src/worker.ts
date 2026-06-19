@@ -849,7 +849,7 @@ app.get("/roast/:id", async (c) => {
   if (!raw) return shell;
   const r = JSON.parse(raw);
   const title = `\uD83D\uDD25 ${r.name} just got roasted \u2014 you have to see this`;
-  const desc = `\uD83D\uDD25 ${r.appraisal || ""}`.replace(/\s+/g, " ").slice(0, 190);
+  const desc = `\uD83D\uDD25 ${String(r.appraisal || "").replace(/\s+/g, " ").slice(0, 140)} \u2026 click to see the full roast`;
   const url = `https://trash-can.net/roast/${id}`;
   const img = `https://trash-can.net/api/og/roast/${id}`;
   const content = (v: string) => ({ element(e: any) { e.setAttribute("content", v); } });
