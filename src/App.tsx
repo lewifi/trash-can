@@ -1158,11 +1158,15 @@ export default function App() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  onClick={(e) => { if (e.target === e.currentTarget) setSelectedDump(null); }}
+                >
                   {filteredDumps.map((d) => (
                     <div
                       key={d.id}
                       onClick={() => {
+                        if (selectedDump?.id === d.id) { setSelectedDump(null); return; }
                         setSelectedDump(d);
                         // Auto appraisal call if not present
                         if (!d.aiAppraisal && !appraiseResult) {
@@ -1171,9 +1175,9 @@ export default function App() {
                       }}
                       className={`group p-5 bg-gray-950 border transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between ${
                         selectedDump?.id === d.id
-                          ? "border-cyan-400 bg-slate-950/80 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+                          ? "border-cyan-400 bg-slate-950/80 shadow-[0_0_28px_rgba(6,182,212,0.4)] ring-1 ring-cyan-400/50"
                           : "border-gray-800 hover:border-gray-600 hover:bg-gray-900/60"
-                      }`}
+                      } ${selectedDump && selectedDump.id !== d.id ? "opacity-30 hover:opacity-100" : ""}`}
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
@@ -1251,7 +1255,7 @@ export default function App() {
             <div className="lg:col-span-4">
               
               {selectedDump ? (
-                <div ref={detailRef} className="bg-gray-950/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(6,182,212,0.05)]">
+                <div ref={detailRef} className="bg-gray-950/90 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
