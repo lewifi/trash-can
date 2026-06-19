@@ -559,7 +559,7 @@ export default function App() {
                 onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all ${
                   activeTab === id
-                    ? "bg-slate-900 border border-cyan-500/50 text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                    ? `bg-slate-900 border ${skin.accentBorder} ${skin.accentColor} shadow-[0_0_10px_rgba(6,182,212,0.15)]`
                     : "text-gray-400 hover:text-gray-100 hover:bg-gray-900 border border-transparent"
                 }`}
               >
@@ -573,7 +573,7 @@ export default function App() {
       </header>
 
       {/* SUB-ACCENT BANNER */}
-      <div className={`p-1 bg-gradient-to-r from-cyan-500/20 via-red-500/20 to-purple-500/20 border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech`}>
+      <div className={`p-1 bg-gradient-to-r ${skin.bannerBg} border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech ${skin.accentColor}`}>
         "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO
       </div>
 
