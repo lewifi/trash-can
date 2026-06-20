@@ -244,6 +244,9 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             <p className="text-xs text-gray-400 leading-relaxed">
               Roast a mate. Pop in who you're roasting, sign your own name so they know who to blame, and we'll cook it up.
             </p>
+            <p className="text-[10px] text-gray-500 leading-relaxed border border-gray-800 rounded px-2.5 py-1.5">
+              🔒 Nothing is sent, ever &mdash; no emails, no messages. Your name just writes the roast and isn't stored, unless <span className="text-gray-400">you</span> tap Save &amp; Share &mdash; which turns it into an invite link you send yourself.
+            </p>
             <div>
               <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Who are you roasting?</label>
               <input
@@ -418,7 +421,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   </button>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-[10px] font-mono-tech text-fuchsia-300 uppercase tracking-widest">Send it to whoever you just roasted:</p>
+                    <p className="text-[10px] font-mono-tech text-fuchsia-300 uppercase tracking-widest">Your roast link &mdash; share it as an invite:</p>
                     <div className="flex gap-2">
                       <input
                         readOnly

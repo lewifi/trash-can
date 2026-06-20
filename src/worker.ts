@@ -487,11 +487,14 @@ app.post("/api/appraise", async (c) => {
     { windowMs: 3_600_000, max: 60 },
   ]);
   if (limited) {
-    // Throttled: serve a genuine critique from the archives instead of an error.
-    const archived = await getCachedAppraisal(c.env.GRAVEYARD_KV, category);
-    if (archived) {
-      const { category: _omit, ...rest } = archived;
-      return c.json({ ...rest, cached: true });
+    // Throttled. For project roasts we can serve a cached critique from the archives;
+    // for scandal/prank mode (real people's names) we never serve someone else's roast.
+    if (!isScandal) {
+      const archived = await getCachedAppraisal(c.env.GRAVEYARD_KV, category);
+      if (archived) {
+        const { category: _omit, ...rest } = archived;
+        return c.json({ ...rest, cached: true });
+      }
     }
     return limited;
   }
@@ -615,10 +618,13 @@ Every field should land a joke. No disclaimers, no preamble.`;
 
     try {
       const parsed = JSON.parse(resultText);
-      try {
-        c.executionCtx.waitUntil(cacheAppraisal(c.env.GRAVEYARD_KV, category, parsed));
-      } catch {
-        /* executionCtx unavailable; skip caching this one */
+      if (!isScandal) {
+        // Never archive scandal/prank roasts - they're tied to a real person's name.
+        try {
+          c.executionCtx.waitUntil(cacheAppraisal(c.env.GRAVEYARD_KV, category, parsed));
+        } catch {
+          /* executionCtx unavailable; skip caching this one */
+        }
       }
       return c.json(parsed);
     } catch (parseErr) {
