@@ -94,7 +94,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
   };
 
   return (
-    <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl overflow-hidden p-6 relative neon-glow-cyan">
+    <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl overflow-hidden p-6 relative neon-glow-cyan depth-top">
       {/* Decorative top header */}
       <div className="flex justify-between items-center mb-4 border-b border-cyan-500/20 pb-3">
         <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
         </div>
 
         {/* Live Triage Console Sidebar */}
-        <div className="bg-[#060913] border border-cyan-500/10 rounded-lg p-4 flex flex-col justify-between">
+        <div className="bg-[#060913] border border-cyan-500/10 rounded-lg p-4 flex flex-col justify-between depth-top">
           <div>
             <div className="flex items-center gap-2 mb-3 text-amber-400 font-mono-tech text-xs uppercase tracking-wide">
               <Trophy className="w-4 h-4" />

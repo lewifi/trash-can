@@ -232,7 +232,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             THE ROAST ORACLE
           </h3>
           <p className="text-xs text-gray-400 font-mono-tech mt-0.5">
-            AI roast machine \u2014 savage verdicts on demand
+            AI roast machine &mdash; savage verdicts on demand
           </p>
         </div>
       </div>
@@ -240,7 +240,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Side: Submit / Dump Form */}
         <form onSubmit={handleExpose} className="lg:col-span-3 space-y-4">
-          <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4">
+          <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4 depth-top">
             <p className="text-xs text-gray-400 leading-relaxed">
               Roast a mate. Pop in who you're roasting, sign your own name so they know who to blame, and we'll cook it up.
             </p>
@@ -286,7 +286,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
         {/* Right Side: Consultation Booth (CRT Screen style) */}
         <div className="lg:col-span-2 flex flex-col">
-          <div className="bg-[#05070e] border-2 border-cyan-400/30 rounded-lg p-5 flex-1 relative flex flex-col justify-between overflow-hidden shadow-2xl mini-radar-glow">
+          <div className="bg-[#05070e] border-2 border-cyan-400/30 rounded-lg p-5 flex-1 relative flex flex-col justify-between overflow-hidden shadow-2xl mini-radar-glow depth-top">
             {/* Horizontal sweep scanline indicator */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-400/50 opacity-20 pointer-events-none animate-bounce" style={{ animationDuration: '6s' }}></div>
             <div className="absolute inset-0 scanlines opacity-50 pointer-events-none"></div>

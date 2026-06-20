@@ -32,22 +32,22 @@ export default function Atmosphere() {
   return (
     <div className="fixed inset-0 -z-0 pointer-events-none overflow-hidden" aria-hidden="true">
       <svg
-        className="absolute inset-0 w-full h-full opacity-[0.5]"
+        className="absolute inset-0 w-full h-full opacity-90"
         viewBox="0 0 1000 700"
         preserveAspectRatio="xMidYMax slice"
       >
         {/* angled side walls */}
-        <polygon points="0,0 0,700 240,560 240,150" fill="rgba(217,70,239,0.035)" />
-        <polygon points="1000,0 1000,700 760,560 760,150" fill="rgba(34,211,238,0.035)" />
+        <polygon points="0,0 0,700 240,560 240,150" fill="rgba(217,70,239,0.08)" />
+        <polygon points="1000,0 1000,700 760,560 760,150" fill="rgba(34,211,238,0.08)" />
         {/* back wall panel */}
-        <rect x="240" y="150" width="520" height="410" fill="rgba(148,163,184,0.02)" />
+        <rect x="240" y="150" width="520" height="410" fill="rgba(148,163,184,0.045)" />
         {/* floor perspective */}
-        <g stroke="rgba(34,211,238,0.07)" strokeWidth="1" fill="none">
+        <g stroke="rgba(34,211,238,0.16)" strokeWidth="1" fill="none">
           {verticals.map((d, i) => (
             <path key={`v${i}`} d={d} />
           ))}
           {depthRails.map((d, i) => (
-            <path key={`r${i}`} d={d} stroke="rgba(217,70,239,0.06)" />
+            <path key={`r${i}`} d={d} stroke="rgba(217,70,239,0.14)" />
           ))}
         </g>
       </svg>

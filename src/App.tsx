@@ -123,7 +123,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.1";
+const APP_VERSION = "1.4.2";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -1271,7 +1271,7 @@ export default function App() {
                   <button
                     key={d.id}
                     onClick={() => { setSelectedDump(d); navTab("memorials"); }}
-                    className={`flex-shrink-0 w-52 text-left bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-3 hover:bg-gray-900/60 transition-all group`}
+                    className={`flex-shrink-0 w-52 text-left bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-3 hover:bg-gray-900/60 transition-all group depth-top`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="text-[9px] font-mono-tech text-gray-500 uppercase truncate">{catLabel(d.category)}</span>
@@ -1300,7 +1300,7 @@ export default function App() {
 
         {/* NEON HALL OF FAME / CAROUSEL ZONE */}
         {activeTab === "memorials" && !selectedDump && (
-          <div className="mb-8 p-6 bg-gradient-to-r from-[#0d091a] via-[#05070f] to-[#04091a] border border-gray-800 rounded-2xl relative overflow-hidden">
+          <div className="mb-8 p-6 bg-gradient-to-r from-[#0d091a] via-[#05070f] to-[#04091a] border border-gray-800 rounded-2xl relative overflow-hidden depth-top">
             <div className="absolute right-0 top-0 w-96 h-96 bg-fuchsia-500/5 blur-[120px] pointer-events-none" />
             
             <div className="flex items-center justify-between mb-6">
@@ -1320,7 +1320,7 @@ export default function App() {
                 <div 
                   key={item.id}
                   onClick={() => setSelectedDump(item)}
-                  className="p-5 bg-black/60 hover:bg-black border border-purple-500/30 hover:border-purple-400 rounded-xl cursor-pointer transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(240,46,170,0.05)] flex flex-col justify-between"
+                  className="p-5 bg-black/60 hover:bg-black border border-purple-500/30 hover:border-purple-400 rounded-xl cursor-pointer transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(240,46,170,0.05)] flex flex-col justify-between depth-top"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
@@ -1376,7 +1376,7 @@ export default function App() {
             <div className="space-y-6">
               
               {/* FILTERS TOOLBAR */}
-              <div className="bg-gray-950 border border-gray-800 p-4 rounded-xl space-y-3">
+              <div className="bg-gray-950 border border-gray-800 p-4 rounded-xl space-y-3 depth-top">
                 <div className="flex flex-col md:flex-row items-center gap-3">
                   <div className="relative w-full md:w-3/5">
                     <Search className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
@@ -1451,7 +1451,7 @@ export default function App() {
                           handleAppraise(d);
                         }
                       }}
-                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full [content-visibility:auto] [contain-intrinsic-size:auto_360px]"
+                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px]"
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
@@ -1543,7 +1543,7 @@ export default function App() {
                 className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-8"
                 onClick={() => setSelectedDump(null)}
               >
-                <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40">
+                <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40 depth-top">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
@@ -1891,7 +1891,7 @@ export default function App() {
                   <ScrollText className={`w-4 h-4 ${skin.accentColor}`} /> Yard Notes
                 </h3>
                 {CRYPT_LOG.map((e, i) => (
-                  <div key={i} className={`relative bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-5 pl-6`}>
+                  <div key={i} className={`relative bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-5 pl-6 depth-top`}>
                     <span className={`absolute left-0 top-5 bottom-5 w-1 rounded-full bg-current ${skin.accentColor} opacity-70`} />
                     <div className="flex items-center justify-between gap-3 mb-2">
                       <span className={`text-[10px] font-mono-tech px-2 py-0.5 rounded border ${skin.accentBorder} ${skin.accentColor} uppercase tracking-wider`}>{e.tag}</span>
@@ -1908,7 +1908,7 @@ export default function App() {
                 <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
                   <Trash2 className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Dumped
                 </h3>
-                <div className={`bg-[#0b0f19] border ${skin.accentBorder} rounded-xl divide-y divide-gray-900`}>
+                <div className={`bg-[#0b0f19] border ${skin.accentBorder} rounded-xl divide-y divide-gray-900 depth-top`}>
                   {[...dumps]
                     .filter((d) => !d.isPrivate)
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

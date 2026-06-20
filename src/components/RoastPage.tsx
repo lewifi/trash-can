@@ -74,7 +74,7 @@ export default function RoastPage() {
 
       {status === "ok" && roast && (
         <div className="relative w-full max-w-2xl animate-fade-in">
-          <div className="bg-[#0b0f19] border border-cyan-400/40 rounded-2xl p-6 sm:p-8 shadow-[0_0_45px_rgba(6,182,212,0.18)] ring-1 ring-cyan-400/20">
+          <div className="bg-[#0b0f19] border border-cyan-400/40 rounded-2xl p-6 sm:p-8 shadow-[0_0_45px_rgba(6,182,212,0.18)] ring-1 ring-cyan-400/20 depth-top">
             <div className="flex items-center justify-between gap-3 mb-5">
               <span className="text-[10px] font-mono-tech text-gray-500 uppercase tracking-[0.3em]">
                 {roast.category}
