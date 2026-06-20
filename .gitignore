@@ -16,3 +16,6 @@ worker-configuration.d.ts
 
 # Lockfile is generated at build time (CI runs npm install)
 package-lock.json
+
+# Hidden-hunt design doc (spoilers) — keep out of the public repo
+docs/hunt-adventure.md
