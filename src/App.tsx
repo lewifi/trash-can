@@ -121,7 +121,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.3.8";
+const APP_VERSION = "1.3.9";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -692,10 +692,12 @@ export default function App() {
               <button
                 key={id}
                 onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border ${skin.accentBorder} ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border ${
                   activeTab === id
-                    ? `bg-slate-900 ${skin.accentColor} ${skin.glowClass} animate-pulse`
-                    : `text-gray-400 hover:text-gray-100 hover:bg-gray-900 ${skin.glowClass} opacity-90 hover:opacity-100`
+                    ? `bg-slate-900 ${skin.accentColor} ${skin.accentBorder} ${skin.glowClass} animate-pulse`
+                    : id === "oracle"
+                    ? "border-fuchsia-500/60 text-fuchsia-200 bg-fuchsia-950/40 hover:bg-fuchsia-900/50 shadow-[0_0_16px_rgba(217,70,239,0.55)] animate-pulse"
+                    : `${skin.accentBorder} text-gray-400 hover:text-gray-100 hover:bg-gray-900 ${skin.glowClass} opacity-90 hover:opacity-100`
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -730,10 +732,12 @@ export default function App() {
               <button
                 key={id}
                 onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); setMobileNavOpen(false); }}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm transition-all border ${skin.accentBorder} ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm transition-all border ${
                   activeTab === id
-                    ? `bg-slate-900 ${skin.accentColor} ${skin.glowClass}`
-                    : "text-gray-300 hover:text-gray-100 hover:bg-gray-900"
+                    ? `bg-slate-900 ${skin.accentColor} ${skin.accentBorder} ${skin.glowClass}`
+                    : id === "oracle"
+                    ? "border-fuchsia-500/60 text-fuchsia-200 bg-fuchsia-950/40 hover:bg-fuchsia-900/50 shadow-[0_0_16px_rgba(217,70,239,0.5)] animate-pulse"
+                    : `${skin.accentBorder} text-gray-300 hover:text-gray-100 hover:bg-gray-900`
                 }`}
               >
                 <Icon className="w-5 h-5" />
