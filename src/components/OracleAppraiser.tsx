@@ -474,8 +474,15 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg my-6 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-[#1a0b2e] via-[#0b0f19] to-[#2e1a0b] border-2 border-fuchsia-500/40 shadow-[0_0_60px_rgba(217,70,239,0.35)] text-center animate-fade-in"
+            className="relative overflow-hidden w-full max-w-lg my-6 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-[#1a0b2e] via-[#0b0f19] to-[#2e1a0b] border-2 border-fuchsia-500/40 shadow-[0_0_60px_rgba(217,70,239,0.35)] text-center animate-fade-in"
           >
+            <div className="absolute inset-0 pointer-events-none opacity-30">
+              <svg viewBox="0 0 64 40" className="absolute top-9 -left-3 w-24 h-14 text-fuchsia-400 animate-pulse-slow" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
+              <svg viewBox="0 0 64 40" className="absolute top-24 -right-4 w-28 h-16 text-cyan-400" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
+              <svg viewBox="0 0 64 40" className="absolute bottom-8 -left-2 w-20 h-12 text-amber-400 animate-pulse-slow" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
+              <svg viewBox="0 0 64 40" className="absolute bottom-2 right-1 w-16 h-10 text-sky-400" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
+            </div>
+            <div className="relative z-10">
             <button
               type="button"
               onClick={() => setAdventureOpen(false)}
@@ -509,7 +516,8 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             >
               To the Landfill →
             </a>
-            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers.</p>
+            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers. <span className="text-sky-300/70">Mind the clouds.</span></p>
+            </div>
           </div>
         </div>
       )}
