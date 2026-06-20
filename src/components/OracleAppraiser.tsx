@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2 } from "lucide-react";
+import Confetti from "./Confetti";
 import { AppraisalResult } from "../types";
 
 interface OracleAppraiserProps {
@@ -34,6 +35,28 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AppraisalResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [confettiActive, setConfettiActive] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
+  const scoreRaf = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!result) { setDisplayScore(0); return; }
+    // Fire confetti the moment the result lands
+    setConfettiActive(true);
+    setTimeout(() => setConfettiActive(false), 3200);
+    // Count the score up over ~1.2s
+    const target = Math.round(result.score);
+    const steps = 40;
+    const delay = 1200 / steps;
+    let current = 0;
+    const tick = () => {
+      current = Math.min(current + Math.ceil(target / steps), target);
+      setDisplayScore(current);
+      if (current < target) scoreRaf.current = setTimeout(tick, delay);
+    };
+    scoreRaf.current = setTimeout(tick, 200);
+    return () => { if (scoreRaf.current) clearTimeout(scoreRaf.current); };
+  }, [result]);
 
   // Advanced coordinates configuration
   const [latitude, setLatitude] = useState<number | "">("");
@@ -222,6 +245,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   return (
     <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl p-6 relative neon-glow-cyan overflow-hidden">
+      <Confetti active={confettiActive} />
       {/* Absolute top diagnostic line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-cyan-500 to-amber-500"></div>
 
@@ -332,57 +356,69 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               )}
 
               {result && (
-                <div className="space-y-4 animate-fade-in text-xs text-gray-300">
-                  <div className="flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 p-2.5 rounded">
-                    <span className="font-mono-tech text-cyan-300 uppercase">Roast Rating:</span>
-                    <span className="text-sm font-bold text-red-400 font-mono-tech">{Math.round(result.score)}/100</span>
+                <div className="space-y-3 animate-fade-in text-xs text-gray-300">
+
+                  {/* Score — big, animated count-up */}
+                  <div className="text-center py-3">
+                    <div className="animate-score-pop inline-block">
+                      <span className="text-5xl font-monument font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-amber-400">
+                        {displayScore}
+                      </span>
+                      <span className="text-xl font-monument text-gray-500">/100</span>
+                    </div>
+                    <p className="text-[10px] font-mono-tech text-gray-500 uppercase tracking-widest mt-1">Roast Rating</p>
+                    {result.score >= 90 && (
+                      <p className="text-fuchsia-400 font-bold text-xs mt-1 animate-bounce">☠️ ABSOLUTELY DESTROYED</p>
+                    )}
+                    {result.score >= 70 && result.score < 90 && (
+                      <p className="text-pink-400 font-bold text-xs mt-1">🔥 properly cooked</p>
+                    )}
                   </div>
 
-                  <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
-                    <span className="text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
-                      The Verdict
-                    </span>
-                    <p className="italic text-gray-300 leading-relaxed font-sans font-medium text-sm">
-                      "{result.appraisal}"
-                    </p>
+                  <div className="border border-fuchsia-500/20 p-3 rounded-lg bg-gradient-to-br from-fuchsia-950/20 to-violet-950/20">
+                    <span className="text-[10px] font-mono-tech text-fuchsia-400 uppercase tracking-widest block mb-1">The Verdict</span>
+                    <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-sm">"{result.appraisal}"</p>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono-tech text-red-400 uppercase tracking-widest block">
-                      The Deep Cut
-                    </span>
-                    <p className="leading-relaxed text-gray-400 text-[11px]">
-                      {result.postMortem}
-                    </p>
+                    <span className="text-[10px] font-mono-tech text-pink-400 uppercase tracking-widest block">The Deep Cut</span>
+                    <p className="leading-relaxed text-gray-400 text-[11px]">{result.postMortem}</p>
                   </div>
 
-                  <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-300">
-                    <span className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
-                      <Coins className="w-3.5 h-3.5" />
-                      Unsolicited Advice
+                  <div className="space-y-1 pt-2 border-t border-violet-500/10">
+                    <span className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest flex items-center gap-1">
+                      <Coins className="w-3.5 h-3.5" /> Unsolicited Advice
                     </span>
-                    <p className="leading-relaxed text-[11px]">
-                      {result.recyclingPlan}
-                    </p>
+                    <p className="leading-relaxed text-[11px] text-amber-200/80">{result.recyclingPlan}</p>
                   </div>
 
-                  <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
-                    <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Get them back: send {exposeFriend} this and they'll prank themselves too.</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const msg = `${exposeFriend} — you have to try this. Roast anyone you want 😈 ${window.location.origin}/roastoracle (from ${exposeName})`;
-                        navigator.clipboard?.writeText(msg).then(() => {
-                          setPrankCopied(true);
-                          setTimeout(() => setPrankCopied(false), 2000);
-                        });
-                      }}
-                      className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
-                    >
-                      {prankCopied ? "Copied! Go send it" : `Copy message for ${exposeFriend}`}
-                    </button>
+                  {/* AHA reveal — rainbow border, gradient text, big viral CTA */}
+                  <div className="relative mt-1 rounded-xl p-[2px] animate-gradient-border bg-gradient-to-r from-fuchsia-500 via-violet-500 via-pink-400 to-cyan-400">
+                    <div className="rounded-[10px] bg-[#0d0a1a] p-4 text-center space-y-2">
+                      <div className="text-2xl">🎉 💀 🔥</div>
+                      <p className="text-lg font-monument text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-300 to-amber-400">
+                        AHA, {exposeName}!
+                      </p>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">
+                        You thought you were roasting <span className="text-fuchsia-300 font-bold">{exposeFriend}</span> — nope. This roast is all about YOU.
+                      </p>
+                      <p className="text-[11px] text-gray-400 leading-relaxed">
+                        Get them back — send {exposeFriend} this link and they'll prank themselves too 😈
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const msg = `${exposeFriend} — you have to try this. Roast anyone you want 😈 ${window.location.origin}/roastoracle (from ${exposeName})`;
+                          navigator.clipboard?.writeText(msg).then(() => {
+                            setPrankCopied(true);
+                            setTimeout(() => setPrankCopied(false), 2500);
+                          });
+                        }}
+                        className="w-full mt-1 bg-gradient-to-r from-fuchsia-500 via-violet-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 text-white font-mono-tech font-bold uppercase py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition cursor-pointer shadow-[0_0_24px_rgba(217,70,239,0.5)] text-sm"
+                      >
+                        {prankCopied ? "✓ Copied — go send it!" : `🔗 Copy prank link for ${exposeFriend}`}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
