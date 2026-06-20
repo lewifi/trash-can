@@ -401,7 +401,7 @@ app.post("/api/dumps", async (c) => {
     createdAt: new Date().toISOString(),
     latitude: finalLat,
     longitude: finalLng,
-    isPrivate: !!isPrivate,
+    isPrivate: true, // new dumps are held for review; publish via the Incinerator
     roomPassword: roomPassword ? String(roomPassword) : undefined,
     roomName: roomName ? String(roomName) : undefined,
     imageUrl: imageUrl ? String(imageUrl) : undefined,

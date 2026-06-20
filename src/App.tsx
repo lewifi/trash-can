@@ -123,7 +123,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.3";
+const APP_VERSION = "1.4.4";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -264,6 +264,7 @@ export default function App() {
   const [formTragedy, setFormTragedy] = useState(5);
   const [formIcon, setFormIcon] = useState("skull");
   const [formIsPrivate, setFormIsPrivate] = useState(false);
+  const [dumpDone, setDumpDone] = useState(false);
   const [formRoomName, setFormRoomName] = useState("");
   const [formRoomPassword, setFormRoomPassword] = useState("");
   const [formImageUrl, setFormImageUrl] = useState("");
@@ -417,6 +418,7 @@ export default function App() {
     };
 
     setSubmitting(true);
+    setDumpDone(false);
     try {
       const res = await fetch("/api/dumps", {
         method: "POST",
@@ -440,13 +442,10 @@ export default function App() {
         setFormCoords(null);
         setFormGeoStatus("");
         
-        // Refresh & announce
-        await fetchDumps();
-        navTab("memorials");
-        
-        // Auto select the new dump for detail preview
-        const data = await res.json();
-        setSelectedDump(data);
+        // New dumps are held for review (private) — don't navigate to the
+        // landfill (it won't show there yet); show a confirmation instead.
+        await res.json().catch(() => null);
+        setDumpDone(true);
       } else {
         const errData = await res.json();
         alert(`Error dumping project: ${errData.error}`);
@@ -1242,6 +1241,13 @@ export default function App() {
                     </>
                   )}
                 </button>
+
+                {dumpDone && (
+                  <div className="mt-3 p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-center depth-top">
+                    <p className="text-sm font-bold text-emerald-200">🗑️ Tossed into the queue!</p>
+                    <p className="text-[11px] text-gray-300 mt-0.5">We'll take a look and publish it to the landfill if it's appropriate. Cheers for the trash.</p>
+                  </div>
+                )}
               </form>
 
             </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Flame, Trash2, RefreshCw, Lock, Heart, Flower2, AlertTriangle, ChevronLeft,
+  Flame, Trash2, RefreshCw, Lock, Heart, Flower2, AlertTriangle, ChevronLeft, Eye, EyeOff,
   ShieldAlert, Pencil, Save, X, ImagePlus,
 } from "lucide-react";
 
@@ -31,6 +31,7 @@ export default function Incinerator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Dump | null>(null);
@@ -64,6 +65,23 @@ export default function Incinerator() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const togglePublish = async (d: Dump) => {
+    setPublishingId(d.id);
+    try {
+      const res = await fetch(`/api/incinerator/dumps/${encodeURIComponent(d.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPrivate: !d.isPrivate }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setDumps((p) => p.map((x) => (x.id === updated.id ? updated : x)));
+      }
+    } finally {
+      setPublishingId(null);
+    }
+  };
 
   const incinerate = async (d: Dump) => {
     if (!confirm(`Permanently incinerate "${d.name}"? This cannot be undone.`)) return;
@@ -314,9 +332,19 @@ export default function Incinerator() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-gray-100 truncate">{d.name}</span>
-                    {d.isPrivate && (
+                    {d.isPrivate && d.roomName && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase text-purple-300 border border-purple-500/40 px-1.5 py-0.5 rounded">
-                        <Lock className="w-3 h-3" /> {d.roomName || "private"}
+                        <Lock className="w-3 h-3" /> {d.roomName}
+                      </span>
+                    )}
+                    {d.isPrivate && !d.roomName && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded">
+                        <EyeOff className="w-3 h-3" /> held
+                      </span>
+                    )}
+                    {!d.isPrivate && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded">
+                        <Eye className="w-3 h-3" /> live
                       </span>
                     )}
                     {d.category && (
@@ -332,6 +360,13 @@ export default function Incinerator() {
                   </div>
                 </div>
                 <div className="self-center flex flex-col gap-2 flex-shrink-0">
+                  {!d.roomName && (
+                    <button onClick={() => togglePublish(d)} disabled={publishingId === d.id}
+                      className={`flex items-center gap-1.5 text-xs font-mono uppercase font-bold px-3 py-2 rounded transition disabled:opacity-50 ${d.isPrivate ? "bg-emerald-950/40 border border-emerald-500/40 hover:bg-emerald-900/60 text-emerald-300" : "bg-gray-900 border border-gray-700 hover:border-amber-400 text-gray-400 hover:text-amber-300"}`}>
+                      {publishingId === d.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : d.isPrivate ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      {d.isPrivate ? "Publish" : "Hold"}
+                    </button>
+                  )}
                   <button onClick={() => startEdit(d)}
                     className="flex items-center gap-1.5 bg-cyan-950/30 border border-cyan-500/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-mono uppercase font-bold px-3 py-2 rounded transition">
                     <Pencil className="w-4 h-4" /> Edit
