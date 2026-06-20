@@ -484,6 +484,12 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               <svg viewBox="0 0 64 40" className="absolute top-24 -right-4 w-28 h-16 text-cyan-400" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
               <svg viewBox="0 0 64 40" className="absolute bottom-8 -left-2 w-20 h-12 text-amber-400 animate-pulse-slow" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
               <svg viewBox="0 0 64 40" className="absolute bottom-2 right-1 w-16 h-10 text-sky-400" fill="currentColor"><circle cx="20" cy="26" r="12"/><circle cx="34" cy="19" r="15"/><circle cx="48" cy="27" r="11"/><rect x="13" y="26" width="42" height="13" rx="6"/></svg>
+              <svg viewBox="0 0 100 100" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 opacity-60">
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#eab308" strokeWidth="2" strokeDasharray="3,3" />
+                <path d="M25,60 C25,38 75,38 75,60 C65,82 35,82 25,60 Z" fill="#713f12" opacity="0.35" stroke="#eab308" strokeWidth="2" />
+                <path d="M34,42 L66,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
+                <path d="M66,42 L34,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
             </div>
             <div className="relative z-10">
             <button
@@ -499,18 +505,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             <p className="text-sm text-gray-300 leading-relaxed mb-2">
               Most people roast a mate and leave. You stumbled onto something hidden. This site runs a secret hunt &mdash; a chain of clues buried in the trash that ends in a surprise very few ever reach.
             </p>
-            <div className="mx-auto w-28 h-28 my-3">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#eab308" strokeWidth="2" strokeDasharray="3,3" />
-                <path d="M25,60 C25,38 75,38 75,60 C65,82 35,82 25,60 Z" fill="#713f12" opacity="0.35" stroke="#eab308" strokeWidth="2" />
-                <path d="M34,42 L66,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
-                <path d="M66,42 L34,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
-              </svg>
-            </div>
             <div className="bg-black/40 border border-amber-500/30 rounded-lg p-4 text-left mb-5">
               <p className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest mb-1">Your first clue</p>
               <p className="text-sm text-amber-100/90 leading-relaxed">
-                One grave in the Landfill doesn't belong &mdash; a "success story" buried among the failures, branded with this very <span className="text-red-400 font-bold">red X</span>. Find it, and read its roast closely. Your next clue is hiding in there.
+                One entry in the Landfill is the odd one out &mdash; it doesn't belong with the rest. That's the one hiding your next clue. Find it, and read its roast closely.
               </p>
             </div>
             <a
@@ -519,7 +517,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             >
               To the Landfill →
             </a>
-            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers. <span className="text-sky-300/70">Mind the clouds.</span></p>
+            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers.</p>
             </div>
           </div>
         </div>
