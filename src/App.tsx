@@ -6,6 +6,8 @@ import TeamVenting from "./components/TeamVenting";
 import TiersUpgrades from "./components/TiersUpgrades";
 import ArtifactVisualizer from "./components/ArtifactVisualizer";
 import GhostRating from "./components/GhostRating";
+import LiveTicker from "./components/LiveTicker";
+import XScatter from "./components/XScatter";
 import {
   Trash2,
   Skull,
@@ -119,7 +121,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.3.7";
+const APP_VERSION = "1.3.8";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -641,6 +643,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+      <XScatter />
       
       {/* Decorative ambient background grids */}
       <div className="absolute inset-x-0 top-0 h-[600px] bg-gradient-to-b from-blue-950/10 via-cyan-950/5 to-transparent pointer-events-none" />
@@ -753,6 +756,7 @@ export default function App() {
       <div className={`p-1 bg-gradient-to-r ${skin.bannerBg} border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech ${skin.accentColor}`}>
         "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO
       </div>
+      <LiveTicker />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
 
