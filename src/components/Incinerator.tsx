@@ -37,6 +37,7 @@ export default function Incinerator() {
   const [draft, setDraft] = useState<Dump | null>(null);
   const [saving, setSaving] = useState(false);
   const [coordsInput, setCoordsInput] = useState("");
+  const [dateInput, setDateInput] = useState("");
   const [geoQuery, setGeoQuery] = useState("");
   const [geoStatus, setGeoStatus] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -107,6 +108,11 @@ export default function Incinerator() {
     setCoordsInput(
       d.latitude !== undefined && d.longitude !== undefined ? `${d.latitude}, ${d.longitude}` : ""
     );
+    setDateInput(
+      d.createdAt && !Number.isNaN(new Date(d.createdAt).getTime())
+        ? new Date(new Date(d.createdAt).getTime() - new Date(d.createdAt).getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+        : ""
+    );
     setGeoQuery("");
     setGeoStatus("");
   };
@@ -165,7 +171,7 @@ export default function Incinerator() {
         techStack: draft.techStack,
         emotionalTragedy: draft.emotionalTragedy,
         imageUrl: draft.imageUrl ?? "",
-        createdAt: draft.createdAt,
+        createdAt: dateInput && !Number.isNaN(new Date(dateInput).getTime()) ? new Date(dateInput).toISOString() : draft.createdAt,
       };
       if (hasCoords) {
         payload.latitude = parts[0];
@@ -295,8 +301,8 @@ export default function Incinerator() {
                       <input
                         type="datetime-local"
                         className={inputCls}
-                        value={draft.createdAt ? new Date(draft.createdAt).toISOString().slice(0, 16) : ""}
-                        onChange={(e) => setField("createdAt", e.target.value ? new Date(e.target.value).toISOString() : draft.createdAt)}
+                        value={dateInput}
+                        onChange={(e) => setDateInput(e.target.value)}
                       />
                     </label>
                     <label className="block text-[10px] uppercase font-mono text-gray-500">
