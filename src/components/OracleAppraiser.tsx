@@ -104,6 +104,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [exposeName, setExposeName] = useState("");
   const [exposeFriend, setExposeFriend] = useState("");
   const [prankCopied, setPrankCopied] = useState(false);
+  const [adventureOpen, setAdventureOpen] = useState(false);
 
   const handleSaveAndShare = async () => {
     if (!result) return;
@@ -369,7 +370,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     <button
                       type="button"
                       onClick={() => {
-                        const msg = `${exposeFriend}, AHA! You've just been roasted 😈 your turn - see for yourself: ${window.location.origin}/roastoracle (from ${exposeName})`;
+                        const msg = `${exposeFriend} — you have to try this. Roast anyone you want 😈 ${window.location.origin}/roastoracle (from ${exposeName})`;
                         navigator.clipboard?.writeText(msg).then(() => {
                           setPrankCopied(true);
                           setTimeout(() => setPrankCopied(false), 2000);
@@ -386,6 +387,16 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
             {result && (
               <div className="mt-6 pt-3 border-t border-cyan-500/10 space-y-2">
+                <div className="rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center space-y-2">
+                  <p className="text-[11px] text-gray-200 leading-relaxed"><span className="text-fuchsia-300 font-bold">You just completed Clue 1</span> of a hidden adventure on this site &mdash; a mission that ends in a surprise. Claim your next clue to officially enter.</p>
+                  <button
+                    type="button"
+                    onClick={() => setAdventureOpen(true)}
+                    className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Get your next clue
+                  </button>
+                </div>
                 {!shareUrl ? (
                   <button
                     type="button"
@@ -455,6 +466,53 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           </div>
         </div>
       </div>
+
+      {adventureOpen && (
+        <div
+          className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/80 backdrop-blur-sm p-4 sm:p-8"
+          onClick={() => setAdventureOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg my-6 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-[#1a0b2e] via-[#0b0f19] to-[#2e1a0b] border-2 border-fuchsia-500/40 shadow-[0_0_60px_rgba(217,70,239,0.35)] text-center animate-fade-in"
+          >
+            <button
+              type="button"
+              onClick={() => setAdventureOpen(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-white text-lg leading-none"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <p className="text-[10px] font-mono-tech tracking-[0.3em] text-fuchsia-300 uppercase mb-1">Clue 1 of ???</p>
+            <h2 className="font-monument text-2xl text-white mb-3">You found the way in.</h2>
+            <p className="text-sm text-gray-300 leading-relaxed mb-2">
+              Most people roast a mate and leave. You stumbled onto something hidden. This site runs a secret hunt &mdash; a chain of clues buried in the trash that ends in a surprise very few ever reach.
+            </p>
+            <div className="mx-auto w-28 h-28 my-3">
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#eab308" strokeWidth="2" strokeDasharray="3,3" />
+                <path d="M25,60 C25,38 75,38 75,60 C65,82 35,82 25,60 Z" fill="#713f12" opacity="0.35" stroke="#eab308" strokeWidth="2" />
+                <path d="M34,42 L66,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
+                <path d="M66,42 L34,72" stroke="#ef4444" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="bg-black/40 border border-amber-500/30 rounded-lg p-4 text-left mb-5">
+              <p className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest mb-1">Your first clue</p>
+              <p className="text-sm text-amber-100/90 leading-relaxed">
+                One grave in the Landfill doesn't belong &mdash; a "success story" buried among the failures, branded with this very <span className="text-red-400 font-bold">red X</span>. Find it, and read its roast closely. Your next clue is hiding in there.
+              </p>
+            </div>
+            <a
+              href="/memorials"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-2.5 px-6 rounded-lg transition shadow-[0_0_18px_rgba(217,70,239,0.45)]"
+            >
+              To the Landfill →
+            </a>
+            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
