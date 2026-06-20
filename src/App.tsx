@@ -9,6 +9,7 @@ import GhostRating from "./components/GhostRating";
 import LiveTicker from "./components/LiveTicker";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
+import HintReward from "./components/HintReward";
 import {
   Trash2,
   Skull,
@@ -123,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.7";
+const APP_VERSION = "1.4.8";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -647,6 +648,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
       <Atmosphere />
+      <HintReward />
       <XScatter />
       
       {/* Decorative ambient background grids */}
@@ -1251,7 +1253,7 @@ export default function App() {
                     {!dumpHintShown ? (
                       <button
                         type="button"
-                        onClick={() => setDumpHintShown(true)}
+                        onClick={() => { setDumpHintShown(true); window.dispatchEvent(new Event("hint-found")); }}
                         className="inline-flex items-center justify-center gap-1.5 bg-fuchsia-950/40 border border-fuchsia-500/40 hover:bg-fuchsia-900/40 text-fuchsia-200 text-[11px] font-mono-tech uppercase tracking-wider py-1.5 px-3 rounded transition cursor-pointer"
                       >
                         🗺️ A reward for dumping &mdash; reveal a clue
