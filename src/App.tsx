@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.8";
+const APP_VERSION = "1.4.9";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -1567,7 +1567,7 @@ export default function App() {
                 className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-8"
                 onClick={() => setSelectedDump(null)}
               >
-                <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40 depth-top">
+                <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40 depth-top animate-card-zoom">
                   
                   {/* Close Details panel */}
                   <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">

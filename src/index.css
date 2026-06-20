@@ -161,3 +161,10 @@
   100% { opacity: 0; }
 }
 .hint-flash { animation: hint-flash 1s ease-out forwards; }
+
+/* Detail view "expand open" when a grave is tapped */
+@keyframes card-zoom {
+  0% { opacity: 0; transform: scale(0.82); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-card-zoom { animation: card-zoom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
