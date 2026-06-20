@@ -8,6 +8,7 @@ import ArtifactVisualizer from "./components/ArtifactVisualizer";
 import GhostRating from "./components/GhostRating";
 import LiveTicker from "./components/LiveTicker";
 import XScatter from "./components/XScatter";
+import Atmosphere from "./components/Atmosphere";
 import {
   Trash2,
   Skull,
@@ -46,7 +47,8 @@ import {
   ChevronRight,
   Star,
   ScrollText,
-  Menu
+  Menu,
+  Trophy
 } from "lucide-react";
 
 interface DeadProject {
@@ -121,7 +123,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.3.11";
+const APP_VERSION = "1.4.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -643,6 +645,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+      <Atmosphere />
       <XScatter />
       
       {/* Decorative ambient background grids */}
@@ -860,7 +863,7 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             
             {/* LEFT HERO GRAPHIC INTRO */}
-            <div className="lg:col-span-7 bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between">
+            <div className="lg:col-span-7 bg-[#0b0f19] border border-gray-800 p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between depth-top">
               
               {/* Virtual Glowing Wireframes background animation */}
               <div className="absolute inset-0 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
@@ -881,40 +884,29 @@ export default function App() {
                   Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
                 </p>
 
-                {/* Aesthetic interactive simulator panel */}
-                <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 mb-6">
+                {/* Hunt leaderboard (was the diagnostics panel) */}
+                <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 mb-6 depth-top">
                   <div className="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
                     <span className="text-xs font-mono-tech text-gray-400 flex items-center gap-2">
-                      <Terminal className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM DIAGNOSTICS
+                      <Trophy className="w-3.5 h-3.5 text-amber-400" /> HUNT LEADERBOARD
                     </span>
-                    <span className="text-[10px] text-gray-500">SIMULATION: {simulationSpeed.toUpperCase()}</span>
+                    <span className="text-[10px] text-amber-400/80 font-mono-tech">1 ESCAPED</span>
                   </div>
-                  
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
-                      <p className="text-[10px] text-gray-500">Methane Vent</p>
-                      <p className="text-xs font-mono-tech text-cyan-400 font-bold">12.4 Pa</p>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between bg-gray-900 px-3 py-2 rounded-lg border border-amber-500/25">
+                      <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ??? &mdash; the first to escape</span>
+                      <span className="text-[10px] text-gray-500 font-mono-tech">cleared</span>
                     </div>
-                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
-                      <p className="text-[10px] text-gray-500">Rust Oxidation</p>
-                      <p className="text-xs font-mono-tech text-red-400 font-bold">84.2%</p>
-                    </div>
-                    <div className="bg-gray-900 p-2.5 rounded-lg border border-gray-800">
-                      <p className="text-[10px] text-gray-500">Domain Entropy</p>
-                      <p className="text-xs font-mono-tech text-pink-400 font-bold">9.8 Hz</p>
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
+                      <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> your name here?</span>
+                      <span className="text-[10px] text-gray-700 font-mono-tech">unclaimed</span>
                     </div>
                   </div>
 
                   <div className="mt-3 flex items-center justify-between text-[11px] text-gray-500">
-                    <span>EMBEDDED COBALT COMPRESSION</span>
-                    <button 
-                      onClick={() => {
-                        setSimulationSpeed(prev => prev === "flow" ? "frenzy" : prev === "frenzy" ? "static" : "flow");
-                      }} 
-                      className="text-cyan-400 hover:underline font-mono-tech transition-colors"
-                    >
-                      [CYCLE FREQUENCY]
-                    </button>
+                    <span>A clue adventure is hidden here</span>
+                    <span className="text-fuchsia-400/70 font-mono-tech">find it &rarr;</span>
                   </div>
                 </div>
               </div>
@@ -930,7 +922,7 @@ export default function App() {
             </div>
 
             {/* RIGHT FORM - DUMP YOUR TRASH */}
-            <div className="lg:col-span-5 bg-gray-950 border border-gray-800 p-6 rounded-2xl relative">
+            <div className="lg:col-span-5 bg-gray-950 border border-gray-800 p-6 rounded-2xl relative depth-top">
               <div className="absolute top-3 right-3 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                 <span className="text-[10px] font-mono-tech text-cyan-400">INPUT GATEWAY ACTIVE</span>

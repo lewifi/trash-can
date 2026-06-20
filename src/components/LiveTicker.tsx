@@ -33,7 +33,7 @@ export default function LiveTicker() {
         <span className="text-gray-700">•</span>
         <span className="text-amber-400/80">🏆 1 has escaped the hunt</span>
         <span className="text-gray-700">•</span>
-        <span className="text-fuchsia-400/70">❓ a quiz is hidden somewhere…</span>
+        <span className="text-fuchsia-400/70">🗺️ a clue adventure is hidden somewhere…</span>
       </div>
     </div>
   );
