@@ -886,7 +886,7 @@ export default function App() {
                 </h1>
 
                 <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6">
-                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
+                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures. Some say there's more buried in here than dead projects. The curious ones find it. The rest just scroll.
                 </p>
 
                 {/* Aesthetic interactive simulator panel */}
