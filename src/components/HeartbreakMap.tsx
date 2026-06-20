@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Move, HeartOff, Flame, AlertOctagon, Terminal, Globe } from "lucide-react";
+import { Move, HeartOff, Flame, AlertOctagon, Terminal, Globe, Trophy } from "lucide-react";
 import { DeadProject } from "../types";
 
 interface HeartbreakMapProps {
@@ -234,28 +234,20 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
         {/* Live Triage Console Sidebar */}
         <div className="bg-[#060913] border border-cyan-500/10 rounded-lg p-4 flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-3 text-red-400 font-mono-tech text-xs uppercase tracking-wide">
-              <Terminal className="w-4 h-4" />
-              <span>Diagnostic Feed</span>
+            <div className="flex items-center gap-2 mb-3 text-amber-400 font-mono-tech text-xs uppercase tracking-wide">
+              <Trophy className="w-4 h-4" />
+              <span>Hunt Leaderboard</span>
             </div>
-            <div className="space-y-3.5 max-h-[240px] overflow-y-auto pr-1">
-              {projects.slice(0, 5).map((p, idx) => (
-                <div 
-                  key={p.id} 
-                  onClick={() => onSelectProject(p)}
-                  className="text-xs border-l-2 border-dashed border-cyan-500/30 pl-2 py-1 cursor-pointer hover:bg-cyan-950/20 hover:border-cyan-400 transition-all rounded-r"
-                >
-                  <div className="font-mono-tech text-cyan-300 font-semibold flex justify-between">
-                    <span className="truncate max-w-[130px]">{p.name}</span>
-                    <span className="text-gray-500 text-[10px]">#{p.category}</span>
-                  </div>
-                  <p className="text-gray-400 text-[10px] line-clamp-1 mt-0.5">{p.causeOfDeath}</p>
-                  <div className="flex items-center justify-between text-[9px] mt-1 text-cyan-400/80">
-                    <span>GLITCH_LVL: {p.diagnosticScore || 85}%</span>
-                    <span className="text-red-400">Tragedy: {p.emotionalTragedy}/10</span>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between bg-gray-900/60 px-3 py-2 rounded-lg border border-amber-500/25">
+                <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ???</span>
+                <span className="text-[10px] text-gray-500 font-mono-tech">escaped</span>
+              </div>
+              <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
+                <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> your name here?</span>
+                <span className="text-[10px] text-gray-700 font-mono-tech">unclaimed</span>
+              </div>
+              <p className="text-[10px] text-fuchsia-400/70 font-mono-tech pt-1">🗺️ a clue adventure is hidden here…</p>
             </div>
           </div>
 
