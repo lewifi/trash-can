@@ -919,6 +919,140 @@ app.get("/roast/:id", async (c) => {
     .transform(shell);
 });
 
+// --- Anti-cheat: hunt token + speedrun detection -------------------------
+// Tokens are stored in KV so we can check elapsed time when answers arrive.
+// Fails open: if KV is unavailable the validate endpoint just skips the check.
+
+async function issueHuntToken(kv: KVNamespace | undefined): Promise<string> {
+  const nonce = Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+  if (kv) {
+    await kv.put(`hunt-token:${nonce}`, String(Date.now()), { expirationTtl: 3600 });
+  }
+  return nonce;
+}
+
+async function resolveHuntToken(kv: KVNamespace | undefined, token: string): Promise<number | null> {
+  if (!kv || !token) return null;
+  try {
+    const raw = await kv.get(`hunt-token:${token}`);
+    return raw ? parseInt(raw, 10) : null;
+  } catch {
+    return null;
+  }
+}
+
+const HONEYPOT_FALLBACKS = [
+  {
+    clue: "Congratulations. You found the URL. Your git log probably reads fix, fix2, fix_final_REAL.",
+    hint: "The real clue isn't in the response body. It's in the puzzle you skipped.",
+    nextStep: "Close the network tab. Return to the hunt. Try using your brain this time.",
+    score: 0,
+  },
+  {
+    clue: "Network sniffing. Very 'senior developer' of you. The clue is not here.",
+    hint: "We put this endpoint here for people exactly like you. It contains nothing.",
+    nextStep: "Go back. The puzzle is actually solvable without a browser extension.",
+    score: 0,
+  },
+  {
+    clue: "You fetched this. We logged it. We're disappointed but not remotely surprised.",
+    hint: "A real 10x dev would have solved it the intended way in half the time.",
+    nextStep: "Return to the hunt. Your clipboard will still be there when you get back.",
+    score: 0,
+  },
+];
+
+const SPEEDRUN_FALLBACKS = [
+  {
+    score: 0,
+    appraisal: "Solved in under 2 seconds. The Juicero board is genuinely impressed.",
+    postMortem: "You didn't solve this — you copy-pasted from source, replayed a request, or manipulated state like a gremlin in a Figma prototype. The puzzle has time as a mechanic. You found the skip warp. We found you.",
+    recyclingPlan: "Try again. Actually read the clue. Move fast, break things — but at least break the right things.",
+  },
+];
+
+// Honeypot: appears as a breadcrumb in index.html source.
+// Anyone who hits it directly is clearly skipping the puzzle — taunt them.
+app.get("/api/v1/get-secret-final-clue", async (c) => {
+  const ai = getAIClient(c.env.GEMINI_API_KEY);
+  const fallback = HONEYPOT_FALLBACKS[Math.floor(Math.random() * HONEYPOT_FALLBACKS.length)];
+
+  if (!ai) return c.json(fallback);
+
+  try {
+    const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const prompt = `You are the Roast Oracle at Roast Graveyard (trash-can.net), a developer ARG. Someone just hit a honeypot API endpoint by sniffing network traffic or reading the page source instead of solving the actual puzzle. They are a developer who used DevTools to try to shortcut the hunt.
+
+Taunt them. Make it crystal clear we KNOW exactly what they did and we are not impressed. Be funny, snarky, on-brand for a developer graveyard. Reference DevTools, the network tab, source-code spelunking, lazy git commits, copy-paste culture.
+
+The response shape mimics a real clue API so they think they found it. Every field is a burn. Do not give them anything useful.
+
+Return ONLY raw JSON (no backticks, no commentary):
+{
+  "clue": "<a 'clue' that is actually a savage burn about their cheating, max 20 words>",
+  "hint": "<a 'hint' that mocks their DevTools heroics, max 20 words>",
+  "nextStep": "<a 'next step' telling them to go back and actually play the game, max 20 words>",
+  "score": 0
+}`;
+    const resp = await generateWithRetry(ai, model, prompt, 2, { temperature: 1.2 });
+    let txt = (resp.text || "").trim().replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(txt);
+    return c.json({ ...parsed, score: 0 });
+  } catch {
+    return c.json(fallback);
+  }
+});
+
+// Issue a signed timestamp token when a hunt clue is loaded.
+// The frontend requests this when displaying a clue step.
+app.get("/api/hunt/token", async (c) => {
+  const token = await issueHuntToken(c.env.GRAVEYARD_KV);
+  return c.json({ token });
+});
+
+// Validate a hunt answer. Checks the token age — anyone who answers in
+// under 2 seconds didn't read the clue, they skipped to the answer somehow.
+// Does NOT block them; just returns a roast so the UI can taunt them.
+app.post("/api/hunt/validate", async (c) => {
+  const MIN_SOLVE_MS = 2000;
+  const body = await c.req.json();
+  const { token } = body;
+
+  const issuedAt = await resolveHuntToken(c.env.GRAVEYARD_KV, token);
+  const elapsed = issuedAt ? Date.now() - issuedAt : Infinity;
+
+  if (elapsed < MIN_SOLVE_MS) {
+    const ai = getAIClient(c.env.GEMINI_API_KEY);
+    const fallback = SPEEDRUN_FALLBACKS[0];
+
+    if (!ai) return c.json({ caught: true, roast: fallback });
+
+    try {
+      const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const prompt = `You are the Roast Oracle. Someone just submitted a hunt puzzle answer in under 2 seconds. They didn't read it — they copy-pasted from source code, replayed a network request, or manipulated frontend state. We caught them.
+
+Make it clear we know exactly what they did. Do NOT give them the real answer. Use startup/developer humour — reference Juicero, "move fast and break things", copy-paste culture, PR descriptions that just say "changes".
+
+Return ONLY raw JSON (no backticks):
+{
+  "score": 0,
+  "appraisal": "<one savage burn about their speedrun, ~18 words>",
+  "postMortem": "<2-3 sentences explaining we caught them and what they actually did>",
+  "recyclingPlan": "<sarcastic advice to go back and actually solve the puzzle>"
+}`;
+      const resp = await generateWithRetry(ai, model, prompt, 2, { temperature: 1.2 });
+      let txt = (resp.text || "").trim().replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(txt);
+      return c.json({ caught: true, roast: { ...parsed, score: 0 } });
+    } catch {
+      return c.json({ caught: true, roast: fallback });
+    }
+  }
+
+  // Legitimate timing — proceed to real answer checking (wired up per clue step)
+  return c.json({ caught: false });
+});
+
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
 app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
