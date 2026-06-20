@@ -254,7 +254,7 @@ export default function Incinerator() {
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <select className={inputCls} value={draft.category || "other"} onChange={(e) => setField("category", e.target.value)}>
-                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                        {CATEGORIES.map((c) => <option key={c} value={c}>{c === "web3" ? "cloud native" : c}</option>)}
                       </select>
                       <input className={inputCls} placeholder="Cause of death" value={draft.causeOfDeath || ""} onChange={(e) => setField("causeOfDeath", e.target.value)} />
                     </div>
@@ -310,7 +310,7 @@ export default function Incinerator() {
                       </span>
                     )}
                     {d.category && (
-                      <span className="text-[10px] font-mono uppercase text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded">{d.category}</span>
+                      <span className="text-[10px] font-mono uppercase text-cyan-300 border border-cyan-500/30 px-1.5 py-0.5 rounded">{d.category === "web3" ? "cloud native" : d.category}</span>
                     )}
                   </div>
                   <p className="text-xs text-gray-400 mt-1 line-clamp-2 break-words">{d.description}</p>

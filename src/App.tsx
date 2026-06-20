@@ -120,6 +120,7 @@ function timeAgo(iso: string): string {
 }
 
 const APP_VERSION = "1.0.0";
+const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
   // Navigation tabs
@@ -955,7 +956,7 @@ export default function App() {
                     >
                       <option value="saas">SaaS (Software as a Struggle)</option>
                       <option value="web">Web / Abandoned Landing Page</option>
-                      <option value="web3">Web3 / High-risk Ponzi Speculation</option>
+                      <option value="web3">Cloud Native / Overengineered Infra Dream</option>
                       <option value="mobile">Mobile / Swiper-Addicted App</option>
                       <option value="ai">AI / Infinite Token-Sponge Agent</option>
                       <option value="tech">Tech / Overengineered Gadget Dream</option>
@@ -1262,7 +1263,7 @@ export default function App() {
                     className={`flex-shrink-0 w-52 text-left bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-3 hover:bg-gray-900/60 transition-all group`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[9px] font-mono-tech text-gray-500 uppercase truncate">{d.category}</span>
+                      <span className="text-[9px] font-mono-tech text-gray-500 uppercase truncate">{catLabel(d.category)}</span>
                       <span className={`text-[9px] font-mono-tech whitespace-nowrap ${skin.accentColor}`}>{timeAgo(d.createdAt)}</span>
                     </div>
                     <p className="text-sm text-gray-100 truncate group-hover:underline">{d.name}</p>
@@ -1313,7 +1314,7 @@ export default function App() {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-mono-tech text-fuchsia-300 bg-fuchsia-950/40 px-2 py-0.5 rounded border border-fuchsia-900">
-                        {item.category.toUpperCase()}
+                        {catLabel(item.category).toUpperCase()}
                       </span>
                       <GhostRating score={item.diagnosticScore || 90} size={16} />
                     </div>
@@ -1386,7 +1387,7 @@ export default function App() {
                       <option value="all">📁 All Categories</option>
                       <option value="saas">SaaS</option>
                       <option value="web">Web</option>
-                      <option value="web3">Web3 / Crypto</option>
+                      <option value="web3">Cloud Native</option>
                       <option value="mobile">Mobile</option>
                       <option value="ai">AI / Prompts</option>
                       <option value="tech">Tech</option>
@@ -1462,7 +1463,7 @@ export default function App() {
                         {/* Meta Category Section */}
                         <div className="flex items-center justify-between gap-2 mb-3">
                           <span className="text-[9px] font-mono-tech px-2 py-0.5 bg-gray-900 text-gray-400 border border-gray-800 rounded">
-                            {d.category.toUpperCase()}
+                            {catLabel(d.category).toUpperCase()}
                           </span>
                           <span className="text-[10px] font-mono-tech text-red-400 bg-red-950/30 px-1.5 py-0.5 rounded border border-red-900/30">
                             TRAGEDY: {d.emotionalTragedy}/10
@@ -1582,7 +1583,7 @@ export default function App() {
                     <div className="p-3 bg-[#070b14] border border-gray-900 rounded-xl space-y-1 text-xs">
                       <div className="flex justify-between">
                         <span className="text-gray-500">Category:</span>
-                        <span className="font-mono-tech text-cyan-400 uppercase">{selectedDump.category}</span>
+                        <span className="font-mono-tech text-cyan-400 uppercase">{catLabel(selectedDump.category)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Cause of Death:</span>
@@ -1910,7 +1911,7 @@ export default function App() {
                         <div className="min-w-0">
                           <p className="text-sm text-gray-100 truncate group-hover:underline">{d.name}</p>
                           <p className="text-[10px] font-mono-tech text-gray-500 truncate">
-                            {d.category} • by {d.creator || "Anonymous"}
+                            {catLabel(d.category)} • by {d.creator || "Anonymous"}
                           </p>
                         </div>
                         <span className={`text-[10px] font-mono-tech whitespace-nowrap ${skin.accentColor}`}>{timeAgo(d.createdAt)}</span>
