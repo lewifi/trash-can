@@ -123,7 +123,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.5";
+const APP_VERSION = "1.4.6";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -265,6 +265,7 @@ export default function App() {
   const [formIcon, setFormIcon] = useState("skull");
   const [formIsPrivate, setFormIsPrivate] = useState(false);
   const [dumpDone, setDumpDone] = useState(false);
+  const [dumpHintShown, setDumpHintShown] = useState(false);
   const [formRoomName, setFormRoomName] = useState("");
   const [formRoomPassword, setFormRoomPassword] = useState("");
   const [formImageUrl, setFormImageUrl] = useState("");
@@ -419,6 +420,7 @@ export default function App() {
 
     setSubmitting(true);
     setDumpDone(false);
+    setDumpHintShown(false);
     try {
       const res = await fetch("/api/dumps", {
         method: "POST",
@@ -1243,9 +1245,23 @@ export default function App() {
                 </button>
 
                 {dumpDone && (
-                  <div className="mt-3 p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-center depth-top">
+                  <div className="mt-3 p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-center depth-top space-y-2">
                     <p className="text-sm font-bold text-emerald-200">🗑️ Tossed into the queue!</p>
-                    <p className="text-[11px] text-gray-300 mt-0.5">We'll take a look and publish it to the landfill if it's appropriate. Cheers for the trash.</p>
+                    <p className="text-[11px] text-gray-300">We'll take a look and publish it to the landfill if it's appropriate. Cheers for the trash.</p>
+                    {!dumpHintShown ? (
+                      <button
+                        type="button"
+                        onClick={() => setDumpHintShown(true)}
+                        className="inline-flex items-center justify-center gap-1.5 bg-fuchsia-950/40 border border-fuchsia-500/40 hover:bg-fuchsia-900/40 text-fuchsia-200 text-[11px] font-mono-tech uppercase tracking-wider py-1.5 px-3 rounded transition cursor-pointer"
+                      >
+                        🗺️ A reward for dumping &mdash; reveal a clue
+                      </button>
+                    ) : (
+                      <div className="text-left bg-black/40 border border-fuchsia-500/20 rounded p-2.5">
+                        <p className="text-[10px] font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-0.5">Clue II</p>
+                        <p className="text-[11px] text-gray-300 leading-relaxed">One of these graves is faking it &mdash; not dead at all. Find the faker&hellip; then follow the noise to where the living come to scream.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </form>
