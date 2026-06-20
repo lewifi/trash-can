@@ -57,7 +57,7 @@ There's an ARG (alternate reality game) buried inside the site. Nobody is told i
 
 The finale is a Three.js scene on `escape.trash-can.net`. Particles explode upward in fuchsia and cyan. The camera orbits. **YOU ESCAPED** arrives in a gradient. A leaderboard asks for your handle.
 
-Cheaters get the same scene — but the particles fall instead of rise, the colours go wrong, and the title quietly corrupts to *"...or did you."* They never know they got the wrong one.
+There is a cheater path. We're not telling you what it looks like.
 
 Most players will never find the ARG. That's the point. The ones who do will talk about it.
 
