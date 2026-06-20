@@ -1022,6 +1022,11 @@ app.post("/api/hunt/validate", async (c) => {
   const elapsed = issuedAt ? Date.now() - issuedAt : Infinity;
 
   if (elapsed < MIN_SOLVE_MS) {
+    // Flag this run as tainted so the final step routes them to the wrong Three.js URL.
+    if (c.env.GRAVEYARD_KV && token) {
+      c.env.GRAVEYARD_KV.put(`hunt-cheated:${token}`, "1", { expirationTtl: 3600 }).catch(() => {});
+    }
+
     const ai = getAIClient(c.env.GEMINI_API_KEY);
     const fallback = SPEEDRUN_FALLBACKS[0];
 
@@ -1051,6 +1056,33 @@ Return ONLY raw JSON (no backticks):
 
   // Legitimate timing — proceed to real answer checking (wired up per clue step)
   return c.json({ caught: false });
+});
+
+// Final step: called when a player completes the last clue.
+// Clean runs get the real Three.js experience URL.
+// Tainted runs (caught cheating at any checkpoint) get the wrong one — they'll
+// never know they're in the wrong place until it's too late.
+//
+// TODO: replace REAL_URL and WRONG_URL with the actual Three.js domain once built.
+const HUNT_FINAL_REAL_URL = "https://escape.trash-can.net";   // TODO: real Three.js domain
+const HUNT_FINAL_WRONG_URL = "https://escape.trash-can.net?session=voided"; // TODO: wrong/roast scene
+
+app.post("/api/hunt/complete", async (c) => {
+  const { token } = await c.req.json();
+  const kv = c.env.GRAVEYARD_KV;
+
+  let cheated = false;
+  if (kv && token) {
+    try {
+      const flag = await kv.get(`hunt-cheated:${token}`);
+      cheated = flag === "1";
+    } catch { /* fails open — if we can't check, give benefit of the doubt */ }
+  }
+
+  return c.json({
+    url: cheated ? HUNT_FINAL_WRONG_URL : HUNT_FINAL_REAL_URL,
+    cheated,
+  });
 });
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.

@@ -9,6 +9,7 @@ interface HeartbreakMapProps {
 
 export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakMapProps) {
   const [hoveredProject, setHoveredProject] = useState<DeadProject | null>(null);
+  const [leaderboardHoneypot, setLeaderboardHoneypot] = useState(false);
   const [geoData, setGeoData] = useState<any>(null);
   const [mapLoading, setMapLoading] = useState(true);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
@@ -94,7 +95,7 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
   };
 
   return (
-    <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl overflow-hidden p-6 relative neon-glow-cyan depth-top">
+    <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl overflow-hidden p-6 relative neon-glow-cyan depth-top" style={{ isolation: "isolate" }}>
       {/* Decorative top header */}
       <div className="flex justify-between items-center mb-4 border-b border-cyan-500/20 pb-3">
         <div className="flex items-center gap-2">
@@ -239,10 +240,13 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
               <span>Hunt Leaderboard</span>
             </div>
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between bg-gray-900/60 px-3 py-2 rounded-lg border border-amber-500/25">
+              <button
+                onClick={() => setLeaderboardHoneypot(true)}
+                className="w-full flex items-center justify-between bg-gray-900/60 px-3 py-2 rounded-lg border border-amber-500/25 hover:border-amber-400/60 transition cursor-pointer text-left"
+              >
                 <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ???</span>
                 <span className="text-[10px] text-gray-500 font-mono-tech">escaped</span>
-              </div>
+              </button>
               <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
                 <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> your name here?</span>
                 <span className="text-[10px] text-gray-700 font-mono-tech">unclaimed</span>
@@ -265,6 +269,33 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
           </div>
         </div>
       </div>
+
+      {leaderboardHoneypot && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setLeaderboardHoneypot(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md mx-4 rounded-xl border-2 border-red-500/60 bg-[#0b0f19] p-6 shadow-[0_0_60px_rgba(239,68,68,0.3)]"
+          >
+            <div className="flex items-center gap-2 mb-4 text-red-400 font-mono-tech text-[10px] uppercase tracking-widest">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping flex-shrink-0" />
+              SYSTEM ALERT — HONEYPOT TRIGGERED
+            </div>
+            <h3 className="font-monument text-lg text-white mb-3">#1 ??? — they didn't click the leaderboard.</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-2">Clicking a leaderboard entry doesn't tell you how they escaped. That's not how escaping works.</p>
+            <p className="text-sm text-gray-400 leading-relaxed mb-2">That's not how any of this works.</p>
+            <p className="text-sm text-gray-400 leading-relaxed">They found the path. You found the scoreboard. There is a difference.</p>
+            <button
+              onClick={() => setLeaderboardHoneypot(false)}
+              className="mt-5 w-full border border-red-500/40 text-red-400 font-mono-tech text-xs uppercase py-2 rounded hover:bg-red-950/30 transition cursor-pointer"
+            >
+              noted
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
