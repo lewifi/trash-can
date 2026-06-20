@@ -131,7 +131,7 @@
 
 /* Gradient top edge (curves with the box corners) for a sense of depth.
    Mirrors the Roast Oracle's top bar; apply .depth-top to any content box. */
-.depth-top { position: relative; }
+.depth-top { position: relative; overflow: hidden; }
 .depth-top::before {
   content: "";
   position: absolute;
@@ -140,8 +140,6 @@
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, #ef4444, #06b6d4, #f59e0b);
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
   pointer-events: none;
   z-index: 1;
 }
