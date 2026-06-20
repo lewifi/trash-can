@@ -508,7 +508,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             <div className="bg-black/40 border border-amber-500/30 rounded-lg p-4 text-left mb-5">
               <p className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest mb-1">Your first clue</p>
               <p className="text-sm text-amber-100/90 leading-relaxed">
-                Your next clue is buried somewhere in the Landfill. Go read the graves &mdash; closely. Which one's hiding it is for you to work out.
+                One entry in the Landfill is the odd one out &mdash; it doesn't belong with the rest. That's the one hiding your next clue. Find it, and read its roast closely.
               </p>
             </div>
             <a
