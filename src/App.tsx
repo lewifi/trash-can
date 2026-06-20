@@ -10,6 +10,7 @@ import LiveTicker from "./components/LiveTicker";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
+import SplashScreen from "./components/SplashScreen";
 import {
   Trash2,
   Skull,
@@ -153,6 +154,7 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+  const [showSplash, setShowSplash] = useState(() => sessionStorage.getItem("seen-splash") !== "1");
   const [honeypot, setHoneypot] = useState<{ title: string; lines: string[] } | null>(null);
 
   const detailRef = useRef<HTMLDivElement>(null);
@@ -649,6 +651,9 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+      {showSplash && (
+        <SplashScreen onEnter={() => { sessionStorage.setItem("seen-splash", "1"); setShowSplash(false); }} />
+      )}
       <Atmosphere />
       <HintReward />
       <XScatter />
