@@ -147,6 +147,7 @@ export default function Incinerator() {
         techStack: draft.techStack,
         emotionalTragedy: draft.emotionalTragedy,
         imageUrl: draft.imageUrl ?? "",
+        createdAt: draft.createdAt,
       };
       if (hasCoords) {
         payload.latitude = parts[0];
@@ -271,6 +272,15 @@ export default function Incinerator() {
                     </div>
                     {geoStatus && <p className="text-[11px] text-gray-400 break-words">{geoStatus}</p>}
                     <input className={inputCls} placeholder="GPS coords: lat, lng (e.g. 40.7128, -74.0060)" value={coordsInput} onChange={(e) => setCoordsInput(e.target.value)} />
+                    <label className="block text-[10px] uppercase font-mono text-gray-500">
+                      Publish date (controls feed order)
+                      <input
+                        type="datetime-local"
+                        className={inputCls}
+                        value={draft.createdAt ? new Date(draft.createdAt).toISOString().slice(0, 16) : ""}
+                        onChange={(e) => setField("createdAt", e.target.value ? new Date(e.target.value).toISOString() : draft.createdAt)}
+                      />
+                    </label>
                     <label className="block text-[10px] uppercase font-mono text-gray-500">
                       Tragedy {draft.emotionalTragedy ?? 5}/10
                       <input type="range" min={1} max={10} value={draft.emotionalTragedy ?? 5}

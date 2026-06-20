@@ -710,6 +710,10 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
   if (body.longitude !== undefined && body.longitude !== null && !Number.isNaN(Number(body.longitude))) {
     cur.longitude = Number(body.longitude);
   }
+  if (typeof body.createdAt === "string" && body.createdAt) {
+    const t = new Date(body.createdAt);
+    if (!Number.isNaN(t.getTime())) cur.createdAt = t.toISOString();
+  }
 
   data[idx] = cur;
   await saveGraveyardData(c.env.GRAVEYARD_KV, data);
