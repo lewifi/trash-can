@@ -218,8 +218,20 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dumps]);
 
-  const shareGrave = (id: string) => {
+  const shareGrave = async (id: string, name?: string) => {
     const link = `${window.location.origin}/grave/${id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${name ?? "Dead project"} — Roast Graveyard`,
+          text: "Roast your dead tech projects. Bury them in the landfill. Some people never leave.",
+          url: link,
+        });
+        return;
+      } catch {
+        // user cancelled or share failed — fall through to clipboard
+      }
+    }
     if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(() => {
         setCopiedShare(true);
@@ -1649,13 +1661,21 @@ export default function App() {
                     </div>
 
                     {/* SHARE */}
-                    <button
-                      onClick={() => shareGrave(selectedDump.id)}
-                      className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
-                    </button>
+                    <div className="space-y-2">
+                      <img
+                        src={`/api/og/${selectedDump.id}`}
+                        alt="Grave share card"
+                        className="w-full rounded-lg border border-gray-800 opacity-90"
+                        loading="lazy"
+                      />
+                      <button
+                        onClick={() => shareGrave(selectedDump.id, selectedDump.name)}
+                        className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
+                      </button>
+                    </div>
 
                     {/* VOTE & MOURN ACTIONS */}
                     <div className="grid grid-cols-2 gap-2 pt-2">

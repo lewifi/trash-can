@@ -241,7 +241,14 @@ async function rateLimit(
     c.req.header("CF-Connecting-IP") ||
     c.req.header("x-forwarded-for") ||
     "unknown";
-  const key = `rl:${bucket}:${ip}`;
+  // Anonymise: daily rotating hash so the same IP maps to a different key
+  // each day and can never be reverse-mapped. GDPR-safe, no raw IPs in KV.
+  const day = new Date().toISOString().slice(0, 10);
+  const raw = new TextEncoder().encode(ip + day + "rl-salt-v1");
+  const hashBuf = await crypto.subtle.digest("SHA-256", raw);
+  const anonIp = Array.from(new Uint8Array(hashBuf)).slice(0, 8)
+    .map((b) => b.toString(16).padStart(2, "0")).join("");
+  const key = `rl:${bucket}:${anonIp}`;
   const now = Date.now();
   const maxWindow = Math.max(...rules.map((r) => r.windowMs));
   let hits: number[] = [];
