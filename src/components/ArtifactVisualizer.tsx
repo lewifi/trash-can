@@ -26,19 +26,36 @@ export default function ArtifactVisualizer({
   const [time, setTime] = useState(0);
   const [glitchTrigger, setGlitchTrigger] = useState(false);
 
+  // Derive a death profile from causeOfDeath text — affects glitch rate, colour, label
+  const deathProfile = React.useMemo(() => {
+    const c = causeOfDeath.toLowerCase();
+    if (/money|fund|cash|runway|bankrupt|investor|budget/i.test(c))
+      return { rate: 0.92, color: "border-amber-500/50 bg-amber-950/10", label: "FISCAL HAEMORRHAGE", tint: "text-amber-400" };
+    if (/acqui|bought|sold|merger|pivot/i.test(c))
+      return { rate: 0.97, color: "border-purple-500/40 bg-purple-950/10", label: "ABSORBED", tint: "text-purple-400" };
+    if (/burn|founder|motivation|interest|abandon|quit|gave up/i.test(c))
+      return { rate: 0.85, color: "border-pink-500/40 bg-pink-950/10", label: "OPERATOR OFFLINE", tint: "text-pink-400" };
+    if (/compet|rival|market|beaten|outpaced/i.test(c))
+      return { rate: 0.90, color: "border-red-500/40 bg-red-950/10", label: "OUTRUN", tint: "text-red-400" };
+    if (/scope|complex|technical|debt|rewrite|migrat/i.test(c))
+      return { rate: 0.82, color: "border-cyan-500/40 bg-cyan-950/10", label: "ENTROPY COLLAPSE", tint: "text-cyan-400" };
+    if (/launch|ship|never.*finish|wip|side project/i.test(c))
+      return { rate: 0.78, color: "border-gray-500/40 bg-gray-950/10", label: "NEVER DEPLOYED", tint: "text-gray-400" };
+    // default
+    return { rate: 0.88, color: "border-red-500/40 bg-red-950/10", label: "CAUSE UNKNOWN", tint: "text-red-400" };
+  }, [causeOfDeath]);
+
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
       setTime((prev) => (prev + 1) % 100);
-      
-      // Randomly trigger dramatic glitch flicker
-      if (Math.random() > 0.88) {
+      if (Math.random() > deathProfile.rate) {
         setGlitchTrigger(true);
         setTimeout(() => setGlitchTrigger(false), 220);
       }
     }, 150);
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, deathProfile.rate]);
 
   // Visual schematic icons based on category
   const renderInteractiveSchematic = () => {
@@ -294,7 +311,7 @@ export default function ArtifactVisualizer({
   if (variant === "thumbnail") {
     return (
       <div className={`relative aspect-video rounded-lg overflow-hidden border bg-[#05070e] transition-all duration-300 w-full group-hover:border-cyan-500/30 ${
-        glitchTrigger ? "border-red-500/40 bg-red-950/10" : "border-gray-800"
+        glitchTrigger ? deathProfile.color : "border-gray-800"
       }`}>
         {/* Subtle scanline lines overlay */}
         <div className="absolute inset-0 scanlines opacity-20 pointer-events-none" />
@@ -430,8 +447,8 @@ export default function ArtifactVisualizer({
 
         <div className="flex items-center gap-1 text-gray-500 text-[9px]">
           <span>MUT:</span>
-          <span className="text-red-400 border border-red-950 bg-red-950/10 px-1 rounded font-bold">
-            {causeOfDeath}
+          <span className={`${deathProfile.tint} border border-current/20 bg-current/5 px-1 rounded font-bold`} title={causeOfDeath}>
+            {deathProfile.label}
           </span>
         </div>
       </div>
