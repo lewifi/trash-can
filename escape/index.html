@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>escape.trash-can.net</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      overflow: hidden;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    canvas {
+      display: block;
+      position: fixed;
+      inset: 0;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+      padding: 2rem;
+    }
+
+    #title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: clamp(3rem, 10vw, 8rem);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      text-align: center;
+      line-height: 1;
+    }
+
+    #title.clean {
+      background: linear-gradient(135deg, #e879f9, #f472b6, #fbbf24, #06b6d4, #e879f9);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient-shift 4s ease infinite;
+    }
+
+    #title.cheater {
+      color: #4a5a4a;
+      text-shadow: 0 0 20px rgba(74, 163, 74, 0.3);
+    }
+
+    @keyframes gradient-shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #subtitle {
+      font-family: 'VT323', monospace;
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      letter-spacing: 0.2em;
+      margin-top: 1.2rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 1s ease 0.4s, transform 1s ease 0.4s;
+      text-align: center;
+    }
+
+    #subtitle.clean { color: #94a3b8; }
+    #subtitle.cheater { color: #3a4a3a; }
+
+    #cta {
+      margin-top: 3rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    #cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    #cta button {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      border: 1px solid rgba(232, 121, 249, 0.5);
+      background: transparent;
+      color: #e879f9;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #cta button:hover {
+      background: rgba(232, 121, 249, 0.1);
+      border-color: #e879f9;
+      box-shadow: 0 0 40px rgba(232, 121, 249, 0.3);
+      color: #fff;
+    }
+
+    #cta .note {
+      font-family: 'VT323', monospace;
+      font-size: 0.85rem;
+      color: #374151;
+      margin-top: 1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    #cheater-msg {
+      font-family: 'VT323', monospace;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: #3a4a3a;
+      letter-spacing: 0.2em;
+      text-align: center;
+      margin-top: 2rem;
+      opacity: 0;
+      transition: opacity 2s ease 1s;
+      max-width: 40ch;
+      line-height: 1.8;
+    }
+
+    .visible {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    #glitch {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <div id="title"></div>
+    <div id="subtitle"></div>
+    <div id="cta"></div>
+    <div id="cheater-msg"></div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

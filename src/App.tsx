@@ -10,6 +10,7 @@ import LiveTicker from "./components/LiveTicker";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
+import SplashScreen from "./components/SplashScreen";
 import {
   Trash2,
   Skull,
@@ -153,6 +154,9 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+  const [showSplash, setShowSplash] = useState(() => sessionStorage.getItem("seen-splash") !== "1");
+  const [honeypot, setHoneypot] = useState<{ title: string; lines: string[] } | null>(null);
+
   const detailRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   // Wheel: vertical scroll drives the carousel horizontally without page-jump (fixes Windows jumpiness).
@@ -214,8 +218,20 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dumps]);
 
-  const shareGrave = (id: string) => {
+  const shareGrave = async (id: string, name?: string) => {
     const link = `${window.location.origin}/grave/${id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${name ?? "Dead project"} — Roast Graveyard`,
+          text: "Roast your dead tech projects. Bury them in the landfill. Some people never leave.",
+          url: link,
+        });
+        return;
+      } catch {
+        // user cancelled or share failed — fall through to clipboard
+      }
+    }
     if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(() => {
         setCopiedShare(true);
@@ -647,6 +663,9 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+      {showSplash && (
+        <SplashScreen onEnter={() => { sessionStorage.setItem("seen-splash", "1"); setShowSplash(false); }} />
+      )}
       <Atmosphere />
       <HintReward />
       <XScatter />
@@ -884,7 +903,7 @@ export default function App() {
                 </h1>
 
                 <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6">
-                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
+                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures. Some say there's more buried in here than dead projects. The curious ones find it. The rest just scroll.
                 </p>
 
                 {/* Aesthetic interactive simulator panel */}
@@ -1642,13 +1661,21 @@ export default function App() {
                     </div>
 
                     {/* SHARE */}
-                    <button
-                      onClick={() => shareGrave(selectedDump.id)}
-                      className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
-                    </button>
+                    <div className="space-y-2">
+                      <img
+                        src={`/api/og/${selectedDump.id}`}
+                        alt="Grave share card"
+                        className="w-full rounded-lg border border-gray-800 opacity-90"
+                        loading="lazy"
+                      />
+                      <button
+                        onClick={() => shareGrave(selectedDump.id, selectedDump.name)}
+                        className="w-full py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
+                      </button>
+                    </div>
 
                     {/* VOTE & MOURN ACTIONS */}
                     <div className="grid grid-cols-2 gap-2 pt-2">
@@ -1855,7 +1882,14 @@ export default function App() {
                 <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">
                   <span className="text-gray-500">Expires: 12 hours</span>
                   <button 
-                    onClick={() => alert("Dave notified! Cryptocactus soil is ready for shipment.")}
+                    onClick={() => setHoneypot({
+                      title: "Dave isn't real.",
+                      lines: [
+                        "The domain isn't real. The Starbucks giftcard isn't real. The cryptocactus soil is not ready for shipment.",
+                        "But we are real. And we saw you click that.",
+                        "This is not a clue. Go back and look with your actual eyes.",
+                      ],
+                    })}
                     className="text-amber-500 hover:underline cursor-pointer"
                   >
                     ACCEPTS DRAFT →
@@ -1969,6 +2003,34 @@ export default function App() {
 
       </main>
 
+      {/* Honeypot caught modal — shared across all traps */}
+      {honeypot && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setHoneypot(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md mx-4 rounded-xl border-2 border-red-500/60 bg-[#0b0f19] p-6 shadow-[0_0_60px_rgba(239,68,68,0.3)] animate-fade-in"
+          >
+            <div className="flex items-center gap-2 mb-4 text-red-400 font-mono-tech text-[10px] uppercase tracking-widest">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping flex-shrink-0" />
+              SYSTEM ALERT — HONEYPOT TRIGGERED
+            </div>
+            <h3 className="font-monument text-lg text-white mb-3">{honeypot.title}</h3>
+            {honeypot.lines.map((l, i) => (
+              <p key={i} className="text-sm text-gray-400 leading-relaxed mb-2">{l}</p>
+            ))}
+            <button
+              onClick={() => setHoneypot(null)}
+              className="mt-4 w-full border border-red-500/40 text-red-400 font-mono-tech text-xs uppercase py-2 rounded hover:bg-red-950/30 transition cursor-pointer"
+            >
+              I have learned my lesson
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* FOOTER SYSTEM */}
       <footer className="border-t border-gray-900 bg-[#02050c] px-4 py-8 mt-12 text-center text-xs text-gray-500 space-y-3 font-mono-tech">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1980,7 +2042,7 @@ export default function App() {
             <span>•</span>
             <a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy Shields: 100% effective \u2014 nobody, not even us, is reading this page."); }} className="hover:text-pink-400 transition-colors uppercase cursor-pointer">Privacy Shields</a>
             <span>•</span>
-            <a href="#" onClick={(e) => { e.preventDefault(); alert("You leased a domain at 3am, built nothing, and are now reading the lease terms. Seek sunlight."); }} className="hover:text-amber-500 transition-colors uppercase cursor-pointer">Domain Lease terms</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setHoneypot({ title: "You leased a domain at 3am.", lines: ["You built nothing. You renewed it three times out of guilt. Now you're clicking fake legal links at the bottom of a graveyard.", "This is not the hunt. The hunt requires you to look at actual things on the page — not click every underlined word like a golden retriever.", "Close this. Try again. You know what you did."] }); }} className="hover:text-amber-500 transition-colors uppercase cursor-pointer">Domain Lease terms</a>
             <span>•</span>
             <a href="https://ephix.net" target="_blank" rel="noopener noreferrer" title="Ephix Pulse — live top-100 TV & movie trending" className="text-cyan-400 hover:text-cyan-300 transition-colors uppercase">Built by Ephix Pulse</a>
           </div>

@@ -162,6 +162,32 @@
 }
 .hint-flash { animation: hint-flash 1s ease-out forwards; }
 
+/* Confetti particles */
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(800deg) scale(0.6); opacity: 0; }
+}
+
+/* Animated gradient border (AHA reveal card) */
+@keyframes gradient-spin {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-border {
+  background-size: 300% 300%;
+  animation: gradient-spin 3s ease infinite;
+}
+
+/* Score pop — number lands with a quick scale punch */
+@keyframes score-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-score-pop { animation: score-pop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
 /* Detail view "expand open" when a grave is tapped */
 @keyframes card-zoom {
   0% { opacity: 0; transform: scale(0.82); }

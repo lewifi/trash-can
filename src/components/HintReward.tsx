@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Confetti from "./Confetti";
 
 /**
  * Listens for a global "hint-found" event and rewards the player with a quick
@@ -25,6 +26,8 @@ export default function HintReward() {
 
   if (!active) return null;
   return (
+    <>
+    <Confetti active={active} />
     <div
       className="fixed inset-0 z-[90] pointer-events-none hint-flash"
       aria-hidden="true"
@@ -33,5 +36,6 @@ export default function HintReward() {
           "inset 0 0 180px 50px rgba(217,70,239,0.5), inset 0 0 90px 14px rgba(34,211,238,0.42), inset 0 0 260px 90px rgba(245,158,11,0.22)",
       }}
     />
+    </>
   );
 }
