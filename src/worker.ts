@@ -468,6 +468,71 @@ app.get("/api/rooms/:roomName", async (c) => {
   return c.json(safeDumps);
 });
 
+// When the Oracle can't get a real AI roast (parse failure or rate limit),
+// serve a randomized roast-flavored stand-in instead of one fixed line, so
+// repeat visitors don't keep seeing the exact same fallback.
+type RoastReading = {
+  appraisal: string;
+  postMortem: string;
+  recyclingPlan: string;
+};
+
+const ROAST_FALLBACKS: ((name: string) => RoastReading)[] = [
+  (n) => ({
+    appraisal: `${n}'s file is so damning the Oracle's circuits short-circuited mid-burn.`,
+    postMortem: `We had a full dossier loaded and ready, but ${n} broke the machine before it could finish reading the charges out loud. Honestly? On brand. The smoke alarm is still going off.`,
+    recyclingPlan: `Give it ten seconds, hit roast again, and let the Oracle finish what ${n} so generously started.`,
+  }),
+  (n) => ({
+    appraisal: `Breaking: ${n} too much for the printing press. Front page jammed on the headline.`,
+    postMortem: `The Oracle had ${n} dead to rights and the ink ran out from sheer exhaustion. Three exposés, two confessions, and a saintly cover story that nobody bought — all of it stuck in the rollers.`,
+    recyclingPlan: `Smack the side of the machine (tap roast again) and the full scandal should drop in a moment.`,
+  }),
+  (n) => ({
+    appraisal: `The Oracle laughed so hard at ${n} it forgot how to finish a sentence.`,
+    postMortem: `Somewhere between the crimes and the "charity work," the verdict collapsed into static. ${n} is the kind of subject that overheats a roast engine built specifically to insult people. Take the compliment.`,
+    recyclingPlan: `Let the Oracle catch its breath, then run ${n} through again for the unabridged roasting.`,
+  }),
+  (n) => ({
+    appraisal: `${n}'s reading got lost in the post — the Oracle blames ${n}, obviously.`,
+    postMortem: `A perfectly good roast was halfway out the door when it tripped over the sheer volume of material on ${n}. The transcript is somewhere in the wreckage, still smoldering.`,
+    recyclingPlan: `One more go should do it — the Oracle never forgets a target, especially not ${n}.`,
+  }),
+  (n) => ({
+    appraisal: `Verdict redacted: even the Oracle needs a lawyer before printing this much on ${n}.`,
+    postMortem: `We assembled the case, lined up the punchlines, and then the system pleaded the fifth. ${n} has that effect — too combustible to commit to text on the first try.`,
+    recyclingPlan: `Hit roast again; the Oracle's legal team has cleared ${n} for full destruction.`,
+  }),
+];
+
+const ROAST_BUSY_FALLBACKS: ((name: string) => RoastReading)[] = [
+  (n) => ({
+    appraisal: `The Oracle is buried in roasts right now — but ${n} jumped the queue on reputation alone.`,
+    postMortem: `Too many people lining up to get torched at once (rate limit hit). The good news for everyone except ${n}: a juicy verdict is worth the wait.`,
+    recyclingPlan: `Give the Oracle a minute to cool down, then consult again for ${n}'s full roasting.`,
+  }),
+  (n) => ({
+    appraisal: `Lines are jammed — turns out half the internet wanted ${n} roasted today too.`,
+    postMortem: `The Oracle is running hot and throttling itself before it says something it can't take back about ${n}. Rate limit reached, ego intact, knives still sharp.`,
+    recyclingPlan: `Wait a beat and try again — ${n} isn't getting off this easy.`,
+  }),
+  (n) => ({
+    appraisal: `Oracle overheating from demand. ${n} will have to take a number like everyone else.`,
+    postMortem: `So many autopsies in flight that the machine tapped out (rate limit). It would rather make ${n} wait than phone in a half-baked burn.`,
+    recyclingPlan: `Let traffic die down, then come back — the full roast of ${n} is loaded and ready.`,
+  }),
+  (n) => ({
+    appraisal: `Swamped with grief and traffic, the Oracle still found a second to size ${n} up.`,
+    postMortem: `Every roast booth is occupied (rate limit reached). A proper verdict on ${n} is queued and getting meaner by the second.`,
+    recyclingPlan: `One short breather and another tap is all it takes to unleash it on ${n}.`,
+  }),
+];
+
+const pickRoastFallback = (
+  pool: ((name: string) => RoastReading)[],
+  name: string
+): RoastReading => pool[Math.floor(Math.random() * pool.length)](name);
+
 // API: Live AI waste management consultant / appraisal
 app.post("/api/appraise", async (c) => {
   const body = await c.req.json();
@@ -631,9 +696,7 @@ Every field should land a joke. No disclaimers, no preamble.`;
       console.error("Failed to parse Gemini response as JSON. Raw text was:", resultText);
       return c.json({
         score: Math.floor(Math.random() * 30) + 70,
-        appraisal: `The tragic demise of "${name}" is verified. Diagnostic systems appreciate your sacrifice.`,
-        postMortem: `This project was killed by "${causeOfDeath || "technological fatigue"}". Given that it relied on "${techStack || "existential hope"}", its failure was mathematically inevitable yet magnificent.`,
-        recyclingPlan: `Extract the logo, mint it as a relic, and sell the domain name trash-can.net to an enthusiast.`,
+        ...pickRoastFallback(ROAST_FALLBACKS, name),
       });
     }
   } catch (err: any) {
@@ -644,9 +707,7 @@ Every field should land a joke. No disclaimers, no preamble.`;
       // Degrade gracefully instead of erroring out.
       return c.json({
         score: Math.floor(Math.random() * 25) + 70,
-        appraisal: `The Oracle is swamped with grief (and traffic) right now \u2014 here's a provisional reading for "${name}".`,
-        postMortem: `Too many autopsies in flight (rate limit hit). At a glance, "${causeOfDeath || "the usual suspects"}" did it in, and relying on "${techStack || "questionable choices"}" did not help.`,
-        recyclingPlan: `Give the Oracle a minute to breathe, then consult again for the full diagnosis.`,
+        ...pickRoastFallback(ROAST_BUSY_FALLBACKS, name),
       });
     }
     return c.json(
