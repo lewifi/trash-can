@@ -270,6 +270,21 @@ export default function ArtifactVisualizer({
           </svg>
         );
 
+      case "other":
+        return (
+          <svg viewBox="0 0 100 100" className="w-full h-full text-slate-300">
+            {/* Unmarked grave of unclassified digital rubble */}
+            <rect x="18" y="84" width="64" height="7" rx="2" fill="#1e293b" stroke="#64748b" strokeWidth="1" />
+            <path d="M30,84 L30,46 a20,20 0 0,1 40,0 L70,84 Z" fill="#0f172a" stroke="#94a3b8" strokeWidth="1.5" />
+            {/* drifting glitch scanline */}
+            <line x1="30" y1={46 + (time % 36)} x2="70" y2={46 + (time % 36)} stroke="#22d3ee" strokeWidth="0.8" opacity="0.5" />
+            {/* unknown marker */}
+            <text x="50" y="62" fill="#cbd5e1" fontSize="24" fontFamily="monospace" textAnchor="middle" className="font-bold animate-pulse">?</text>
+            <path d="M58,40 L63,48 L59,52" stroke="#f43f5e" strokeWidth="1" fill="none" />
+            <text x="50" y="78" fill="#94a3b8" fontSize="4.5" fontFamily="monospace" textAnchor="middle" className="uppercase tracking-widest">unclassified</text>
+          </svg>
+        );
+
       default:
         return (
           <svg viewBox="0 0 100 100" className="w-full h-full text-red-500">

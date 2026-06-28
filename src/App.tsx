@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.20";
+const APP_VERSION = "1.4.23";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -772,97 +772,6 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
 
-        {/* NAVIGATION SYSTEM */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-gray-950 border border-gray-800/80 p-2 rounded-xl">
-          <div className="hidden">
-            <button
-              onClick={() => { navTab("dump"); setSelectedDump(null); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
-                activeTab === "dump"
-                  ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
-                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
-              }`}
-            >
-              <Plus className="w-4 h-4 text-cyan-400" />
-              DUMP YOUR IDEAS
-            </button>
-
-            <button
-              onClick={() => navTab("memorials")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
-                activeTab === "memorials"
-                  ? "bg-slate-900 border border-cyan-500/50 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
-                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
-              }`}
-            >
-              <Compass className="w-4 h-4 text-pink-400" />
-              EXPLORE THE LANDFILL
-            </button>
-
-            <button
-              onClick={() => navTab("oracle")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
-                activeTab === "oracle"
-                  ? "bg-slate-900 border border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.15)]"
-                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
-              }`}
-            >
-              <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-              AI TRASH ORACLE
-            </button>
-
-            <button
-              onClick={() => navTab("disposal")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
-                activeTab === "disposal"
-                  ? "bg-slate-900 border border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.15)]"
-                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
-              }`}
-            >
-              <Shield className="w-4 h-4 text-red-500" />
-              TOXIC WASTE VENT (TEAMS)
-            </button>
-
-            <button
-              onClick={() => navTab("contracts")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono-tech text-sm transition-all ${
-                activeTab === "contracts"
-                  ? "bg-slate-900 border border-amber-500/50 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                  : "text-gray-400 hover:text-gray-100 hover:bg-gray-900"
-              }`}
-            >
-              <Coins className="w-4 h-4 text-amber-500" />
-              SALVAGE CONTRACTS
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-mono-tech text-gray-500">PREVIEW SKIN:</span>
-            <div className="flex gap-1.5 bg-black border border-gray-800 p-1 rounded-lg">
-              <button
-                onClick={() => setCustomSkin("cyber-lime")}
-                className={`w-4 h-4 rounded-full bg-cyan-400 border transition-transform ${customSkin === "cyber-lime" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
-                title="Cyber-Lime Glow"
-              />
-              <button
-                onClick={() => setCustomSkin("radium")}
-                className={`w-4 h-4 rounded-full bg-green-500 border transition-transform ${customSkin === "radium" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
-                title="Radium Spill"
-              />
-              <button
-                onClick={() => setCustomSkin("vaporwave")}
-                className={`w-4 h-4 rounded-full bg-fuchsia-500 border transition-transform ${customSkin === "vaporwave" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
-                title="Neon Vaporwave"
-              />
-              <button
-                onClick={() => setCustomSkin("rust-belter")}
-                className={`w-4 h-4 rounded-full bg-amber-500 border transition-transform ${customSkin === "rust-belter" ? "scale-125 border-white" : "border-transparent opacity-60"}`}
-                title="Rust Belter Chrome"
-              />
-            </div>
-          </div>
-        </div>
-
         {/* HERO INTRO / VIRTUAL MEMORIAL GRAPHIC */}
         {activeTab === "dump" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
@@ -1125,28 +1034,30 @@ export default function App() {
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-2 py-2">
-                        <div className="flex justify-center">
-                          <div className="p-2 bg-gray-900/60 rounded-lg text-gray-400 border border-gray-850">
-                            <Camera className="w-5 h-5 text-cyan-400 animate-pulse" />
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-gray-300">
-                            PROMPT_IMG_INJECT
-                          </p>
-                          <p className="text-[10px] text-gray-500 max-w-[280px] mt-0.5">
-                            Drag & Drop project mockup, or <span className="text-cyan-400 underline cursor-pointer hover:text-cyan-300 relative inline">
-                              browse files
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                              />
-                            </span> (JPG, PNG, GIF, <span className="text-gray-400 font-bold">10MB MAX</span>)
-                          </p>
-                        </div>
+                      <div className="w-full space-y-2">
+                        {/* Live animated core — auto-built from the chosen Category */}
+                        <ArtifactVisualizer
+                          category={formCategory}
+                          name={formName || "UNTITLED ARTIFACT"}
+                          emotionalTragedy={formTragedy}
+                          techStack={formTech}
+                          causeOfDeath={formCause}
+                          id="form-preview"
+                          variant="thumbnail"
+                        />
+                        <p className="text-[10px] text-gray-500 text-center leading-relaxed">
+                          Animated core auto-generated from your <span className="text-cyan-400 font-bold">Category</span>. Or{" "}
+                          <span className="text-cyan-400 underline cursor-pointer hover:text-cyan-300 relative inline">
+                            upload an image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                            />
+                          </span>{" "}
+                          to override &mdash; or drag &amp; drop here (JPG/PNG/GIF, 10MB max).
+                        </p>
                       </div>
                     )}
                   </div>
