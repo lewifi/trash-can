@@ -1086,13 +1086,6 @@ app.get("/roast/:id", async (c) => {
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
-// Clean URL for the hidden world (serves the static secretworld.html asset).
-app.get("/secretworld", async (c) => {
-  const url = new URL(c.req.url);
-  url.pathname = "/secretworld.html";
-  return c.env.ASSETS.fetch(new Request(url.toString(), c.req.raw));
-});
-
 app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
 
 export default app;
