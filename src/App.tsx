@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.17";
+const APP_VERSION = "1.4.19";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -138,7 +138,7 @@ export default function App() {
     if (pth === "/contracts") return "contracts";
     if (pth === "/log") return "log";
     if (pth.startsWith("/grave/")) return "memorials";
-    return "dump";
+    return "memorials";
   };
   const [activeTab, setActiveTab] = useState<TabId>(tabFromPath());
 
