@@ -32,6 +32,7 @@ export default function Incinerator() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [view, setView] = useState<"pending" | "vents" | "live" | "all">("pending");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Dump | null>(null);
@@ -249,8 +250,34 @@ export default function Incinerator() {
           </div>
         )}
 
+        {!loading && !error && dumps.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {([
+              ["pending", "⏳ To review", dumps.filter((d) => d.isPrivate && !d.roomName).length],
+              ["vents", "🔒 Vent posts", dumps.filter((d) => d.isPrivate && d.roomName).length],
+              ["live", "✅ Live", dumps.filter((d) => !d.isPrivate).length],
+              ["all", "All", dumps.length],
+            ] as const).map(([key, label, n]) => (
+              <button
+                key={key}
+                onClick={() => setView(key as typeof view)}
+                className={`text-xs font-mono uppercase font-bold px-3 py-1.5 rounded border transition ${view === key ? "bg-cyan-900/50 border-cyan-500/60 text-cyan-200" : "bg-gray-900 border-gray-700 text-gray-400 hover:text-gray-200"}`}
+              >
+                {label} <span className="opacity-70">({n})</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="space-y-3">
-          {dumps.map((d) =>
+          {dumps
+            .filter((d) =>
+              view === "all" ? true :
+              view === "pending" ? (d.isPrivate && !d.roomName) :
+              view === "vents" ? (d.isPrivate && !!d.roomName) :
+              !d.isPrivate
+            )
+            .map((d) =>
             editingId === d.id && draft ? (
               <div key={d.id} className="bg-[#0b0f19] border border-cyan-500/40 rounded-lg p-4 space-y-3">
                 <div className="flex gap-4">
