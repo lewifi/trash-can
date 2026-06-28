@@ -6,6 +6,25 @@ interface TeamVentingProps {
   onAddProjectDirectly: (newProject: any) => void;
 }
 
+// Turn bare URLs inside a vent post into clickable links (used by the hidden hunt).
+function linkify(text: string) {
+  return text.split(/(https?:\/\/[^\s"]+)/g).map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noreferrer"
+        className="text-cyan-300 underline decoration-cyan-500/60 underline-offset-2 break-all hover:text-cyan-200"
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
 export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) {
   const [roomName, setRoomName] = useState("");
   const [password, setPassword] = useState("");
@@ -276,7 +295,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                     </div>
 
                     <p className="text-xs text-gray-300 mt-2 italic border-l border-red-500/20 pl-2.5">
-                      "{dump.description}"
+                      "{linkify(dump.description)}"
                     </p>
 
                     <div className="text-[10px] text-red-400/80 mt-2 font-mono-tech flex items-center gap-1 bg-red-950/10 p-1 rounded max-w-max">

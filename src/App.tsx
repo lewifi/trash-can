@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.11";
+const APP_VERSION = "1.4.12";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -1919,6 +1919,32 @@ export default function App() {
                     className="text-amber-500 hover:underline cursor-pointer"
                   >
                     ACCEPTS DRAFT →
+                  </button>
+                </div>
+              </div>
+
+              {/* DECOY — red-herring easter egg. Looks like the secret path; leads nowhere on purpose. */}
+              <div className="p-5 bg-gray-950/80 border border-emerald-900/40 hover:border-emerald-500/50 rounded-xl transition-all flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono-tech">
+                    <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-900/40 px-2.5 py-0.5 rounded">UNLISTED · ???</span>
+                    <strong className="text-white">🔑 ???</strong>
+                  </div>
+                  <h4 className="text-base font-bold text-gray-200 mb-1">
+                    "Abandoned ARG Terminal (still warm)"
+                  </h4>
+                  <p className="text-xs text-gray-500 font-mono-tech mb-3">By @nobody</p>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    "Left this here by mistake. If you're reading it, you're close. The real way out is buried in the oldest grave in the Landfill — count the flowers, take that number as the password, breach the hatch. Don't tell the others."
+                  </p>
+                </div>
+                <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">
+                  <span className="text-gray-500">Found by: you</span>
+                  <button
+                    onClick={() => alert("🗝️ You count the flowers, take the number, breach the hatch... and find one sticky note waiting:\n\n'Gotcha. This was never the way in. The trash you can SEE is never where the good stuff is buried. Nice try though. — The Janitor'\n\n(Dead end. Keep looking. 😈)")}
+                    className="text-emerald-400 hover:underline cursor-pointer"
+                  >
+                    DECODE →
                   </button>
                 </div>
               </div>

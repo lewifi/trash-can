@@ -207,6 +207,26 @@ export const INITIAL_DUMPS: DeadProject[] = [
     isPrivate: true,
     roomName: "secret",
     roomPassword: "wayin"
+  },
+  // --- HUNT: the doorway out of the vent room into the secret WebGL world. ---
+  {
+    id: "hunt-vault-portal",
+    name: "\u22B3 THE BURIED DOOR (open me)",
+    description: "You earned the real secret. There's a whole world stitched into the dead air of this site \u2014 colour, sound, and a few things lost inside it that want finding. Step through: https://trash-can.net/secretworld.html \u2014 find them all and the trash finally pays out.",
+    category: "other",
+    causeOfDeath: "Left ajar on purpose",
+    emotionalTragedy: 1,
+    techStack: "WebGL, three.js, and one haunted little synth",
+    artifactIcon: "monitor",
+    likes: 0,
+    flowers: 0,
+    creator: "The Janitor",
+    createdAt: "2026-06-01T09:01:00Z",
+    latitude: 0,
+    longitude: 0,
+    isPrivate: true,
+    roomName: "secret",
+    roomPassword: "wayin"
   }
 ];
 
@@ -214,5 +234,5 @@ export const INITIAL_DUMPS: DeadProject[] = [
 // in KV on load (non-destructively) so they appear even though production was
 // seeded before they existed.
 export const HUNT_DUMPS: DeadProject[] = INITIAL_DUMPS.filter(
-  (d) => d.id === "hist-cloudflare" || d.id === "hunt-vault-secret"
+  (d) => d.id === "hist-cloudflare" || d.id === "hunt-vault-secret" || d.id === "hunt-vault-portal"
 );
