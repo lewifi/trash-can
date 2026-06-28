@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
  * plus quiet teasers for the hidden leaderboard / quiz. Pure vibes, client-side.
  */
 export default function LiveTicker() {
-  const [buried, setBuried] = useState(1840);
-  const [roasted, setRoasted] = useState(312);
-  const [venting, setVenting] = useState(14);
+  const [buried, setBuried] = useState(1944);
+  const [roasted, setRoasted] = useState(453);
+  const [venting, setVenting] = useState(19);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -22,7 +22,7 @@ export default function LiveTicker() {
 
   return (
     <div className="border-b border-gray-900 bg-black/40">
-      <div className="max-w-7xl mx-auto flex items-center gap-3 px-4 py-1.5 overflow-x-auto no-scrollbar text-[10px] font-mono-tech text-gray-500 whitespace-nowrap">
+      <div className="max-w-7xl mx-auto flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar text-[11px] font-mono-tech text-gray-400 whitespace-nowrap">
         <span className="flex items-center gap-1.5 text-emerald-300/90">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} projects buried
         </span>
