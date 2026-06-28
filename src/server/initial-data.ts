@@ -212,7 +212,7 @@ export const INITIAL_DUMPS: DeadProject[] = [
   {
     id: "hunt-vault-portal",
     name: "\u22B3 THE BURIED DOOR (open me)",
-    description: "You earned the real secret. There's a whole world stitched into the dead air of this site \u2014 colour, sound, and a few things lost inside it that want finding. Step through: https://trash-can.net/secretworld.html \u2014 find them all and the trash finally pays out.",
+    description: "You earned the real secret. There's a whole world stitched into the dead air of this site \u2014 colour, sound, and a few things lost inside it that want finding. Step through the door below, find them all, and the trash finally pays out.",
     category: "other",
     causeOfDeath: "Left ajar on purpose",
     emotionalTragedy: 1,

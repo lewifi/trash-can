@@ -280,7 +280,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                 </p>
               </div>
             ) : (
-              <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1">
+              <div className="space-y-3.5 lg:max-h-[380px] lg:overflow-y-auto pr-1">
                 {roomDumps.map(dump => (
                   <div key={dump.id} className="bg-[#05070e] border border-red-500/20 p-4 rounded-lg relative overflow-hidden">
                     {/* Tiny diagnostic stamp label */}
@@ -296,9 +296,20 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                       <span>TECH: {dump.techStack}</span>
                     </div>
 
-                    <p className="text-xs text-gray-300 mt-2 italic border-l border-red-500/20 pl-2.5">
+                    <p className="text-xs text-gray-300 mt-2 italic border-l border-red-500/20 pl-2.5 break-words">
                       "{linkify(dump.description)}"
                     </p>
+
+                    {dump.id === "hunt-vault-portal" && (
+                      <a
+                        href="/secretworld"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-black font-extrabold uppercase tracking-wider text-xs sm:text-sm py-3 px-4 rounded-lg transition shadow-[0_0_18px_rgba(245,200,60,0.45)]"
+                      >
+                        Enter the buried world →
+                      </a>
+                    )}
 
                     <div className="text-[10px] text-red-400/80 mt-2 font-mono-tech flex items-center gap-1 bg-red-950/10 p-1 rounded max-w-max">
                       <span>💀 AUTOPSY:</span>
