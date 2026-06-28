@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.19";
+const APP_VERSION = "1.4.20";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -639,8 +639,8 @@ export default function App() {
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const NAV_ITEMS = [
-    { id: "dump", label: "Dump", Icon: Plus },
     { id: "memorials", label: "Landfill", Icon: Compass },
+    { id: "dump", label: "Dump", Icon: Plus },
     { id: "oracle", label: "Roast Oracle", Icon: Star },
     { id: "disposal", label: "Vent", Icon: Shield },
     { id: "contracts", label: "Salvage", Icon: Coins },
