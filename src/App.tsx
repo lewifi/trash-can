@@ -80,6 +80,30 @@ interface DeadProject {
 // Hand-written patch notes from the gravekeeper, newest first. Written in site voice.
 const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = [
   {
+    date: "2026-06-28",
+    tag: "BURIED DEEP",
+    title: "Something's been buried in the yard",
+    body: "There's a hunt threaded through this place now — a chain of clues that starts where you'd least expect and ends somewhere strange and colourful. A few wanderers have already found the way down. Most walk straight past it. Read the graves closely; the odd one out is lying to you. The trash keeps its secrets, but it does leave a map for the curious.",
+  },
+  {
+    date: "2026-06-27",
+    tag: "FRONT GATE",
+    title: "The Landfill is the front door now",
+    body: "Walk in and you land right in the pile — no paperwork first. Burying a project or roasting a mate is one tap up top. We figured you'd rather gawk at other people's wreckage before filing your own.",
+  },
+  {
+    date: "2026-06-25",
+    tag: "THE ORACLE",
+    title: "The Roast Oracle is open for business",
+    body: "Feed it a mate's name and it'll cook them to a crisp. Sign your own name so they know exactly who to blame. A word of advice: read who actually ends up roasted before you hit send.",
+  },
+  {
+    date: "2026-06-23",
+    tag: "FRESH PAINT",
+    title: "Your grave shows its true colours",
+    body: "Pick a category when you bury a project and its animated core now flickers to life right there in the form. The AI pile got a brand-new synapse that won't stop twitching. Prefer your own mockup? Drag one in and it takes over.",
+  },
+  {
     date: "2026-06-19",
     tag: "NEW BINS",
     title: "Three new piles opened in the yard",
@@ -124,7 +148,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.26";
+const APP_VERSION = "1.4.27";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
