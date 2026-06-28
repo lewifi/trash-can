@@ -16,6 +16,9 @@
       "/roast/*"
     ]
   },
+  "send_email": [
+    { "name": "NOTIFY_EMAIL", "destination_address": "lewi.hirvela@gmail.com" }
+  ],
   "kv_namespaces": [
     {
       "binding": "GRAVEYARD_KV",

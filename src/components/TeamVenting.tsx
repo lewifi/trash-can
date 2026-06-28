@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { trackHunt } from "../lib/hunt";
 import { Lock, Unlock, AlertTriangle, ShieldCheck, Plus, ListFilter, HelpCircle, Users } from "lucide-react";
 import { DeadProject } from "../types";
 
@@ -69,6 +70,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
       setRoomDumps(data);
       setActiveRoomName(code);
       setActiveRoomPassword(pwd);
+      if (code.toLowerCase() === "secret") trackHunt("vent");
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Failed to authenticate room access.");

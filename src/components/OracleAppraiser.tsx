@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { trackHunt } from "../lib/hunt";
 import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2 } from "lucide-react";
 import { AppraisalResult } from "../types";
 
@@ -394,7 +395,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   <p className="text-[11px] text-gray-200 leading-relaxed"><span className="text-fuchsia-300 font-bold">You just completed Clue 1</span> of a hidden adventure on this site &mdash; a mission that ends in a surprise. Claim your next clue to officially enter.</p>
                   <button
                     type="button"
-                    onClick={() => { setAdventureOpen(true); window.dispatchEvent(new Event("hint-found")); }}
+                    onClick={() => { setAdventureOpen(true); trackHunt("clue1"); window.dispatchEvent(new Event("hint-found")); }}
                     className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
                   >
                     <Sparkles className="w-3.5 h-3.5" /> Get your next clue

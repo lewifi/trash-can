@@ -33,6 +33,7 @@ export default function Incinerator() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [view, setView] = useState<"pending" | "vents" | "live" | "all">("pending");
+  const [hunt, setHunt] = useState<{ step: string; count: number }[] | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Dump | null>(null);
@@ -59,6 +60,10 @@ export default function Incinerator() {
         throw new Error(d || `Request failed (${res.status})`);
       }
       setDumps(await res.json());
+      try {
+        const hr = await fetch("/api/hunt/stats");
+        if (hr.ok) setHunt(((await hr.json()).steps) || null);
+      } catch { /* funnel stats are best-effort */ }
     } catch (e: any) {
       setError(e.message || "Failed to load entries.");
     } finally {
@@ -249,6 +254,45 @@ export default function Incinerator() {
             <p className="text-sm font-mono uppercase tracking-wide">The graveyard is empty.</p>
           </div>
         )}
+
+        {hunt && hunt.some((h) => h.count > 0) && (() => {
+          const get = (k: string) => hunt.find((h) => h.step === k)?.count || 0;
+          const rows: [string, string][] = [
+            ["clue1", "Clue 1 opened (Oracle)"],
+            ["grave", "Found the Cloudflare grave"],
+            ["clue2", "Clue 2 revealed"],
+            ["vent", "Unlocked the vent room"],
+            ["world", "Entered the buried world"],
+            ["echo1", "Echo I found"],
+            ["echo2", "Echo II found"],
+            ["echo3", "Echo III \u2014 all found"],
+            ["prize", "Clicked a prize link"],
+          ];
+          const top = Math.max(get("clue1"), 1);
+          return (
+            <div className="mb-6 bg-[#0b0f19] border border-fuchsia-500/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-mono uppercase tracking-widest text-fuchsia-300 font-bold">\uD83D\uDDFA\uFE0F Hidden hunt funnel</span>
+                <span className="text-[10px] text-gray-500 font-mono">unique browsers per step</span>
+              </div>
+              <div className="space-y-1.5">
+                {rows.map(([k, label]) => {
+                  const n = get(k);
+                  const pct = Math.round((n / top) * 100);
+                  return (
+                    <div key={k} className="flex items-center gap-3">
+                      <div className="w-48 text-[11px] text-gray-300 font-mono truncate">{label}</div>
+                      <div className="flex-1 h-3 bg-gray-900 rounded overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-fuchsia-500 to-amber-400" style={{ width: Math.min(100, pct) + "%" }} />
+                      </div>
+                      <div className="w-20 text-right text-[11px] font-mono text-gray-400">{n}<span className="text-gray-600"> \u00b7 {pct}%</span></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {!loading && !error && dumps.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">

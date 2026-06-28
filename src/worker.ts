@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { DeadProject, INITIAL_DUMPS, HUNT_DUMPS } from "./server/initial-data";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { ImageResponse } from "workers-og";
+import { EmailMessage } from "cloudflare:email";
 
 type Bindings = {
   ASSETS: Fetcher;
@@ -13,6 +14,8 @@ type Bindings = {
   ADMIN_EMAIL?: string;
   ACCESS_TEAM_DOMAIN?: string;
   ACCESS_AUD?: string;
+  // Email Routing send binding (notify admin of new submissions)
+  NOTIFY_EMAIL?: { send: (message: EmailMessage) => Promise<void> };
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -343,6 +346,52 @@ async function getCachedAppraisal(
   }
 }
 
+function b64utf8(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+// Email the admin when a public submission lands in the review queue.
+async function notifyNewDump(env: Bindings, dump: DeadProject) {
+  try {
+    if (!env.NOTIFY_EMAIL) return;
+    const to = "lewi.hirvela@gmail.com";
+    const from = "graveyard@trash-can.net";
+    const subject = `New grave to review: ${dump.name}`.slice(0, 120);
+    const encSubject = "=?UTF-8?B?" + b64utf8(subject) + "?=";
+    const body = [
+      "A new project was buried and is HELD for review (it is not live yet).",
+      "",
+      `Name: ${dump.name}`,
+      `Category: ${dump.category}`,
+      `Cause of death: ${dump.causeOfDeath}`,
+      `By: ${dump.creator}`,
+      "",
+      "Description:",
+      dump.description,
+      "",
+      "Publish or burn it in the Incinerator -> \"To review\" tab.",
+    ].join("\r\n");
+    const msgId = `<${Date.now()}.${Math.random().toString(36).slice(2)}@trash-can.net>`;
+    const raw = [
+      `From: Roast Graveyard <${from}>`,
+      `To: ${to}`,
+      `Subject: ${encSubject}`,
+      `Message-ID: ${msgId}`,
+      `Date: ${new Date().toUTCString()}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=utf-8",
+      "",
+      body,
+    ].join("\r\n");
+    await env.NOTIFY_EMAIL.send(new EmailMessage(from, to, raw));
+  } catch (e) {
+    console.error("notify email failed:", String((e as any)?.message || e));
+  }
+}
+
 app.post("/api/dumps", async (c) => {
   const limited = await rateLimit(c, "dumps", [
     { windowMs: 30_000, max: 5 },
@@ -429,6 +478,12 @@ app.post("/api/dumps", async (c) => {
   const currentData = await loadGraveyardData(c.env.GRAVEYARD_KV);
   currentData.push(newDump);
   await saveGraveyardData(c.env.GRAVEYARD_KV, currentData);
+
+  // Held landfill submissions (no roomName) ping the admin for review.
+  if (!newDump.roomName) {
+    try { c.executionCtx.waitUntil(notifyNewDump(c.env, newDump)); }
+    catch { await notifyNewDump(c.env, newDump); }
+  }
 
   return c.json(newDump, 201);
 });
@@ -736,6 +791,37 @@ Every field should land a joke. No disclaimers, no preamble.`;
       500
     );
   }
+});
+
+// --- Hidden-hunt funnel counters (KV-backed, fire-and-forget) -------------
+// Each step is pinged at most once per browser (client dedups), so these read
+// as how many people reached each stage of the scavenger hunt.
+const HUNT_STEPS = ["clue1", "grave", "clue2", "vent", "world", "echo1", "echo2", "echo3", "prize"];
+const HUNT_KEY = "hunt_funnel_v1";
+
+app.post("/api/hunt/:step", async (c) => {
+  const step = c.req.param("step");
+  const kv = c.env.GRAVEYARD_KV;
+  if (!HUNT_STEPS.includes(step) || !kv) return c.body(null, 204);
+  try {
+    const raw = await kv.get(HUNT_KEY);
+    const obj = raw ? JSON.parse(raw) : {};
+    obj[step] = (obj[step] || 0) + 1;
+    await kv.put(HUNT_KEY, JSON.stringify(obj));
+  } catch (e) {
+    console.error("hunt counter failed:", String((e as any)?.message || e));
+  }
+  return c.body(null, 204);
+});
+
+app.get("/api/hunt/stats", async (c) => {
+  const admin = await verifyAdmin(c);
+  if (!admin) return c.json({ error: "Not authorized." }, 403);
+  const kv = c.env.GRAVEYARD_KV;
+  const raw = kv ? await kv.get(HUNT_KEY) : null;
+  const obj = raw ? JSON.parse(raw) : {};
+  const steps = HUNT_STEPS.map((s) => ({ step: s, count: Number(obj[s] || 0) }));
+  return c.json({ steps });
 });
 
 // --- Admin (Incinerator) routes, gated by Cloudflare Access ---------------
