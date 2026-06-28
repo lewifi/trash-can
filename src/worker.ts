@@ -801,7 +801,7 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
 
 // Dynamic social-card image for a grave: project name + AI post-mortem + score.
 app.get("/api/og/:id", async (c) => {
-  const FALLBACK = "https://trash-can.net/og.png";
+  const FALLBACK = "https://trash-can.net/og.png?v=2";
   try {
     const id = c.req.param("id");
     const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
@@ -951,7 +951,7 @@ app.get("/api/roasts/:id", async (c) => {
 });
 
 app.get("/api/og/roast/:id", async (c) => {
-  const FALLBACK = "https://trash-can.net/og.png";
+  const FALLBACK = "https://trash-can.net/og.png?v=2";
   try {
     const kv = c.env.GRAVEYARD_KV;
     const raw = kv ? await kv.get("roast:" + c.req.param("id")) : null;

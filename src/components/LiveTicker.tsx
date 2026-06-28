@@ -24,7 +24,7 @@ export default function LiveTicker() {
     <div className="border-b border-gray-900 bg-black/40">
       <div className="max-w-7xl mx-auto flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar text-[11px] font-mono-tech text-gray-400 whitespace-nowrap">
         <span className="flex items-center gap-1.5 text-emerald-300/90">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} projects buried
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} mourners through the gate
         </span>
         <span className="text-gray-700">•</span>
         <span className="text-cyan-400/80">{fmt(roasted)} roasted today</span>
