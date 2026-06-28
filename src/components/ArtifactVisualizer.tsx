@@ -121,28 +121,27 @@ export default function ArtifactVisualizer({
       case "ai":
         return (
           <svg viewBox="0 0 100 100" className="w-full h-full text-purple-400">
-            {/* Corrupted brain / robot neural net discharging */}
-            <circle cx="50" cy="45" r="30" fill="none" stroke="#a855f7" strokeWidth="1" />
-            <circle cx="50" cy="45" r="15" fill="none" stroke="#a855f7" strokeWidth="0.5" strokeDasharray="1,1" />
-
-            {/* Neural nodes */}
-            <circle cx="35" cy="35" r="2.5" fill="#c084fc" />
-            <circle cx="65" cy="35" r="2.5" fill="#c084fc" />
-            <circle cx="50" cy="25" r="2.5" fill="#a855f7" />
-            <circle cx="42" cy="55" r="2.5" fill="#ec4899" className="animate-ping" />
-            <circle cx="58" cy="55" r="2.5" fill="#ef4444" />
-
-            {/* Ruptured interconnects */}
-            <line x1="35" y1="35" x2="50" y2="25" stroke="#a855f7" strokeWidth="1" />
-            <line x1="65" y1="35" x2="50" y2="25" stroke="#a855f7" strokeWidth="1" />
-            <line x1="35" y1="35" x2="42" y2="55" stroke="#ef4444" strokeWidth="1" strokeDasharray="1,1" />
-            <line x1="65" y1="35" x2="58" y2="55" stroke="#f43f5e" strokeWidth="1.5" />
-            
-            {/* Spark lightning discharge */}
-            <path d="M50,15 L45,3 L53,3 L48,-4" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" fill="none" transform="translate(0, 15)" />
-
-            <text x="50" y="85" fill="#b51a1a" fontSize="6" fontFamily="monospace" textAnchor="middle" className="uppercase tracking-widest font-bold">
-              HALT TRIPPED
+            {/* AI SYNAPSE core — rotating rings + pulsing synapse spike */}
+            <defs>
+              <radialGradient id="aiCore" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#c084fc" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="45" r="30" fill="url(#aiCore)" />
+            {/* counter-rotating dashed rings */}
+            <circle cx="50" cy="45" r="28" fill="none" stroke="#a855f7" strokeWidth="1" strokeDasharray="4,4"
+              style={{ transform: `rotate(${rotateAngle}deg)`, transformOrigin: "50px 45px" }} />
+            <circle cx="50" cy="45" r="18" fill="none" stroke="#c084fc" strokeWidth="0.6" strokeDasharray="1,2"
+              style={{ transform: `rotate(${-rotateAngle * 1.6}deg)`, transformOrigin: "50px 45px" }} />
+            {/* pulsing synapse spike */}
+            <polygon points="50,16 52,28 62,30 52,32 50,45" fill="#c084fc"
+              style={{ transform: `scale(${pulseScale})`, transformOrigin: "50px 45px" }} className="animate-pulse" />
+            {/* burning core node */}
+            <circle cx="50" cy="45" r={3 * pulseScale} fill="#e9d5ff" />
+            <circle cx="50" cy="45" r="6" fill="none" stroke="#ec4899" strokeWidth="0.8" className="animate-ping" />
+            <text x="50" y="90" fill="#c084fc" fontSize="6" fontFamily="monospace" textAnchor="middle" className="uppercase font-bold animate-pulse">
+              SYN_CORE_BURN
             </text>
           </svg>
         );

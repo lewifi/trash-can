@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.23";
+const APP_VERSION = "1.4.26";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -879,7 +879,7 @@ export default function App() {
                       onChange={(e) => setFormCategory(e.target.value as DeadProject["category"])}
                       className="w-full bg-[#05070e] border border-gray-800 focus:border-cyan-500/60 focus:outline-none rounded-lg px-3 py-2 text-gray-200"
                     >
-                      <option value="saas">SaaS (Software as a Struggle)</option>
+                      <option value="saas">SaaS / Software as a Struggle</option>
                       <option value="web">Web / Abandoned Landing Page</option>
                       <option value="web3">Cloud Native / Overengineered Infra Dream</option>
                       <option value="mobile">Mobile / Swiper-Addicted App</option>
@@ -1062,42 +1062,6 @@ export default function App() {
                     )}
                   </div>
 
-                  {/* Preset sci-fi schematics gallery */}
-                  {!formImageUrl && (
-                    <div className="space-y-1.5 pt-0.5">
-                      <span className="text-[9px] font-mono-tech text-cyan-500 uppercase tracking-widest block font-bold">
-                        ⚡ AUTOMATED MOCKUP BLUEPRINT PICKER
-                      </span>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {[
-                          {
-                            name: "CYAN CAD CORE",
-                            color: "hover:border-cyan-400/80 bg-cyan-950/10 border-cyan-900/40 text-cyan-400",
-                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%2305070e"/><g stroke="%2322d3ee" stroke-dasharray="3,3" stroke-opacity="0.3"><line x1="0" y1="50" x2="300" y2="50"/><line x1="0" y1="100" x2="300" y2="100"/><line x1="0" y1="150" x2="300" y2="150"/></g><circle cx="150" cy="100" r="45" fill="none" stroke="%2322d3ee" stroke-width="1.5"/><line x1="90" y1="100" x2="210" y2="100" stroke="%2322d3ee" stroke-width="1"/><line x1="150" y1="40" x2="150" y2="160" stroke="%2322d3ee" stroke-width="1"/><text x="15" y="25" fill="%2322d3ee" font-family="monospace" font-size="10">SYS_ID: OP_V_09</text></svg>'
-                          },
-                          {
-                            name: "MELTDOWN RED",
-                            color: "hover:border-red-500/80 bg-red-950/10 border-red-900/40 text-red-400",
-                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%23110505"/><path d="M40,140 L90,60 L140,120 L190,40 L240,160" fill="none" stroke="%23f43f5e" stroke-width="2"/><text x="150" y="105" fill="%23ef4444" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">CONTAINMENT CRITICAL</text></svg>'
-                          },
-                          {
-                            name: "AI SYNAPSE",
-                            color: "hover:border-fuchsia-500/80 bg-fuchsia-950/10 border-fuchsia-900/40 text-fuchsia-400",
-                            svg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="100%" height="100%" fill="%230c0512"/><circle cx="150" cy="100" r="35" fill="none" stroke="%23a855f7" stroke-width="1"/><polygon points="150,30 155,60 180,65 155,70 150,100" fill="%23c084fc"/><text x="150" y="160" fill="%23c084fc" font-family="monospace" font-size="10" text-anchor="middle">SYN_CORE_BURN</text></svg>'
-                          }
-                        ].map((scheme, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => setFormImageUrl(scheme.svg)}
-                            className={`py-1.5 px-1 bg-[#090e1a] hover:bg-[#111a33] border rounded text-[9px] font-mono-tech font-bold uppercase transition-all tracking-wider text-center cursor-pointer ${scheme.color}`}
-                          >
-                            🎨 {scheme.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Private venting controls */}
