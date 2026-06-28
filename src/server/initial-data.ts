@@ -165,5 +165,54 @@ export const INITIAL_DUMPS: DeadProject[] = [
     longitude: 139.6503, // Tokyo
     aiAppraisal: "It was too productive. Why sit down and do work when your agent can actively sabotage your personal finances at 60 tokens per second? Truly Ahead of its guidelines.",
     diagnosticScore: 92
+  },
+  // --- HUNT: the odd one out. Cloudflare is very much alive; it does not belong
+  // in a graveyard, which is exactly why it's the clue. Read its roast closely. ---
+  {
+    id: "hist-cloudflare",
+    name: "Cloudflare",
+    description: "Filed under 'dead software' by someone who clearly never checks a status page. Every time it's declared down, it's back before the tweet finishes sending. It doesn't belong here with the actual corpses — and that, friend, is exactly the point.",
+    category: "tech",
+    causeOfDeath: "Allegedly deceased (still 100% online)",
+    emotionalTragedy: 1,
+    techStack: "Anycast edge network, Workers, KV, pure uptime spite",
+    artifactIcon: "server",
+    likes: 503,
+    flowers: 100,
+    creator: "The Orange Cloud",
+    createdAt: "2026-06-01T09:00:00Z",
+    latitude: 37.7765,
+    longitude: -122.3949, // San Francisco HQ
+    aiAppraisal: "Cute. Someone buried a thriving edge network as a 'dead project.' This grave is still serving fifty million requests a second from inside the coffin — it didn't die, it just cached itself and rerouted. The odd one out, hiding in plain sight. Dig into this one; it is not what it claims to be.",
+    diagnosticScore: 1
+  },
+  // --- HUNT: payoff behind the private vent room. Hidden from the public
+  // landfill (isPrivate). Reached only via Break Containment Hatch with the
+  // Room Code "secret" and Hatch Password "wayin". ---
+  {
+    id: "hunt-vault-secret",
+    name: "YOU FOUND THE WAY IN",
+    description: "If you're reading this, you read a grave closely enough to catch it lying, then breached a hatch most people never even find. Clue 1 sent you to the odd one out. The fake grave handed you the code. The way in was right there in the words. You're further than almost anyone gets. Keep the code to yourself — the trash remembers who earns its secrets.",
+    category: "other",
+    causeOfDeath: "Curiosity (the good kind)",
+    emotionalTragedy: 1,
+    techStack: "Patience, a sharp eye, and zero respect for 'do not enter' signs",
+    artifactIcon: "skull",
+    likes: 0,
+    flowers: 0,
+    creator: "The Janitor",
+    createdAt: "2026-06-01T09:00:00Z",
+    latitude: 0,
+    longitude: 0,
+    isPrivate: true,
+    roomName: "secret",
+    roomPassword: "wayin"
   }
 ];
+
+// Entries that power the hidden scavenger hunt. The worker ensures these exist
+// in KV on load (non-destructively) so they appear even though production was
+// seeded before they existed.
+export const HUNT_DUMPS: DeadProject[] = INITIAL_DUMPS.filter(
+  (d) => d.id === "hist-cloudflare" || d.id === "hunt-vault-secret"
+);

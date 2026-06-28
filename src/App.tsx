@@ -124,7 +124,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "1.4.10";
+const APP_VERSION = "1.4.11";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -179,6 +179,7 @@ export default function App() {
   // doesn't carry over. (No scroll-into-view: stay where the grave was clicked.)
   useEffect(() => {
     setAppraiseResult(null);
+    setGraveClueShown(false);
   }, [selectedDump?.id]);
 
   // Lock the page behind the detail modal and restore the exact scroll spot on close,
@@ -267,6 +268,7 @@ export default function App() {
   const [formIsPrivate, setFormIsPrivate] = useState(false);
   const [dumpDone, setDumpDone] = useState(false);
   const [dumpHintShown, setDumpHintShown] = useState(false);
+  const [graveClueShown, setGraveClueShown] = useState(false);
   const [formRoomName, setFormRoomName] = useState("");
   const [formRoomPassword, setFormRoomPassword] = useState("");
   const [formImageUrl, setFormImageUrl] = useState("");
@@ -1640,6 +1642,36 @@ export default function App() {
                         "{selectedDump.description}"
                       </div>
                     </div>
+
+                    {/* HIDDEN HUNT — Clue 2 lives inside the odd-one-out grave */}
+                    {selectedDump.id === "hist-cloudflare" && (
+                      <div className="rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center space-y-2">
+                        {!graveClueShown ? (
+                          <>
+                            <p className="text-[11px] text-gray-200 leading-relaxed">
+                              Something's off about this grave &mdash; it reads wrong because it never actually died. <span className="text-fuchsia-300 font-bold">Clue 2 is buried in here.</span>
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => { setGraveClueShown(true); window.dispatchEvent(new Event("hint-found")); }}
+                              className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> Dig out Clue 2
+                            </button>
+                          </>
+                        ) : (
+                          <div className="text-left space-y-1.5">
+                            <p className="text-[10px] font-mono-tech tracking-[0.3em] text-fuchsia-300 uppercase">Clue 2 of ???</p>
+                            <p className="text-[11px] text-gray-200 leading-relaxed">
+                              This one's a fake &mdash; it never died, it just reroutes. To follow it, head to the <span className="text-red-300 font-bold">Vent</span> and <span className="text-red-300 font-bold">Break Containment Hatch</span>.
+                            </p>
+                            <p className="text-[11px] text-gray-200 leading-relaxed">
+                              The Containment Block Code is no great <span className="text-amber-200 font-bold">secret</span>. And the Hatch Password? It's simply the <span className="text-amber-200 font-bold">way in</span> &mdash; said quick, as one word.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* SHARE */}
                     <button

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { GoogleGenAI } from "@google/genai";
-import { DeadProject, INITIAL_DUMPS } from "./server/initial-data";
+import { DeadProject, INITIAL_DUMPS, HUNT_DUMPS } from "./server/initial-data";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { ImageResponse } from "workers-og";
 
@@ -20,12 +20,30 @@ const app = new Hono<{ Bindings: Bindings }>();
 // In-memory fallback for local dev if KV is not bound
 let memoryDumps: DeadProject[] = [...INITIAL_DUMPS];
 
+// Non-destructively make sure the scavenger-hunt fixtures exist in the data set.
+// Production KV was seeded before these entries existed, so we append any that
+// are missing (matched by id) without touching user-submitted dumps.
+function ensureHuntEntries(data: DeadProject[]): { data: DeadProject[]; changed: boolean } {
+  let changed = false;
+  const out = [...data];
+  for (const h of HUNT_DUMPS) {
+    if (!out.some((d) => d.id === h.id)) {
+      out.push(h);
+      changed = true;
+    }
+  }
+  return { data: out, changed };
+}
+
 async function loadGraveyardData(kv: KVNamespace | undefined): Promise<DeadProject[]> {
   if (kv) {
     const data = await kv.get("graveyard_dumps");
     if (data) {
       try {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data) as DeadProject[];
+        const { data: merged, changed } = ensureHuntEntries(parsed);
+        if (changed) await kv.put("graveyard_dumps", JSON.stringify(merged));
+        return merged;
       } catch (e) {
         console.error("Failed to parse KV graveyard_dumps data", e);
       }
@@ -34,7 +52,7 @@ async function loadGraveyardData(kv: KVNamespace | undefined): Promise<DeadProje
     await kv.put("graveyard_dumps", JSON.stringify(INITIAL_DUMPS));
     return [...INITIAL_DUMPS];
   }
-  return memoryDumps;
+  return ensureHuntEntries(memoryDumps).data;
 }
 
 async function saveGraveyardData(kv: KVNamespace | undefined, data: DeadProject[]): Promise<void> {
