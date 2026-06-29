@@ -293,6 +293,14 @@ export default function App() {
     }, 150);
     return () => clearTimeout(t);
   }, [highlightedGraveId, filteredDumps, visibleCount]);
+
+  // The highlight is a transient "you landed here" pulse — clear it after ~2s so
+  // it can't be mistaken for a permanent marker (e.g. the hunt's odd-one-out).
+  useEffect(() => {
+    if (!highlightedGraveId) return;
+    const t = setTimeout(() => setHighlightedGraveId(null), 2300);
+    return () => clearTimeout(t);
+  }, [highlightedGraveId]);
   // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
   useEffect(() => {
     const el = loadMoreRef.current;
