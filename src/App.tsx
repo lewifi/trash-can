@@ -91,7 +91,7 @@ const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = 
   {
     date: "2026-06-27",
     tag: "FRONT GATE",
-    title: "The Landfill is the front door now",
+    title: "The Graveyard is the front door now",
     body: "Walk in and you land right in the pile — no paperwork first. Burying a project or roasting a mate is one tap up top. We figured you'd rather gawk at other people's wreckage before filing your own.",
   },
   {
@@ -128,7 +128,7 @@ const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = 
     date: "2026-06-12",
     tag: "HOUSEKEEPING",
     title: "Vent rooms sealed shut",
-    body: "Private venting-room confessions were leaking into the public landfill. They've been walled back up. What's whispered in the vent stays in the vent.",
+    body: "Private venting-room confessions were leaking into the public graveyard. They've been walled back up. What's whispered in the vent stays in the vent.",
   },
   {
     date: "2026-06-08",
@@ -684,9 +684,9 @@ export default function App() {
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const NAV_ITEMS = [
-    { id: "memorials", label: "Landfill", Icon: Compass },
-    { id: "dump", label: "Dump", Icon: Plus },
     { id: "oracle", label: "Roast Oracle", Icon: Star },
+    { id: "memorials", label: "Graveyard", Icon: Compass },
+    { id: "dump", label: "Dump", Icon: Plus },
     { id: "disposal", label: "Vent", Icon: Shield },
     { id: "contracts", label: "Salvage", Icon: Coins },
     { id: "log", label: "Notes", Icon: ScrollText },
@@ -812,7 +812,7 @@ export default function App() {
 
       {/* SUB-ACCENT BANNER */}
       <div className={`p-1 bg-gradient-to-r ${skin.bannerBg} border-b border-gray-800 text-center text-xs tracking-wider uppercase font-mono-tech ${skin.accentColor}`}>
-        "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE LANDFILL MANIFESTO
+        "ONE ENGINEER'S REJECTED SPAGHETTI IS ANOTHER SCRAP-COLLECTOR'S ENCRYPTED TREASURE" - THE GRAVEYARD MANIFESTO
       </div>
       <LiveTicker />
 
@@ -831,7 +831,7 @@ export default function App() {
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-xs font-mono-tech px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded">
-                    LANDFILL SECTOR 07
+                    GRAVEYARD SECTOR 07
                   </span>
                   <span className="text-xs font-mono-tech text-gray-500">• Procedural Junk-scape</span>
                 </div>
@@ -841,7 +841,7 @@ export default function App() {
                 </h1>
 
                 <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6">
-                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic landfill. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
+                  Did that SaaS idea wither in a folder? Did your smart contract freeze during seed rounds? Was your domain name <strong>trash-can.net</strong> meant for greatness, only to become a monument to rejection? Enter our digital, holographic graveyard. Toss your dead dreams here so they can rot in beautiful, neon-lit perfection with 1,840 other gorgeous failures.
                 </p>
 
                 {/* Aesthetic interactive simulator panel */}
@@ -901,7 +901,7 @@ export default function App() {
 
               <div className="flex items-center gap-2.5 mb-4">
                 <Trash2 className="w-5 h-5 text-red-400" />
-                <h2 className={`text-lg font-bold font-monument tracking-wider ${skin.accentColor}`}>TOSS SOMETHING INTO THE LANDFILL</h2>
+                <h2 className={`text-lg font-bold font-monument tracking-wider ${skin.accentColor}`}>TOSS SOMETHING INTO THE GRAVEYARD</h2>
               </div>
 
               <form onSubmit={handleDumpSubmit} className="space-y-4 text-sm">
@@ -1169,10 +1169,17 @@ export default function App() {
                   )}
                 </button>
 
+                {!dumpDone && (
+                  <div className="mt-3 rounded-lg border border-dashed border-fuchsia-500/30 bg-fuchsia-950/10 p-2.5 text-center">
+                    <p className="text-[11px] font-mono-tech text-fuchsia-300/80">🔒 A clue is buried in here</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">Bury a project first — it surfaces once you've dumped.</p>
+                  </div>
+                )}
+
                 {dumpDone && (
                   <div className="mt-3 p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-center depth-top space-y-2">
                     <p className="text-sm font-bold text-emerald-200">🗑️ Tossed into the queue!</p>
-                    <p className="text-[11px] text-gray-300">We'll take a look and publish it to the landfill if it's appropriate. Cheers for the trash.</p>
+                    <p className="text-[11px] text-gray-300">We'll take a look and publish it to the graveyard if it's appropriate. Cheers for the trash.</p>
                     {!dumpHintShown ? (
                       <button
                         type="button"
@@ -1380,7 +1387,7 @@ export default function App() {
                 <div className="bg-gray-950/60 border border-gray-800 p-12 text-center rounded-2xl flex flex-col items-center justify-center">
                   <Skull className="w-12 h-12 text-gray-600 mb-3 animate-pulse" />
                   <p className="text-gray-400 font-bold font-mono-tech tracking-wide mb-1">
-                    LANDFILL SECTOR VACANT
+                    GRAVEYARD SECTOR VACANT
                   </p>
                   <p className="text-gray-600 text-xs max-w-sm">
                     No registered artifacts match your search parameters. Consider dumping a tragedy of your own using the dump tool!
@@ -1856,7 +1863,7 @@ export default function App() {
                   </h4>
                   <p className="text-xs text-gray-500 font-mono-tech mb-3">By @nobody</p>
                   <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                    "Left this here by mistake. If you're reading it, you're close. The real way out is buried in the oldest grave in the Landfill — count the flowers, take that number as the password, breach the hatch. Don't tell the others."
+                    "Left this here by mistake. If you're reading it, you're close. The real way out is buried in the oldest grave in the Graveyard — count the flowers, take that number as the password, breach the hatch. Don't tell the others."
                   </p>
                 </div>
                 <div className="border-t border-gray-900 pt-3 flex items-center justify-between text-xs font-mono-tech">

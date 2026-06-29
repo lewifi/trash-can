@@ -12,6 +12,15 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
   const [geoData, setGeoData] = useState<any>(null);
   const [mapLoading, setMapLoading] = useState(true);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [board, setBoard] = useState<{ name: string; status?: string }[]>([]);
+
+  // Real hunt leaderboard (completers who left a name; listed as MIA).
+  useEffect(() => {
+    fetch("/api/leaderboard")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => { if (Array.isArray(data)) setBoard(data); })
+      .catch(() => { /* leave empty on failure */ });
+  }, []);
 
   useEffect(() => {
     fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
@@ -243,10 +252,18 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
                 <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ???</span>
                 <span className="text-[10px] text-gray-500 font-mono-tech">escaped</span>
               </div>
-              <div className="flex items-center justify-between bg-gray-900/60 px-3 py-2 rounded-lg border border-amber-500/15">
-                <span className="text-xs font-mono-tech text-amber-300/90 flex items-center gap-2"><span className="text-amber-500 font-bold">#2</span> smudge</span>
-                <span className="text-[10px] text-gray-500 font-mono-tech">closing in</span>
-              </div>
+              {board.slice(0, 6).map((p, i) => (
+                <div key={i} className="flex items-center justify-between bg-gray-900/40 px-3 py-2 rounded-lg border border-fuchsia-500/15">
+                  <span className="text-xs font-mono-tech text-fuchsia-200/90 flex items-center gap-2"><span className="text-fuchsia-400 font-bold">#{i + 2}</span> {p.name}</span>
+                  <span className="text-[10px] text-gray-500 font-mono-tech">{p.status || "MIA"}</span>
+                </div>
+              ))}
+              {board.length === 0 && (
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
+                  <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> nobody yet — be the first out</span>
+                  <span className="text-[10px] text-gray-700 font-mono-tech">missing</span>
+                </div>
+              )}
               <p className="text-[10px] text-fuchsia-400/70 font-mono-tech pt-1">🗺️ a clue adventure is hidden here…</p>
             </div>
           </div>

@@ -329,6 +329,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   <p className="text-[11px] text-gray-600 max-w-xs mx-auto">
                     Fill the left parameters and consult the Waste Chef to receive your Tragic Appraiser Report and customized scrap recycling plan!
                   </p>
+                  <div className="mt-5 rounded-lg border border-dashed border-fuchsia-500/30 bg-fuchsia-950/10 p-2.5 max-w-xs mx-auto">
+                    <p className="text-[11px] font-mono-tech text-fuchsia-300/80">🔒 A clue is buried in this Oracle</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">Run a roast first — it won't surface until you do.</p>
+                  </div>
                 </div>
               )}
 
@@ -509,14 +513,14 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             <div className="bg-black/40 border border-amber-500/30 rounded-lg p-4 text-left mb-5">
               <p className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest mb-1">Your first clue</p>
               <p className="text-sm text-amber-100/90 leading-relaxed">
-                One entry in the Landfill is the odd one out &mdash; it doesn't belong with the rest. That's the one hiding your next clue. Find it, and read its roast closely.
+                One entry in the Graveyard is the odd one out &mdash; it doesn't belong with the rest. That's the one hiding your next clue. Find it, and read its roast closely.
               </p>
             </div>
             <a
               href="/memorials"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-2.5 px-6 rounded-lg transition shadow-[0_0_18px_rgba(217,70,239,0.45)]"
             >
-              To the Landfill →
+              To the Graveyard →
             </a>
             <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers.</p>
             </div>

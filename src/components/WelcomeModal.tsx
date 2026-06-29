@@ -31,7 +31,7 @@ export default function WelcomeModal({
         </button>
 
         <div className="text-[10px] font-mono-tech tracking-[3px] uppercase text-cyan-400/80 mb-2">
-          Welcome to the landfill
+          Welcome to the graveyard
         </div>
         <h2 className="text-2xl font-bold font-monument tracking-wide leading-tight mb-2 bg-gradient-to-r from-cyan-400 via-teal-200 to-red-400 bg-clip-text text-transparent">
           Dead projects rest here. The living get roasted.
@@ -52,7 +52,7 @@ export default function WelcomeModal({
           onClick={onExplore}
           className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 mt-2 font-mono-tech text-xs uppercase tracking-wider text-gray-300 border border-gray-700 hover:bg-gray-900 hover:text-gray-100 transition"
         >
-          <Compass className="w-4 h-4" /> Just wander the landfill
+          <Compass className="w-4 h-4" /> Just wander the graveyard
         </button>
 
         {/* Mystery teaser: a blurred glimpse of the secret world + an obscured clue */}

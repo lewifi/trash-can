@@ -244,7 +244,7 @@ export default function Incinerator() {
         {loading && !error && (
           <div className="text-center py-16 text-gray-500">
             <RefreshCw className="w-8 h-8 mx-auto animate-spin mb-3" />
-            <p className="text-sm font-mono uppercase tracking-wide">Loading the landfill…</p>
+            <p className="text-sm font-mono uppercase tracking-wide">Loading the graveyard…</p>
           </div>
         )}
 
