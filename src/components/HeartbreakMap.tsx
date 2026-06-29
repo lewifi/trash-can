@@ -8,6 +8,15 @@ interface HeartbreakMapProps {
   selectedId?: string | null;
 }
 
+// Small deterministic offset (~±1.6%) derived from a project id, so graves at
+// near-identical coordinates (e.g. the several Bay-Area ones) don't stack
+// exactly on top of each other and disappear.
+function jitter(id: string, salt: number): number {
+  let h = salt;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return ((Math.abs(h) % 1000) / 1000 - 0.5) * 3.2;
+}
+
 export default function HeartbreakMap({ projects, onSelectProject, selectedId }: HeartbreakMapProps) {
   const [hoveredProject, setHoveredProject] = useState<DeadProject | null>(null);
   const [geoData, setGeoData] = useState<any>(null);
@@ -176,7 +185,9 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
           {/* Sizable items mapped */}
           <div className="absolute inset-0 z-10">
             {projects.map((project) => {
-              const { x, y } = getCoordinates(project.latitude, project.longitude);
+              const base = getCoordinates(project.latitude, project.longitude);
+              const x = Math.max(1, Math.min(99, base.x + jitter(project.id, 1)));
+              const y = Math.max(1, Math.min(99, base.y + jitter(project.id, 7)));
               const isTragic = project.emotionalTragedy >= 8;
               const isSelected = project.id === selectedId;
 
