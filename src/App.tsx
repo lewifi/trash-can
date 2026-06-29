@@ -1442,7 +1442,7 @@ export default function App() {
                           handleAppraise(d);
                         }
                       }}
-                      className={`group p-5 bg-gray-950 ${d.id === "hist-cloudflare" ? "border-2 border-cyan-700/50" : "border border-gray-800"} hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px] ${d.id === highlightedGraveId ? "grave-highlight" : ""}`}
+                      className={`group p-5 bg-gray-950 ${d.id === "hist-cloudflare" ? "border-2 border-cyan-700/50" : "border border-gray-800"} hover:border-cyan-500/60 hover:bg-gray-900/60 hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl hover:z-10 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px] ${d.id === highlightedGraveId ? "grave-highlight" : ""}`}
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
