@@ -1630,7 +1630,7 @@ export default function App() {
                             </p>
                             <button
                               type="button"
-                              onClick={() => { setGraveClueShown(true); trackHunt("clue2"); window.dispatchEvent(new Event("hint-found")); setTimeout(() => document.getElementById("clue2-reveal")?.scrollIntoView({ behavior: "smooth", block: "center" }), 90); }}
+                              onClick={() => { setGraveClueShown(true); trackHunt("clue2"); }}
                               className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
                             >
                               <Sparkles className="w-3.5 h-3.5" /> Dig out Clue 2
