@@ -1106,16 +1106,14 @@ app.get("/roast/:id", async (c) => {
 });
 
 // --- Real site stats from Cloudflare's GraphQL Analytics API --------------
-// Returns total requests + unique visitors over the last 30 days, as counted
-// by Cloudflare itself (no PII stored by us). Result is cached in KV for a few
-// minutes so we never hammer the API or expose the token client-side.
-// Fails SOFT: if unconfigured or erroring, returns { configured:false } and the
-// ticker falls back to its cosmetic numbers instead of breaking.
+// Returns total requests + unique visitors, as counted by Cloudflare itself
+// (no PII stored by us). Cached in KV for a few minutes so we never hammer the
+// API or expose the token client-side. Fails SOFT: if unconfigured or erroring,
+// returns { configured:false } so the ticker falls back to cosmetic numbers.
 const STATS_CACHE_KEY = "site_stats_v1";
 const STATS_TTL_MS = 5 * 60 * 1000; // 5 minutes
 // Try the widest ("all time") window first, then narrow if Cloudflare rejects
-// it for exceeding the plan's analytics retention. Free plans retain ~30 days,
-// so this effectively gives all-time on paid plans and 30 days otherwise.
+// it for exceeding the plan's analytics retention (free plans retain ~30 days).
 const STATS_WINDOWS_DAYS = [365, 30];
 
 async function fetchCloudflareStats(
@@ -1127,16 +1125,11 @@ async function fetchCloudflareStats(
   const start = new Date(end.getTime() - windowDays * 24 * 60 * 60 * 1000);
   const fmt = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
 
-  // No `date` dimension -> Cloudflare aggregates the whole window into one row:
-  // total requests, and uniques deduped across the period.
   const query = `
     query SiteStats($zoneTag: string!, $start: Date!, $end: Date!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequests1dGroups(
-            filter: { date_geq: $start, date_leq: $end }
-            limit: 1000
-          ) {
+          httpRequests1dGroups(filter: { date_geq: $start, date_leq: $end } limit: 1000) {
             sum { requests }
             uniq { uniques }
           }
@@ -1146,14 +1139,8 @@ async function fetchCloudflareStats(
 
   const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      variables: { zoneTag, start: fmt(start), end: fmt(end) },
-    }),
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ query, variables: { zoneTag, start: fmt(start), end: fmt(end) } }),
   });
 
   const json: any = await res.json();
@@ -1161,9 +1148,6 @@ async function fetchCloudflareStats(
     throw new Error("GraphQL: " + JSON.stringify(json.errors).slice(0, 300));
   }
   const groups = json?.data?.viewer?.zones?.[0]?.httpRequests1dGroups ?? [];
-  // Defensive: sum requests across any returned rows; take the largest uniques
-  // figure (a single aggregated row is expected, but daily rows are summed for
-  // requests and max-ed for uniques to avoid double-counting visitors).
   let requests = 0;
   let uniques = 0;
   for (const g of groups) {
@@ -1173,8 +1157,7 @@ async function fetchCloudflareStats(
   return { requests, uniques };
 }
 
-// Try each window widest-first; return the first that Cloudflare accepts,
-// along with which window actually produced the numbers.
+// Try each window widest-first; return the first Cloudflare accepts + which won.
 async function getSiteStats(
   token: string,
   zoneTag: string
@@ -1185,7 +1168,7 @@ async function getSiteStats(
       const r = await fetchCloudflareStats(token, zoneTag, days);
       return { ...r, windowDays: days };
     } catch (e) {
-      lastErr = e; // most likely a retention/date-range rejection — narrow and retry
+      lastErr = e; // retention/date-range rejection -> narrow and retry
     }
   }
   throw lastErr;
@@ -1196,12 +1179,10 @@ app.get("/api/stats", async (c) => {
   const zone = c.env.CF_ZONE_ID;
   const kv = c.env.GRAVEYARD_KV;
 
-  // Not set up yet -> soft response so the ticker keeps working.
   if (!token || !zone || zone.includes("REPLACE_WITH")) {
     return c.json({ configured: false });
   }
 
-  // Serve a fresh-enough cached copy if we have one.
   if (kv) {
     try {
       const raw = await kv.get(STATS_CACHE_KEY);
@@ -1238,9 +1219,64 @@ app.get("/api/stats", async (c) => {
     return c.json({ configured: true, requests, uniques, windowDays, cached: false });
   } catch (e) {
     console.error("stats fetch failed:", String((e as any)?.message || e));
-    // Soft-fail: let the ticker fall back rather than showing an error.
     return c.json({ configured: false });
   }
+});
+
+// --- Hunt leaderboard: who made it through the buried world ----------------
+// Completers can leave a name (or get a funny random one). They're listed as
+// "MIA" - they walked into the trash and never came back, not "dead".
+const LEADERBOARD_KEY = "hunt_leaderboard_v1";
+const LB_ADJ = ["Missing", "Vanished", "Unnamed", "Forgotten", "Faded", "Lost", "Wandering", "Buried", "Spectral", "Anonymous"];
+const LB_NOUN = ["Drifter", "Wraith", "Gravedigger", "Mourner", "Echo", "Soul", "Nobody", "Phantom", "Scavenger", "Trespasser"];
+function randomFunnyName(): string {
+  const a = LB_ADJ[Math.floor(Math.random() * LB_ADJ.length)];
+  const n = LB_NOUN[Math.floor(Math.random() * LB_NOUN.length)];
+  return `${a} ${n}`;
+}
+
+app.get("/api/leaderboard", async (c) => {
+  const kv = c.env.GRAVEYARD_KV;
+  let arr: any[] = [];
+  try {
+    const raw = kv ? await kv.get(LEADERBOARD_KEY) : null;
+    if (raw) arr = JSON.parse(raw);
+  } catch {
+    /* return empty on any read error */
+  }
+  return c.json(Array.isArray(arr) ? arr.slice(0, 25) : []);
+});
+
+app.post("/api/leaderboard", async (c) => {
+  const limited = await rateLimit(c, "leaderboard", [
+    { windowMs: 60_000, max: 5 },
+    { windowMs: 86_400_000, max: 30 },
+  ]);
+  if (limited) return limited;
+  const kv = c.env.GRAVEYARD_KV;
+  if (!kv) return c.json({ error: "Storage unavailable." }, 503);
+
+  const body = await c.req.json().catch(() => ({} as any));
+  let name = String(body?.nickname || "")
+    .replace(/[ -]/g, "") // strip control chars
+    .trim()
+    .slice(0, 24);
+  if (!name) name = randomFunnyName();
+
+  const entry = { name, status: "MIA", at: Date.now() };
+  let arr: any[] = [];
+  try {
+    const raw = await kv.get(LEADERBOARD_KEY);
+    if (raw) arr = JSON.parse(raw);
+  } catch {
+    /* start fresh on parse error */
+  }
+  if (!Array.isArray(arr)) arr = [];
+  arr.unshift(entry);
+  arr = arr.slice(0, 200);
+  try { await kv.put(LEADERBOARD_KEY, JSON.stringify(arr)); } catch { /* best effort */ }
+
+  return c.json({ ok: true, entry, total: arr.length }, 201);
 });
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.

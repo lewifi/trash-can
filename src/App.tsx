@@ -11,6 +11,7 @@ import { trackHunt } from "./lib/hunt";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
+import WelcomeModal from "./components/WelcomeModal";
 import {
   Trash2,
   Skull,
@@ -179,6 +180,21 @@ export default function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  // First-visit welcome (shown once per browser): points newcomers at the
+  // low-effort fun (the Oracle) and teases the hidden hunt.
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("rg_welcome_seen")) setShowWelcome(true);
+    } catch { /* private mode / storage blocked: just skip it */ }
+  }, []);
+  const dismissWelcome = () => {
+    setShowWelcome(false);
+    try { localStorage.setItem("rg_welcome_seen", "1"); } catch {}
+  };
+  const welcomeRoast = () => { dismissWelcome(); navTab("oracle"); };
+
   const detailRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   // Wheel: vertical scroll drives the carousel horizontally without page-jump (fixes Windows jumpiness).
@@ -681,6 +697,7 @@ export default function App() {
       <Atmosphere />
       <HintReward />
       <XScatter />
+      {showWelcome && <WelcomeModal onRoast={welcomeRoast} onExplore={dismissWelcome} />}
       
       {/* Decorative ambient background grids */}
       <div className="absolute inset-x-0 top-0 h-[600px] bg-gradient-to-b from-blue-950/10 via-cyan-950/5 to-transparent pointer-events-none" />
