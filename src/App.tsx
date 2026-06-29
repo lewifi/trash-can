@@ -164,15 +164,16 @@ export default function App() {
     if (pth === "/disposal") return "disposal";
     if (pth === "/contracts") return "contracts";
     if (pth === "/log") return "log";
+    if (pth === "/dump") return "dump";
     if (pth.startsWith("/grave/")) return "memorials";
-    return "memorials";
+    return "oracle"; // root "/" lands on the Roast Oracle
   };
   const [activeTab, setActiveTab] = useState<TabId>(tabFromPath());
 
   // Tab navigation with clean URLs, so refresh / back-button stay on the page.
   const navTab = (tab: TabId) => {
     setActiveTab(tab);
-    const path = tab === "dump" ? "/" : tab === "oracle" ? "/roastoracle" : `/${tab}`;
+    const path = tab === "oracle" ? "/" : `/${tab}`;
     if (window.location.pathname !== path) window.history.pushState({}, "", path);
   };
   useEffect(() => {
