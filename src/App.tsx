@@ -278,7 +278,21 @@ export default function App() {
   const [sortBy, setSortBy] = useState<"newest" | "likes" | "flowers" | "tragedy">("newest");
   const [visibleCount, setVisibleCount] = useState(12);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  // Grave highlighted by a heatmap-dot click: we scroll to its tile + glow it.
+  const [highlightedGraveId, setHighlightedGraveId] = useState<string | null>(null);
   useEffect(() => { setVisibleCount(12); }, [searchQuery, selectedCategory, sortBy]);
+
+  // After a heatmap dot is clicked, make sure that grave's tile is paginated
+  // into view, then smooth-scroll to it.
+  useEffect(() => {
+    if (!highlightedGraveId) return;
+    const idx = filteredDumps.findIndex((d) => d.id === highlightedGraveId);
+    if (idx >= 0 && idx >= visibleCount) { setVisibleCount(idx + 6); return; }
+    const t = setTimeout(() => {
+      document.getElementById(`grave-${highlightedGraveId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+    return () => clearTimeout(t);
+  }, [highlightedGraveId, filteredDumps, visibleCount]);
   // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
   useEffect(() => {
     const el = loadMoreRef.current;
@@ -1246,10 +1260,13 @@ export default function App() {
           <div className="mb-8">
             <HeartbreakMap
               projects={dumps}
-              selectedId={selectedDump?.id}
+              selectedId={highlightedGraveId}
               onSelectProject={(p) => {
-                setSelectedDump(p);
                 navTab("memorials");
+                setSelectedDump(null);
+                setSearchQuery("");
+                setSelectedCategory("all");
+                setHighlightedGraveId(p.id);
               }}
             />
           </div>
@@ -1402,13 +1419,15 @@ export default function App() {
                   {filteredDumps.slice(0, visibleCount).map((d) => (
                     <div
                       key={d.id}
+                      id={`grave-${d.id}`}
                       onClick={() => {
+                        setHighlightedGraveId(null);
                         setSelectedDump(d);
                         if (!d.aiAppraisal && !appraiseResult) {
                           handleAppraise(d);
                         }
                       }}
-                      className="group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px]"
+                      className={`group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px] ${d.id === highlightedGraveId ? "grave-highlight" : ""}`}
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />

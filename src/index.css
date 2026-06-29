@@ -168,3 +168,27 @@
   100% { opacity: 1; transform: scale(1); }
 }
 .animate-card-zoom { animation: card-zoom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Grave tile highlighted from a heatmap-dot click: thick rotating gradient
+   border (brand neon) + glow. Uses an animatable custom property for the
+   conic angle so the gradient spins radially. Degrades to a static gradient
+   border if @property is unsupported. */
+@property --grave-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes grave-glow-spin {
+  to { --grave-angle: 360deg; }
+}
+.grave-highlight {
+  border-color: transparent !important;
+  border-width: 3px !important;
+  background-image:
+    linear-gradient(#030712, #030712),
+    conic-gradient(from var(--grave-angle), #ff3df0, #3df0ff, #ffd23d, #7dff8a, #ff3df0);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 0 26px 5px rgba(217, 70, 239, 0.45);
+  animation: grave-glow-spin 3s linear infinite;
+}
