@@ -153,7 +153,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.2.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -225,6 +225,7 @@ export default function App() {
   useEffect(() => {
     setAppraiseResult(null);
     setGraveClueShown(false);
+    setLogExpanded(false);
     if (selectedDump?.id === "hist-cloudflare") trackHunt("grave");
   }, [selectedDump?.id]);
 
@@ -266,7 +267,15 @@ export default function App() {
   const shareGrave = (id: string, name?: string) => {
     const slug = name ? slugify(name) + "/" : "";
     const link = `${window.location.origin}/grave/${slug}${id}`;
-    if (navigator.clipboard) {
+    // Prefer the native OS share sheet (mobile + supporting desktops); the link
+    // unfurls into the grave's OG card. Fall back to copy where unsupported.
+    if (navigator.share) {
+      navigator.share({
+        title: name ? `${name} — Roast Graveyard` : "Roast Graveyard",
+        text: name ? `${name} is buried in the Roast Graveyard. Come pay your disrespects.` : "Dead projects rest here.",
+        url: link,
+      }).catch(() => {});
+    } else if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(() => {
         setCopiedShare(true);
         setTimeout(() => setCopiedShare(false), 1800);
@@ -349,6 +358,7 @@ export default function App() {
   const [dumpDone, setDumpDone] = useState(false);
   const [dumpHintShown, setDumpHintShown] = useState(false);
   const [graveClueShown, setGraveClueShown] = useState(false);
+  const [logExpanded, setLogExpanded] = useState(false);
   const [formRoomName, setFormRoomName] = useState("");
   const [formRoomPassword, setFormRoomPassword] = useState("");
   const [formImageUrl, setFormImageUrl] = useState("");
@@ -1614,8 +1624,17 @@ export default function App() {
 
                     <div>
                       <h5 className="text-xs font-mono-tech text-gray-400 mb-1 uppercase">Post-Mortem Tragedy Logs</h5>
-                      <div className="bg-[#0c0d12] border border-gray-900 p-3 rounded-lg text-xs leading-relaxed text-gray-300 max-h-[140px] overflow-y-auto">
-                        "{selectedDump.description}"
+                      <div className="bg-[#0c0d12] border border-gray-900 p-3 rounded-lg text-xs leading-relaxed text-gray-300">
+                        <p className={logExpanded ? "" : "line-clamp-2"}>"{selectedDump.description}"</p>
+                        {selectedDump.description && selectedDump.description.length > 140 && (
+                          <button
+                            type="button"
+                            onClick={() => setLogExpanded((v) => !v)}
+                            className="mt-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-purple-400 hover:text-purple-300"
+                          >
+                            {logExpanded ? "Show less ▲" : "Show more ▼"}
+                          </button>
+                        )}
                       </div>
                     </div>
 

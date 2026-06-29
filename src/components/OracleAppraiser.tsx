@@ -124,8 +124,13 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         }),
       });
       if (!res.ok) throw new Error("save failed");
-      const data = await res.json();
-      setShareUrl(`${window.location.origin}${data.url}`);
+      const data = (await res.json()) as { url?: string };
+      const url = `${window.location.origin}${data.url}`;
+      setShareUrl(url);
+      // Pop the OS share sheet straight away — the link unfurls into the roast's OG card.
+      if (navigator.share) {
+        try { await navigator.share({ title: "Roast Graveyard", text: `${name || "Someone"} just got roasted 🔥`, url }); } catch { /* cancelled / unsupported */ }
+      }
     } catch (e) {
       setErrorMsg("Could not save the roast for sharing. Try again in a moment.");
     } finally {
@@ -135,6 +140,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   const copyShare = () => {
     if (!shareUrl) return;
+    if (navigator.share) {
+      navigator.share({ title: "Roast Graveyard", text: `${name || "Someone"} just got roasted 🔥`, url: shareUrl }).catch(() => {});
+      return;
+    }
     navigator.clipboard?.writeText(shareUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);

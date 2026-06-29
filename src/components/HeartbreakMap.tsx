@@ -106,36 +106,53 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
   // Spread clustered graves into a fan/ring around their shared spot, so dots at
   // near-identical coordinates (several in the SF Bay Area, or new ones dropped
   // on the same city) sit beside each other instead of stacking and vanishing.
+  // Distance-based clustering (not integer-cell bucketing) so dots that are close
+  // but land either side of a grid line — the California pile — still group.
+  const Y_ASPECT = 1.7; // container aspect: keeps rings circular in screen space
+  const clampX = (v: number) => Math.max(2, Math.min(98, v));
+  const clampY = (v: number) => Math.max(2, Math.min(98, v));
+  type DotPos = { x: number; y: number; cx: number; cy: number; cluster: number; ang: number; radius: number };
   const positions = useMemo(() => {
-    const out: Record<string, { x: number; y: number }> = {};
+    const out: Record<string, DotPos> = {};
     const pts = projects.map((p) => {
       const c = getCoordinates(p.latitude, p.longitude);
       return { id: p.id, x: c.x, y: c.y };
     });
-    const buckets: Record<string, typeof pts> = {};
+    // Greedy clustering: join the nearest existing centroid within threshold.
+    const TH = 3.4; // grouping radius in x-% (y is de-stretched by Y_ASPECT)
+    const clusters: { cx: number; cy: number; items: typeof pts }[] = [];
     for (const pt of pts) {
-      const key = `${Math.round(pt.x)}_${Math.round(pt.y)}`;
-      (buckets[key] ||= []).push(pt);
-    }
-    for (const key in buckets) {
-      const group = buckets[key];
-      if (group.length === 1) {
-        out[group[0].id] = { x: group[0].x, y: group[0].y };
-        continue;
+      let best: (typeof clusters)[number] | null = null;
+      let bestD = Infinity;
+      for (const cl of clusters) {
+        const d = Math.hypot(pt.x - cl.cx, (pt.y - cl.cy) / Y_ASPECT);
+        if (d < TH && d < bestD) { best = cl; bestD = d; }
       }
-      const cx = group.reduce((s, g) => s + g.x, 0) / group.length;
-      const cy = group.reduce((s, g) => s + g.y, 0) / group.length;
-      // Size the ring from a small target spacing so neighbours sit almost
-      // touching, at any cluster size (radius grows only as needed to fit them).
-      const radius = Math.max(1.4, 2.4 / (2 * Math.sin(Math.PI / group.length)));
-      group.forEach((g, i) => {
-        const ang = (i / group.length) * Math.PI * 2 - Math.PI / 2;
+      if (best) {
+        best.items.push(pt);
+        best.cx = best.items.reduce((s, g) => s + g.x, 0) / best.items.length;
+        best.cy = best.items.reduce((s, g) => s + g.y, 0) / best.items.length;
+      } else {
+        clusters.push({ cx: pt.x, cy: pt.y, items: [pt] });
+      }
+    }
+    clusters.forEach((cl, ci) => {
+      if (cl.items.length === 1) {
+        const g = cl.items[0];
+        out[g.id] = { x: g.x, y: g.y, cx: g.x, cy: g.y, cluster: ci, ang: 0, radius: 0 };
+        return;
+      }
+      // Roomier resting ring (radius grows as needed so larger piles never overlap).
+      const radius = Math.max(2.3, 3.1 / (2 * Math.sin(Math.PI / cl.items.length)));
+      cl.items.forEach((g, i) => {
+        const ang = (i / cl.items.length) * Math.PI * 2 - Math.PI / 2;
         out[g.id] = {
-          x: Math.max(2, Math.min(98, cx + Math.cos(ang) * radius)),
-          y: Math.max(2, Math.min(98, cy + Math.sin(ang) * radius * 1.7)), // *1.7 ≈ container aspect, keeps the ring circular
+          x: clampX(cl.cx + Math.cos(ang) * radius),
+          y: clampY(cl.cy + Math.sin(ang) * radius * Y_ASPECT),
+          cx: cl.cx, cy: cl.cy, cluster: ci, ang, radius,
         };
       });
-    }
+    });
     return out;
   }, [projects]);
 
@@ -212,9 +229,18 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
           {/* Sizable items mapped */}
           <div className="absolute inset-0 z-10">
             {projects.map((project) => {
-              const pos = positions[project.id] || getCoordinates(project.latitude, project.longitude);
-              const x = pos.x;
-              const y = pos.y;
+              const pos = positions[project.id] || { ...getCoordinates(project.latitude, project.longitude), cx: 0, cy: 0, cluster: -1, ang: 0, radius: 0 };
+              let x = pos.x;
+              let y = pos.y;
+              // Hovering any dot in a multi-dot pile fans the whole pile further out
+              // so an overlapping cluster opens up and each grave is clickable.
+              const hoveredPos = hoveredProject ? positions[hoveredProject.id] : null;
+              const fanned = !!hoveredPos && pos.radius > 0 && hoveredPos.cluster === pos.cluster;
+              if (fanned) {
+                const r = pos.radius * 1.85;
+                x = clampX(pos.cx + Math.cos(pos.ang) * r);
+                y = clampY(pos.cy + Math.sin(pos.ang) * r * Y_ASPECT);
+              }
               const isTragic = project.emotionalTragedy >= 8;
               const isSelected = project.id === selectedId;
 
@@ -222,7 +248,7 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
                 <div
                   key={project.id}
                   style={{ left: `${x}%`, top: `${y}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 group ${isSelected ? "z-30" : "z-10"}`}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 group transition-all duration-300 ease-out ${isSelected ? "z-30" : fanned ? "z-20" : "z-10"}`}
                 >
                   {/* Glowing core */}
                   <button
