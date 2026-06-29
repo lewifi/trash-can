@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Move, HeartOff, Flame, AlertOctagon, Terminal, Globe, Trophy } from "lucide-react";
 import { DeadProject } from "../types";
 
@@ -6,15 +6,6 @@ interface HeartbreakMapProps {
   projects: DeadProject[];
   onSelectProject: (project: DeadProject) => void;
   selectedId?: string | null;
-}
-
-// Small deterministic offset (~±1.6%) derived from a project id, so graves at
-// near-identical coordinates (e.g. the several Bay-Area ones) don't stack
-// exactly on top of each other and disappear.
-function jitter(id: string, salt: number): number {
-  let h = salt;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return ((Math.abs(h) % 1000) / 1000 - 0.5) * 3.2;
 }
 
 export default function HeartbreakMap({ projects, onSelectProject, selectedId }: HeartbreakMapProps) {
@@ -112,6 +103,40 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
     return "";
   };
 
+  // Spread clustered graves into a fan/ring around their shared spot, so dots at
+  // near-identical coordinates (several in the SF Bay Area, or new ones dropped
+  // on the same city) sit beside each other instead of stacking and vanishing.
+  const positions = useMemo(() => {
+    const out: Record<string, { x: number; y: number }> = {};
+    const pts = projects.map((p) => {
+      const c = getCoordinates(p.latitude, p.longitude);
+      return { id: p.id, x: c.x, y: c.y };
+    });
+    const buckets: Record<string, typeof pts> = {};
+    for (const pt of pts) {
+      const key = `${Math.round(pt.x)}_${Math.round(pt.y)}`;
+      (buckets[key] ||= []).push(pt);
+    }
+    for (const key in buckets) {
+      const group = buckets[key];
+      if (group.length === 1) {
+        out[group[0].id] = { x: group[0].x, y: group[0].y };
+        continue;
+      }
+      const cx = group.reduce((s, g) => s + g.x, 0) / group.length;
+      const cy = group.reduce((s, g) => s + g.y, 0) / group.length;
+      const radius = 2.2 + group.length * 0.45; // ring grows with the crowd
+      group.forEach((g, i) => {
+        const ang = (i / group.length) * Math.PI * 2 - Math.PI / 2;
+        out[g.id] = {
+          x: Math.max(2, Math.min(98, cx + Math.cos(ang) * radius)),
+          y: Math.max(2, Math.min(98, cy + Math.sin(ang) * radius * 1.7)), // *1.7 ≈ container aspect, keeps the ring circular
+        };
+      });
+    }
+    return out;
+  }, [projects]);
+
   return (
     <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-xl overflow-hidden p-6 relative neon-glow-cyan depth-top">
       {/* Decorative top header */}
@@ -185,9 +210,9 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
           {/* Sizable items mapped */}
           <div className="absolute inset-0 z-10">
             {projects.map((project) => {
-              const base = getCoordinates(project.latitude, project.longitude);
-              const x = Math.max(1, Math.min(99, base.x + jitter(project.id, 1)));
-              const y = Math.max(1, Math.min(99, base.y + jitter(project.id, 7)));
+              const pos = positions[project.id] || getCoordinates(project.latitude, project.longitude);
+              const x = pos.x;
+              const y = pos.y;
               const isTragic = project.emotionalTragedy >= 8;
               const isSelected = project.id === selectedId;
 
