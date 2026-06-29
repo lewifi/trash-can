@@ -889,6 +889,7 @@ app.patch("/api/incinerator/dumps/:id", async (c) => {
   }
   if (body.roomName !== undefined) cur.roomName = body.roomName ? String(body.roomName) : undefined;
   if (body.isPrivate !== undefined) cur.isPrivate = !!body.isPrivate;
+  if (body.featured !== undefined) cur.featured = !!body.featured;
   if (body.imageUrl !== undefined) cur.imageUrl = body.imageUrl ? String(body.imageUrl) : undefined;
   if (body.latitude !== undefined && body.latitude !== null && !Number.isNaN(Number(body.latitude))) {
     cur.latitude = Number(body.latitude);
@@ -989,8 +990,8 @@ app.get("/api/geocode", async (c) => {
 });
 
 // Per-grave page: rewrite Open Graph tags so a shared link previews that grave.
-app.get("/grave/:id", async (c) => {
-  const id = c.req.param("id");
+// Serves both /grave/:id and the pretty /grave/:slug/:id (slug is cosmetic).
+async function graveOgPage(c: any, id: string) {
   const shell = await c.env.ASSETS.fetch(new URL("/index.html", c.req.url));
   const data = await loadGraveyardData(c.env.GRAVEYARD_KV);
   const dump = data.find((d) => d.id === id && !d.isPrivate);
@@ -1015,7 +1016,9 @@ app.get("/grave/:id", async (c) => {
     .on('meta[property="og:image"]', content(img))
     .on('meta[name="twitter:image"]', content(img))
     .transform(shell);
-});
+}
+app.get("/grave/:id", (c) => graveOgPage(c, c.req.param("id")));
+app.get("/grave/:slug/:id", (c) => graveOgPage(c, c.req.param("id")));
 
 // --- Standalone Roasts: shareable AI roasts that never enter the public landfill ---
 app.post("/api/roasts", async (c) => {

@@ -19,6 +19,7 @@ export interface DeadProject {
   roomPassword?: string;
   roomName?: string;
   imageUrl?: string;
+  featured?: boolean; // hand-picked for the Hall of Fame (top 3 shown)
 }
 
 export const INITIAL_DUMPS: DeadProject[] = [

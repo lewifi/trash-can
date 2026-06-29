@@ -79,6 +79,7 @@ interface DeadProject {
   appraisal?: string;
   postMortem?: string;
   imageUrl?: string;
+  featured?: boolean;
 }
 
 // Hand-written patch notes from the gravekeeper, newest first. Written in site voice.
@@ -152,7 +153,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.1.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -252,14 +253,19 @@ export default function App() {
   useEffect(() => {
     const m = window.location.pathname.match(/^\/grave\/(.+)$/);
     if (m && dumps.length && !selectedDump) {
-      const g = dumps.find((d) => d.id === decodeURIComponent(m[1]));
+      // Accept /grave/:id and the pretty /grave/:slug/:id — id is the last segment.
+      const id = decodeURIComponent(m[1].split("/").pop() || "");
+      const g = dumps.find((d) => d.id === id);
       if (g) setSelectedDump(g);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dumps]);
 
-  const shareGrave = (id: string) => {
-    const link = `${window.location.origin}/grave/${id}`;
+  const slugify = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "grave";
+  const shareGrave = (id: string, name?: string) => {
+    const slug = name ? slugify(name) + "/" : "";
+    const link = `${window.location.origin}/grave/${slug}${id}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(link).then(() => {
         setCopiedShare(true);
@@ -707,7 +713,10 @@ export default function App() {
   const skin = getSkinClasses();
 
   // Static items for Hall of fame / Museum Carousel
-  const museumHighRated = dumps.filter(d => d.likes > 300);
+  // Hall of Fame = hand-picked featured graves (chosen in the Incinerator);
+  // falls back to the most-mourned if none have been featured yet.
+  const featuredDumps = dumps.filter((d) => d.featured);
+  const museumHighRated = featuredDumps.length ? featuredDumps : dumps.filter((d) => d.likes > 300);
 
   // Geo coordinate hotspot highlights (Heatmap of Heartbreak)
   // Let's filter some coordinate groups
@@ -1732,7 +1741,7 @@ export default function App() {
 
                     {/* SHARE */}
                     <button
-                      onClick={() => shareGrave(selectedDump.id)}
+                      onClick={() => shareGrave(selectedDump.id, selectedDump.name)}
                       className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <ExternalLink className="w-4 h-4" />

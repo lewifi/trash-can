@@ -21,6 +21,7 @@ interface Dump {
   imageUrl?: string;
   latitude?: number;
   longitude?: number;
+  featured?: boolean;
 }
 
 const CATEGORIES = ["saas", "web", "web3", "mobile", "ai", "tech", "hardware", "game", "dev_tool", "entertainment", "other"];
@@ -88,6 +89,21 @@ export default function Incinerator() {
     } finally {
       setPublishingId(null);
     }
+  };
+
+  // Toggle a grave into/out of the Hall of Fame (top 3 featured show on the site).
+  const toggleFeature = async (d: Dump) => {
+    try {
+      const res = await fetch(`/api/incinerator/dumps/${encodeURIComponent(d.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featured: !d.featured }),
+      });
+      if (res.ok) {
+        const updated = (await res.json()) as Dump;
+        setDumps((p) => p.map((x) => (x.id === updated.id ? updated : x)));
+      }
+    } catch { /* best effort */ }
   };
 
   const incinerate = async (d: Dump) => {
@@ -444,6 +460,11 @@ export default function Incinerator() {
                       {d.isPrivate ? "Publish" : "Hold"}
                     </button>
                   )}
+                  <button onClick={() => toggleFeature(d)}
+                    title="Show in the Hall of Fame (top 3 featured appear on the site)"
+                    className={`flex items-center gap-1.5 text-xs font-mono uppercase font-bold px-3 py-2 rounded transition ${d.featured ? "bg-amber-500/20 border border-amber-400/60 text-amber-200" : "bg-gray-900 border border-gray-700 hover:border-amber-400 text-gray-400 hover:text-amber-300"}`}>
+                    {d.featured ? "★ Featured" : "☆ Feature"}
+                  </button>
                   <button onClick={() => startEdit(d)}
                     className="flex items-center gap-1.5 bg-cyan-950/30 border border-cyan-500/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-mono uppercase font-bold px-3 py-2 rounded transition">
                     <Pencil className="w-4 h-4" /> Edit
