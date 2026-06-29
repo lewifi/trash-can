@@ -16,7 +16,7 @@ export default function WelcomeModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-fade-in"
       role="dialog"
       aria-modal="true"
     >
@@ -102,7 +102,7 @@ export default function WelcomeModal({
             >
               ▮▮▮ clue ▮ ▮▮
             </span>
-            <span>a chain of clues is hidden here. most walk straight past it.</span>
+            <span>a chain of clues is hidden here. two ways in: the bright button above, or buried among the graves. most walk straight past both.</span>
           </div>
         </div>
       </div>
