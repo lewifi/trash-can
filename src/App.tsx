@@ -227,24 +227,22 @@ export default function App() {
     if (selectedDump?.id === "hist-cloudflare") trackHunt("grave");
   }, [selectedDump?.id]);
 
-  // Lock the page behind the detail modal and restore the exact scroll spot on close,
-  // so closing a card returns you to where you were instead of jumping under the map.
+  // Lock background scroll behind the detail modal WITHOUT moving the page, so
+  // closing it leaves you exactly where you were. (The old position:fixed trick
+  // restored scroll manually via scrollTo, which landed in the wrong spot when
+  // the grid had reflowed — pagination, filter reset, or an in-flight scroll.)
   useEffect(() => {
     if (!selectedDump) return;
-    const y = window.scrollY;
     const { style } = document.body;
-    style.position = "fixed";
-    style.top = `-${y}px`;
-    style.left = "0";
-    style.right = "0";
-    style.width = "100%";
+    const prevOverflow = style.overflow;
+    const prevPadRight = style.paddingRight;
+    // Compensate for the disappearing scrollbar so content doesn't shift sideways.
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    style.overflow = "hidden";
+    if (scrollbar > 0) style.paddingRight = `${scrollbar}px`;
     return () => {
-      style.position = "";
-      style.top = "";
-      style.left = "";
-      style.right = "";
-      style.width = "";
-      window.scrollTo(0, y);
+      style.overflow = prevOverflow;
+      style.paddingRight = prevPadRight;
     };
   }, [!!selectedDump]);
 
