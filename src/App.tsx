@@ -76,6 +76,7 @@ interface DeadProject {
   recyclingPlan?: string;
   appraisal?: string;
   postMortem?: string;
+  imageUrl?: string;
 }
 
 // Hand-written patch notes from the gravekeeper, newest first. Written in site voice.
@@ -359,7 +360,7 @@ export default function App() {
     try {
       const res = await fetch("/api/dumps");
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as DeadProject[];
         setDumps(data);
       }
     } catch (e) {
@@ -415,7 +416,7 @@ export default function App() {
     setFormGeoStatus("Searching\u2026");
     try {
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; lat?: number; lng?: number; display?: string };
       if (!res.ok) { setFormGeoStatus(data.error || "Not found."); return; }
       setFormCoords({ lat: Number(data.lat), lng: Number(data.lng) });
       setFormGeoStatus(`\uD83D\uDCCD ${data.display}`);
@@ -478,7 +479,7 @@ export default function App() {
         await res.json().catch(() => null);
         setDumpDone(true);
       } else {
-        const errData = await res.json();
+        const errData = (await res.json()) as { error?: string };
         alert(`Error dumping project: ${errData.error}`);
       }
     } catch (e) {
@@ -505,7 +506,7 @@ export default function App() {
       });
 
       if (res.ok) {
-        const updated = await res.json();
+        const updated = (await res.json()) as DeadProject;
         // Update local items in lists
         setDumps(prev => prev.map(item => (item.id === id ? updated : item)));
         if (selectedDump && selectedDump.id === id) {
@@ -533,14 +534,14 @@ export default function App() {
     try {
       const res = await fetch(`/api/rooms/${encodeURIComponent(roomNameInput)}?password=${encodeURIComponent(roomPasswordInput)}`);
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as DeadProject[];
         setRoomDumps(data);
         setCurrentRoomName(roomNameInput);
         if (data.length === 0) {
           setRoomError("Room is currently empty or does not exist. Create a private dump using this room identity first!");
         }
       } else {
-        const err = await res.json();
+        const err = (await res.json()) as { error?: string };
         setRoomError(err.error || "Failed to penetrate safety valves.");
         setRoomDumps([]);
       }
@@ -568,10 +569,12 @@ export default function App() {
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as {
+          score?: number; appraisal?: string; postMortem?: string; recyclingPlan?: string; error?: string;
+        };
         setAppraiseResult(data);
       } else {
-        const err = await res.json();
+        const err = (await res.json()) as { error?: string };
         setAppraiseResult({ error: err.error || "Failed to perform diagnostic analysis." });
       }
     } catch (e) {

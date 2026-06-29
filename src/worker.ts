@@ -70,9 +70,11 @@ async function saveGraveyardData(kv: KVNamespace | undefined, data: DeadProject[
 }
 
 function getAIClient(apiKey: string | undefined): GoogleGenAI | null {
-  if (apiKey && apiKey !== "MY_GEMINI_API_KEY") {
+  // Trim so a stray newline/space from a pasted secret doesn't break auth.
+  const key = apiKey?.trim();
+  if (key && key !== "MY_GEMINI_API_KEY") {
     return new GoogleGenAI({
-      apiKey,
+      apiKey: key,
       httpOptions: {
         headers: { "User-Agent": "aistudio-build" },
       },
@@ -785,6 +787,22 @@ Every field should land a joke. No disclaimers, no preamble.`;
         score: Math.floor(Math.random() * 25) + 70,
         ...pickRoastFallback(ROAST_BUSY_FALLBACKS, name),
       });
+    }
+    // Auth failure = bad/missing GEMINI_API_KEY. Surface a clear, actionable
+    // message (so it's obvious what's wrong) instead of dumping Google's raw JSON.
+    const authError =
+      /\b401\b|\b403\b|UNAUTHENTICATED|PERMISSION_DENIED|API_KEY_INVALID|ACCESS_TOKEN_TYPE_UNSUPPORTED|API key not valid|invalid authentication/i.test(
+        detail
+      );
+    if (authError) {
+      return c.json(
+        {
+          error:
+            "Roast Oracle is offline: the Gemini API key is missing or invalid. Set it with `wrangler secret put GEMINI_API_KEY` (or in the Cloudflare dashboard).",
+          code: "GEMINI_AUTH",
+        },
+        502
+      );
     }
     return c.json(
       {

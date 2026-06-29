@@ -56,13 +56,13 @@ export default function Incinerator() {
       }
       if (!res.ok) {
         let d = "";
-        try { d = (await res.json()).error || ""; } catch {}
+        try { d = ((await res.json()) as { error?: string }).error || ""; } catch {}
         throw new Error(d || `Request failed (${res.status})`);
       }
-      setDumps(await res.json());
+      setDumps((await res.json()) as Dump[]);
       try {
         const hr = await fetch("/api/hunt/stats");
-        if (hr.ok) setHunt(((await hr.json()).steps) || null);
+        if (hr.ok) setHunt((((await hr.json()) as { steps?: { step: string; count: number }[] }).steps) || null);
       } catch { /* funnel stats are best-effort */ }
     } catch (e: any) {
       setError(e.message || "Failed to load entries.");
@@ -82,7 +82,7 @@ export default function Incinerator() {
         body: JSON.stringify({ isPrivate: !d.isPrivate }),
       });
       if (res.ok) {
-        const updated = await res.json();
+        const updated = (await res.json()) as Dump;
         setDumps((p) => p.map((x) => (x.id === updated.id ? updated : x)));
       }
     } finally {
@@ -97,7 +97,7 @@ export default function Incinerator() {
       const res = await fetch(`/api/incinerator/dumps/${encodeURIComponent(d.id)}`, { method: "DELETE" });
       if (!res.ok) {
         let d2 = "";
-        try { d2 = (await res.json()).error || ""; } catch {}
+        try { d2 = ((await res.json()) as { error?: string }).error || ""; } catch {}
         throw new Error(d2 || `Delete failed (${res.status})`);
       }
       setDumps((p) => p.filter((x) => x.id !== d.id));
@@ -135,7 +135,7 @@ export default function Incinerator() {
     setGeoStatus("Searching\u2026");
     try {
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; lat?: number; lng?: number; display?: string };
       if (!res.ok) { setGeoStatus(data.error || "Not found."); return; }
       setCoordsInput(`${Number(data.lat).toFixed(4)}, ${Number(data.lng).toFixed(4)}`);
       setGeoStatus(`\uD83D\uDCCD ${data.display}`);
@@ -190,7 +190,7 @@ export default function Incinerator() {
       });
       if (!res.ok) {
         let d = "";
-        try { d = (await res.json()).error || ""; } catch {}
+        try { d = ((await res.json()) as { error?: string }).error || ""; } catch {}
         throw new Error(d || `Save failed (${res.status})`);
       }
       const updated = await res.json();
