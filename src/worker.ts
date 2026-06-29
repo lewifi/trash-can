@@ -211,18 +211,24 @@ async function loadOgFonts() {
 const OG_LOGO = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNlZjQ0NDQiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwNmI2ZDQiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSI1IiB5PSI1IiB3aWR0aD0iNTQiIGhlaWdodD0iNTQiIHJ4PSIxNSIgZmlsbD0iIzExMTgyNyIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjMiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMiAzMi41KSBzY2FsZSgxLjU1KSB0cmFuc2xhdGUoLTEyIC0xMikiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzIyZDNlZSIgc3Ryb2tlLXdpZHRoPSIyLjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTMgNmgxOCIvPjxwYXRoIGQ9Ik0xOSA2djE0YTIgMiAwIDAgMS0yIDJIN2EyIDIgMCAwIDEtMi0yVjYiLz48cGF0aCBkPSJNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjxsaW5lIHgxPSIxMCIgeDI9IjEwIiB5MT0iMTEiIHkyPSIxNyIvPjxsaW5lIHgxPSIxNCIgeDI9IjE0IiB5MT0iMTEiIHkyPSIxNyIvPjwvZz48L3N2Zz4=";
 
 function ogImageHtml(name: string, appraisal: string, cause: string, score: number): string {
+  // Shrink the headline for long titles so it stays ~2 lines. The outer column is
+  // top-anchored (NOT space-between) with the footer pinned via margin-top:auto:
+  // satori has no line-clamp, and a space-between column lets blocks overlap once
+  // content exceeds 630px (a 3-line title used to land on the cause/footer rows).
+  const n = name.length;
+  const titleSize = n > 44 ? 44 : n > 30 ? 52 : 60;
   return `
-  <div style="display:flex;flex-direction:column;justify-content:space-between;width:1200px;height:630px;background:#05070e;padding:60px 70px;font-family:'Space Grotesk', sans-serif;">
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:56px 70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
-      <img src="${OG_LOGO}" width="68" height="68" style="margin-right:20px;" />
+      <img src="${OG_LOGO}" width="64" height="64" style="margin-right:20px;" />
       <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
     </div>
-    <div style="display:flex;flex-direction:column;">
-      <div style="display:flex;color:#ffffff;font-size:58px;font-weight:700;line-height:1.05;">${name}</div>
-      <div style="display:flex;margin-top:16px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
-      <div style="display:flex;margin-top:24px;color:#cbd5e1;font-size:31px;line-height:1.3;">${appraisal}</div>
+    <div style="display:flex;flex-direction:column;margin-top:40px;">
+      <div style="display:flex;color:#ffffff;font-size:${titleSize}px;font-weight:700;line-height:1.05;">${name}</div>
+      <div style="display:flex;margin-top:18px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
+      <div style="display:flex;margin-top:22px;color:#cbd5e1;font-size:30px;line-height:1.3;">${appraisal}</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;margin-top:auto;align-items:center;justify-content:space-between;">
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
       <div style="display:flex;color:#f59e0b;font-size:26px;font-weight:700;">Glitch score ${score}/100</div>
     </div>
@@ -947,9 +953,9 @@ app.get("/api/og/:id", async (c) => {
     const trunc = (s: string, n: number) =>
       s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, "").trim() + "…" : s;
     const html = ogImageHtml(
-      esc(trunc(String(dump.name), 52)),
-      esc(trunc(text, 140)),
-      esc(trunc(String(dump.causeOfDeath || "Unknown"), 52)),
+      esc(trunc(String(dump.name), 58)),
+      esc(trunc(text, 124)),
+      esc(trunc(String(dump.causeOfDeath || "Unknown"), 46)),
       Number(dump.diagnosticScore) || 0
     );
     let fonts;
