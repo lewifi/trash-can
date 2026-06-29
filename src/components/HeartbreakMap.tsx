@@ -125,7 +125,9 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
       }
       const cx = group.reduce((s, g) => s + g.x, 0) / group.length;
       const cy = group.reduce((s, g) => s + g.y, 0) / group.length;
-      const radius = 2.2 + group.length * 0.45; // ring grows with the crowd
+      // Size the ring from a small target spacing so neighbours sit almost
+      // touching, at any cluster size (radius grows only as needed to fit them).
+      const radius = Math.max(1.4, 2.4 / (2 * Math.sin(Math.PI / group.length)));
       group.forEach((g, i) => {
         const ang = (i / group.length) * Math.PI * 2 - Math.PI / 2;
         out[g.id] = {
