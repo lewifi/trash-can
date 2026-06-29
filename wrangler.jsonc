@@ -29,7 +29,7 @@
     }
   ],
   "vars": {
-    "ADMIN_EMAIL": "me@lewi.fi",
+    "ADMIN_EMAIL": "lewi.hirvela@gmail.com",
     "ACCESS_TEAM_DOMAIN": "me-2a4.cloudflareaccess.com",
     "ACCESS_AUD": "",
     // Zone tag for trash-can.net (Dashboard > the domain > Overview > Zone ID).

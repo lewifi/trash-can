@@ -1258,7 +1258,7 @@ app.post("/api/leaderboard", async (c) => {
 
   const body = await c.req.json().catch(() => ({} as any));
   let name = String(body?.nickname || "")
-    .replace(/[ -]/g, "") // strip control chars
+    .replace(/[\u0000-\u001f\u007f]/g, "")
     .trim()
     .slice(0, 24);
   if (!name) name = randomFunnyName();
