@@ -218,9 +218,9 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
       <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
     </div>
     <div style="display:flex;flex-direction:column;">
-      <div style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#ffffff;font-size:58px;font-weight:700;line-height:1.05;">${name}</div>
+      <div style="display:flex;color:#ffffff;font-size:58px;font-weight:700;line-height:1.05;">${name}</div>
       <div style="display:flex;margin-top:16px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
-      <div style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin-top:26px;color:#cbd5e1;font-size:31px;line-height:1.3;">${appraisal}</div>
+      <div style="display:flex;margin-top:24px;color:#cbd5e1;font-size:31px;line-height:1.3;">${appraisal}</div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
@@ -942,10 +942,14 @@ app.get("/api/og/:id", async (c) => {
     }
     if (!text) text = dump.description || dump.causeOfDeath || "A project that did not make it.";
 
+    // Truncate with an ellipsis (on a word boundary) so long values can't
+    // overflow into the footer — satori only supports flex, so no line-clamp.
+    const trunc = (s: string, n: number) =>
+      s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, "").trim() + "…" : s;
     const html = ogImageHtml(
-      esc(String(dump.name).slice(0, 60)),
-      esc(text.slice(0, 150)),
-      esc(String(dump.causeOfDeath || "Unknown").slice(0, 60)),
+      esc(trunc(String(dump.name), 52)),
+      esc(trunc(text, 140)),
+      esc(trunc(String(dump.causeOfDeath || "Unknown"), 52)),
       Number(dump.diagnosticScore) || 0
     );
     let fonts;
