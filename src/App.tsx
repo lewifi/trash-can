@@ -1684,7 +1684,10 @@ export default function App() {
                           <Sparkles className="w-3.5 h-3.5" /> AI CHEF APPRAISAL
                         </span>
                         <button
-                          onClick={() => handleAppraise(selectedDump)}
+                          onClick={async () => {
+                            await handleAppraise(selectedDump);
+                            setTimeout(() => document.getElementById("appraise-result")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+                          }}
                           disabled={appraiseLoading}
                           className={`w-full text-sm bg-purple-600/25 hover:bg-purple-600/45 border border-purple-400/70 text-purple-100 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-mono-tech font-bold uppercase transition-all cursor-pointer shadow-[0_0_18px_rgba(168,85,247,0.45)] disabled:opacity-60 ${appraiseResult || appraiseLoading ? "" : "animate-pulse"}`}
                         >
@@ -1711,7 +1714,7 @@ export default function App() {
                           </p>
                         </div>
                       ) : appraiseResult ? (
-                        <div className="bg-purple-950/15 border border-purple-900/40 p-4 rounded-xl space-y-3">
+                        <div id="appraise-result" className="bg-purple-950/15 border border-purple-900/40 p-4 rounded-xl space-y-3">
                           {appraiseResult.error ? (
                             <p className="text-xs font-mono-tech text-red-400 text-center">{appraiseResult.error}</p>
                           ) : (
