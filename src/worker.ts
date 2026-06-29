@@ -1175,12 +1175,14 @@ async function getSiteStats(
 }
 
 app.get("/api/stats", async (c) => {
-  const token = c.env.CF_ANALYTICS_TOKEN;
-  const zone = c.env.CF_ZONE_ID;
+  // Trim so a trailing newline from `echo token | wrangler secret put` (or a
+  // pasted zone id) doesn't break the Bearer header / zone filter.
+  const token = c.env.CF_ANALYTICS_TOKEN?.trim();
+  const zone = c.env.CF_ZONE_ID?.trim();
   const kv = c.env.GRAVEYARD_KV;
 
   if (!token || !zone || zone.includes("REPLACE_WITH")) {
-    return c.json({ configured: false });
+    return c.json({ configured: false, reason: !token ? "no-token" : "no-zone" });
   }
 
   if (kv) {
