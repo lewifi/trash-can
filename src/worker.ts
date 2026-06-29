@@ -16,6 +16,9 @@ type Bindings = {
   ACCESS_AUD?: string;
   // Email Routing send binding (notify admin of new submissions)
   NOTIFY_EMAIL?: { send: (message: EmailMessage) => Promise<void> };
+  // Cloudflare GraphQL Analytics (real visit/request counts for the ticker)
+  CF_ANALYTICS_TOKEN?: string; // secret: API token with Analytics Read
+  CF_ZONE_ID?: string;         // var: the zone tag for trash-can.net
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -1082,6 +1085,144 @@ app.get("/roast/:id", async (c) => {
     .on('meta[property="og:image"]', content(img))
     .on('meta[name="twitter:image"]', content(img))
     .transform(shell);
+});
+
+// --- Real site stats from Cloudflare's GraphQL Analytics API --------------
+// Returns total requests + unique visitors over the last 30 days, as counted
+// by Cloudflare itself (no PII stored by us). Result is cached in KV for a few
+// minutes so we never hammer the API or expose the token client-side.
+// Fails SOFT: if unconfigured or erroring, returns { configured:false } and the
+// ticker falls back to its cosmetic numbers instead of breaking.
+const STATS_CACHE_KEY = "site_stats_v1";
+const STATS_TTL_MS = 5 * 60 * 1000; // 5 minutes
+// Try the widest ("all time") window first, then narrow if Cloudflare rejects
+// it for exceeding the plan's analytics retention. Free plans retain ~30 days,
+// so this effectively gives all-time on paid plans and 30 days otherwise.
+const STATS_WINDOWS_DAYS = [365, 30];
+
+async function fetchCloudflareStats(
+  token: string,
+  zoneTag: string,
+  windowDays: number
+): Promise<{ requests: number; uniques: number }> {
+  const end = new Date();
+  const start = new Date(end.getTime() - windowDays * 24 * 60 * 60 * 1000);
+  const fmt = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
+
+  // No `date` dimension -> Cloudflare aggregates the whole window into one row:
+  // total requests, and uniques deduped across the period.
+  const query = `
+    query SiteStats($zoneTag: string!, $start: Date!, $end: Date!) {
+      viewer {
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequests1dGroups(
+            filter: { date_geq: $start, date_leq: $end }
+            limit: 1000
+          ) {
+            sum { requests }
+            uniq { uniques }
+          }
+        }
+      }
+    }`;
+
+  const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      variables: { zoneTag, start: fmt(start), end: fmt(end) },
+    }),
+  });
+
+  const json: any = await res.json();
+  if (json.errors?.length) {
+    throw new Error("GraphQL: " + JSON.stringify(json.errors).slice(0, 300));
+  }
+  const groups = json?.data?.viewer?.zones?.[0]?.httpRequests1dGroups ?? [];
+  // Defensive: sum requests across any returned rows; take the largest uniques
+  // figure (a single aggregated row is expected, but daily rows are summed for
+  // requests and max-ed for uniques to avoid double-counting visitors).
+  let requests = 0;
+  let uniques = 0;
+  for (const g of groups) {
+    requests += Number(g?.sum?.requests || 0);
+    uniques = Math.max(uniques, Number(g?.uniq?.uniques || 0));
+  }
+  return { requests, uniques };
+}
+
+// Try each window widest-first; return the first that Cloudflare accepts,
+// along with which window actually produced the numbers.
+async function getSiteStats(
+  token: string,
+  zoneTag: string
+): Promise<{ requests: number; uniques: number; windowDays: number }> {
+  let lastErr: any;
+  for (const days of STATS_WINDOWS_DAYS) {
+    try {
+      const r = await fetchCloudflareStats(token, zoneTag, days);
+      return { ...r, windowDays: days };
+    } catch (e) {
+      lastErr = e; // most likely a retention/date-range rejection — narrow and retry
+    }
+  }
+  throw lastErr;
+}
+
+app.get("/api/stats", async (c) => {
+  const token = c.env.CF_ANALYTICS_TOKEN;
+  const zone = c.env.CF_ZONE_ID;
+  const kv = c.env.GRAVEYARD_KV;
+
+  // Not set up yet -> soft response so the ticker keeps working.
+  if (!token || !zone || zone.includes("REPLACE_WITH")) {
+    return c.json({ configured: false });
+  }
+
+  // Serve a fresh-enough cached copy if we have one.
+  if (kv) {
+    try {
+      const raw = await kv.get(STATS_CACHE_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (Date.now() - cached.at < STATS_TTL_MS) {
+          return c.json({
+            configured: true,
+            requests: cached.requests,
+            uniques: cached.uniques,
+            windowDays: cached.windowDays,
+            cached: true,
+          });
+        }
+      }
+    } catch {
+      /* ignore cache read errors */
+    }
+  }
+
+  try {
+    const { requests, uniques, windowDays } = await getSiteStats(token, zone);
+    if (kv) {
+      try {
+        await kv.put(
+          STATS_CACHE_KEY,
+          JSON.stringify({ requests, uniques, windowDays, at: Date.now() }),
+          { expirationTtl: 3600 }
+        );
+      } catch {
+        /* best effort */
+      }
+    }
+    return c.json({ configured: true, requests, uniques, windowDays, cached: false });
+  } catch (e) {
+    console.error("stats fetch failed:", String((e as any)?.message || e));
+    // Soft-fail: let the ticker fall back rather than showing an error.
+    return c.json({ configured: false });
+  }
 });
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.

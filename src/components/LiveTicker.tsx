@@ -1,26 +1,73 @@
 import { useEffect, useState } from "react";
 
 /**
- * Thin "site is alive" activity bar: gently ticking fake-but-plausible stats,
- * plus quiet teasers for the hidden leaderboard / quiz. Pure vibes, client-side.
+ * Thin "site is alive" activity bar.
+ *
+ * Visitors + requests are REAL numbers from Cloudflare's GraphQL Analytics API
+ * (via /api/stats, cached server-side). Until that's configured — or if the
+ * call fails — it falls back to gently ticking fake-but-plausible figures so
+ * the bar never looks dead. Roasted/venting remain cosmetic vibes.
  */
 export default function LiveTicker() {
-  // Boost the mourner count by a random amount on each load so the gate looks
-  // busier than the (currently sparse) real dump numbers suggest.
+  // Cosmetic fallback for the visitor count: a randomised boost so it never
+  // sits at a flat number before (or without) real Cloudflare data.
   const [buried, setBuried] = useState(() => 1944 + Math.floor(250 + Math.random() * 750));
   const [roasted, setRoasted] = useState(453);
   const [venting, setVenting] = useState(19);
 
+  // Real figures from Cloudflare (null until loaded / if unavailable).
+  const [realVisitors, setRealVisitors] = useState<number | null>(null);
+  const [realRequests, setRealRequests] = useState<number | null>(null);
+  const [windowDays, setWindowDays] = useState<number | null>(null);
+
+  // Pull real stats on mount, then refresh every 5 min (matches server cache).
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/stats");
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          configured?: boolean;
+          uniques?: number;
+          requests?: number;
+          windowDays?: number;
+        };
+        if (!alive || !data?.configured) return;
+        if (typeof data.uniques === "number") {
+          setRealVisitors(data.uniques);
+          setBuried(data.uniques); // keep the cosmetic drift in sync with reality
+        }
+        if (typeof data.requests === "number") setRealRequests(data.requests);
+        if (typeof data.windowDays === "number") setWindowDays(data.windowDays);
+      } catch {
+        /* leave the cosmetic fallback in place */
+      }
+    };
+    load();
+    const t = setInterval(load, 5 * 60 * 1000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
+
+  // Gentle live drift. The visitor count only drifts while we're on the
+  // cosmetic fallback; once real data is in, it stays accurate between refreshes.
   useEffect(() => {
     const t = setInterval(() => {
-      setBuried((n) => n + (Math.random() < 0.45 ? 1 : 0));
+      if (realVisitors === null) {
+        setBuried((n) => n + (Math.random() < 0.45 ? 1 : 0));
+      }
       setRoasted((n) => n + (Math.random() < 0.6 ? 1 : 0));
       setVenting((n) => Math.max(3, Math.min(99, n + (Math.random() < 0.5 ? 1 : -1))));
     }, 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [realVisitors]);
 
-  const fmt = (n: number) => n.toLocaleString();
+  const fmt = (n: number): string => n.toLocaleString();
+  const windowLabel =
+    windowDays === null ? "" : windowDays >= 365 ? "all-time" : `${windowDays}d`;
 
   return (
     <div className="border-b border-gray-900 bg-black/40">
@@ -28,6 +75,14 @@ export default function LiveTicker() {
         <span className="flex items-center gap-1.5 text-emerald-300/90">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} mourners through the gate
         </span>
+        {realRequests !== null && (
+          <>
+            <span className="text-gray-700">•</span>
+            <span className="text-sky-400/80">
+              {fmt(realRequests)} requests served{windowLabel && ` (${windowLabel})`}
+            </span>
+          </>
+        )}
         <span className="text-gray-700">•</span>
         <span className="text-cyan-400/80">{fmt(roasted)} roasted today</span>
         <span className="text-gray-700">•</span>

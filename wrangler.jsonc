@@ -17,7 +17,10 @@
     ]
   },
   "send_email": [
-    { "name": "NOTIFY_EMAIL", "destination_address": "lewi.hirvela@gmail.com" }
+    {
+      "name": "NOTIFY_EMAIL",
+      "destination_address": "lewi.hirvela@gmail.com"
+    }
   ],
   "kv_namespaces": [
     {
@@ -26,9 +29,12 @@
     }
   ],
   "vars": {
-    "ADMIN_EMAIL": "lewi.hirvela@gmail.com",
+    "ADMIN_EMAIL": "me@lewi.fi",
     "ACCESS_TEAM_DOMAIN": "me-2a4.cloudflareaccess.com",
-    "ACCESS_AUD": ""
+    "ACCESS_AUD": "",
+    // Zone tag for trash-can.net (Dashboard > the domain > Overview > Zone ID).
+    // Not secret. Used by /api/stats to query Cloudflare Analytics.
+    "CF_ZONE_ID": "3903c1d5c20f6c7c9acddbb03b8a50b0"
   },
   "observability": {
     "enabled": true
@@ -36,4 +42,8 @@
   // GEMINI_API_KEY is a secret, not a var. Set it with:
   //   npx wrangler secret put GEMINI_API_KEY
   // and add it in the Cloudflare dashboard (Settings > Variables and Secrets).
+  //
+  // CF_ANALYTICS_TOKEN is also a secret (API token with Analytics Read) used by
+  // /api/stats. Set it with:
+  //   npx wrangler secret put CF_ANALYTICS_TOKEN
 }
