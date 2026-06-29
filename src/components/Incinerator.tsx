@@ -459,10 +459,4 @@ export default function Incinerator() {
         </div>
 
         <p className="text-[11px] text-gray-600 mt-8 flex items-center gap-2 font-mono">
-          <AlertTriangle className="w-3.5 h-3.5" />
-          Edits and deletions are permanent. Images are stored inline — keep them under 2 MB. Protected by Cloudflare Access.
-        </p>
-      </div>
-    </div>
-  );
-}
+        

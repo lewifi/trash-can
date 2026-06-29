@@ -96,20 +96,4 @@ export default function LiveTicker() {
             <span className="text-gray-700">•</span>
             <span className="text-sky-400/80">
               {fmt(realRequests)} requests served{windowLabel && ` (${windowLabel})`}
-            </span>
-          </>
-        )}
-        <span className="text-gray-700">•</span>
-        <span className="text-cyan-400/80">{fmt(roasted)} roasted today</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-red-400/80">{venting} souls venting now</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-amber-400/80">🏆 {escapedN} {escapedN === 1 ? "has" : "have"} escaped the hunt</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-fuchsia-400/70">🗺️ a clue adventure is hidden somewhere…</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-teal-300/80">🛠️ built & updated obsessively — peek the Yard Notes</span>
-      </div>
-    </div>
-  );
-}
+        

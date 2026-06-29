@@ -1246,7 +1246,15 @@ app.get("/api/leaderboard", async (c) => {
   } catch {
     /* return empty on any read error */
   }
-  return c.json(Array.isArray(arr) ? arr.slice(0, 25) : []);
+  if (!Array.isArray(arr)) arr = [];
+  // Canonical list = the mythical ??? legend (escaped) first, then real
+  // finishers, with seeded "smudge" guaranteed present. This is the single
+  // source of truth for both the map leaderboard and the ticker count.
+  const out: any[] = [{ name: "???", status: "escaped", at: 0 }, ...arr];
+  if (!out.some((e) => String(e?.name || "").toLowerCase() === "smudge")) {
+    out.push({ name: "smudge", status: "MIA", at: 0 });
+  }
+  return c.json(out.slice(0, 25));
 });
 
 app.post("/api/leaderboard", async (c) => {
@@ -1266,23 +1274,4 @@ app.post("/api/leaderboard", async (c) => {
   if (!name) name = randomFunnyName();
 
   const entry = { name, status: "MIA", at: Date.now() };
-  let arr: any[] = [];
-  try {
-    const raw = await kv.get(LEADERBOARD_KEY);
-    if (raw) arr = JSON.parse(raw);
-  } catch {
-    /* start fresh on parse error */
-  }
-  if (!Array.isArray(arr)) arr = [];
-  arr.unshift(entry);
-  arr = arr.slice(0, 200);
-  try { await kv.put(LEADERBOARD_KEY, JSON.stringify(arr)); } catch { /* best effort */ }
-
-  return c.json({ ok: true, entry, total: arr.length }, 201);
-});
-
-// Safety net: anything non-API that reaches the Worker is served from static assets.
-// (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
-app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
-
-export default app;
+  let arr: any[
