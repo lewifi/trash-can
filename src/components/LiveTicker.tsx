@@ -19,6 +19,8 @@ export default function LiveTicker() {
   const [realVisitors, setRealVisitors] = useState<number | null>(null);
   const [realRequests, setRealRequests] = useState<number | null>(null);
   const [windowDays, setWindowDays] = useState<number | null>(null);
+  // How many have actually finished the hunt (real leaderboard entries).
+  const [escaped, setEscaped] = useState<number | null>(null);
 
   // Pull real stats on mount, then refresh every 5 min (matches server cache).
   useEffect(() => {
@@ -26,22 +28,33 @@ export default function LiveTicker() {
     const load = async () => {
       try {
         const res = await fetch("/api/stats");
-        if (!res.ok) return;
-        const data = (await res.json()) as {
-          configured?: boolean;
-          uniques?: number;
-          requests?: number;
-          windowDays?: number;
-        };
-        if (!alive || !data?.configured) return;
-        if (typeof data.uniques === "number") {
-          setRealVisitors(data.uniques);
-          setBuried(data.uniques); // keep the cosmetic drift in sync with reality
+        if (res.ok) {
+          const data = (await res.json()) as {
+            configured?: boolean;
+            uniques?: number;
+            requests?: number;
+            windowDays?: number;
+          };
+          if (alive && data?.configured) {
+            if (typeof data.uniques === "number") {
+              setRealVisitors(data.uniques);
+              setBuried(data.uniques); // keep the cosmetic drift in sync with reality
+            }
+            if (typeof data.requests === "number") setRealRequests(data.requests);
+            if (typeof data.windowDays === "number") setWindowDays(data.windowDays);
+          }
         }
-        if (typeof data.requests === "number") setRealRequests(data.requests);
-        if (typeof data.windowDays === "number") setWindowDays(data.windowDays);
       } catch {
         /* leave the cosmetic fallback in place */
+      }
+      try {
+        const lb = await fetch("/api/leaderboard");
+        if (lb.ok) {
+          const arr = await lb.json();
+          if (alive && Array.isArray(arr)) setEscaped(arr.length);
+        }
+      } catch {
+        /* keep the baseline count */
       }
     };
     load();
@@ -68,6 +81,9 @@ export default function LiveTicker() {
   const fmt = (n: number): string => n.toLocaleString();
   const windowLabel =
     windowDays === null ? "" : windowDays >= 365 ? "all-time" : `${windowDays}d`;
+  // Real count of hunt finishers, with a floor of 1 so the legend always reads
+  // like at least one soul got out.
+  const escapedN = Math.max(1, escaped ?? 1);
 
   return (
     <div className="border-b border-gray-900 bg-black/40">
@@ -88,7 +104,7 @@ export default function LiveTicker() {
         <span className="text-gray-700">•</span>
         <span className="text-red-400/80">{venting} souls venting now</span>
         <span className="text-gray-700">•</span>
-        <span className="text-amber-400/80">🏆 1 has escaped the hunt</span>
+        <span className="text-amber-400/80">🏆 {escapedN} {escapedN === 1 ? "has" : "have"} escaped the hunt</span>
         <span className="text-gray-700">•</span>
         <span className="text-fuchsia-400/70">🗺️ a clue adventure is hidden somewhere…</span>
         <span className="text-gray-700">•</span>
