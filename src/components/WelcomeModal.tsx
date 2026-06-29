@@ -103,4 +103,23 @@ export default function WelcomeModal({
               </span>
             </div>
             <div className="absolute bottom-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono-tech uppercase tracking-widest text-fuchsia-200/80">
-              <Sparkles class
+              <Sparkles className="w-3 h-3" /> something is buried beneath the trash
+            </div>
+          </div>
+
+          {/* obscured clue — present but deliberately unreadable, to pique curiosity */}
+          <div className="mt-3 flex items-center gap-2 text-[11px] font-mono-tech text-fuchsia-300/70">
+            <span
+              className="px-2 py-1 rounded border border-dashed border-fuchsia-500/40 select-none text-fuchsia-200/80"
+              style={{ filter: "blur(1.4px)" }}
+              aria-hidden="true"
+            >
+              ▮▮▮ clue ▮ ▮▮
+            </span>
+            <span>a chain of clues is hidden here. two ways in: the bright button above, or buried among the graves. most walk straight past both.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

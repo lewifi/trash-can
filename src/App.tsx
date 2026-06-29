@@ -1953,4 +1953,79 @@ export default function App() {
                 {CRYPT_LOG.map((e, i) => (
                   <div key={i} className={`relative bg-[#0b0f19] border ${skin.accentBorder} rounded-xl p-5 pl-6 depth-top`}>
                     <span className={`absolute left-0 top-5 bottom-5 w-1 rounded-full bg-current ${skin.accentColor} opacity-70`} />
-                    <di
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <span className={`text-[10px] font-mono-tech px-2 py-0.5 rounded border ${skin.accentBorder} ${skin.accentColor} uppercase tracking-wider`}>{e.tag}</span>
+                      <span className="text-[10px] font-mono-tech text-gray-600">{new Date(e.date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-gray-100 mb-1">{e.title}</h4>
+                    <p className="text-xs text-gray-400 leading-relaxed">{e.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* FRESHLY BURIED FEED */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-xs font-mono-tech uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                  <Trash2 className={`w-4 h-4 ${skin.accentColor}`} /> Freshly Dumped
+                </h3>
+                <div className={`bg-[#0b0f19] border ${skin.accentBorder} rounded-xl divide-y divide-gray-900 depth-top`}>
+                  {[...dumps]
+                    .filter((d) => !d.isPrivate)
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .slice(0, 8)
+                    .map((d) => (
+                      <button
+                        key={d.id}
+                        onClick={() => { navTab("memorials"); setSelectedDump(d); }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-900/60 transition-colors flex items-center justify-between gap-3 group"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-100 truncate group-hover:underline">{d.name}</p>
+                          <p className="text-[10px] font-mono-tech text-gray-500 truncate">
+                            {catLabel(d.category)} • by {d.creator || "Anonymous"}
+                          </p>
+                        </div>
+                        <span className={`text-[10px] font-mono-tech whitespace-nowrap ${skin.accentColor}`}>{timeAgo(d.createdAt)}</span>
+                      </button>
+                    ))}
+                  {dumps.filter((d) => !d.isPrivate).length === 0 && (
+                    <p className="px-4 py-6 text-center text-xs text-gray-600 font-mono-tech">The yard's empty. Be the first to dump something.</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => { navTab("dump"); setSelectedDump(null); }}
+                  className={`w-full text-xs font-mono-tech py-2.5 rounded-lg border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass} hover:bg-gray-900/60 transition-all uppercase tracking-wider`}
+                >
+                  + Dump something new
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* FOOTER SYSTEM */}
+      <footer className="border-t border-gray-900 bg-[#02050c] px-4 py-8 mt-12 text-center text-xs text-gray-500 space-y-3 font-mono-tech">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="tracking-wide">
+            © 2026 Roast Graveyard™ Central Administration. Built on top of the world's finest garbage. <span className="text-gray-600">v{APP_VERSION}</span>
+          </p>
+          <div className="flex gap-4">
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("RULE 1: there are no rules. RULE 2: you just wasted a click on Rule 1."); }} className="hover:text-cyan-400 transition-colors uppercase cursor-pointer">Security Containment rules</a>
+            <span>•</span>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy Shields: 100% effective \u2014 nobody, not even us, is reading this page."); }} className="hover:text-pink-400 transition-colors uppercase cursor-pointer">Privacy Shields</a>
+            <span>•</span>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert("You leased a domain at 3am, built nothing, and are now reading the lease terms. Seek sunlight."); }} className="hover:text-amber-500 transition-colors uppercase cursor-pointer">Domain Lease terms</a>
+            <span>•</span>
+            <a href="https://ephix.net" target="_blank" rel="noopener noreferrer" title="Ephix Pulse — live top-100 TV & movie trending" className="text-cyan-400 hover:text-cyan-300 transition-colors uppercase">Built by Ephix Pulse</a>
+          </div>
+        </div>
+        <p className="text-[10px] text-gray-600 uppercase">
+          "Everything in this system is dedicated to developers who bought domains while drinking coffee at 3:00 AM and never built on them."
+        </p>
+      </footer>
+
+    </div>
+  );
+}

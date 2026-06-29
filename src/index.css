@@ -168,3 +168,18 @@
   100% { opacity: 1; transform: scale(1); }
 }
 .animate-card-zoom { animation: card-zoom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Grave tile highlighted from a heatmap-dot click: thick rotating gradient
+   border (brand neon) + glow. Uses an animatable custom property for the
+   conic angle so the gradient spins radially. Degrades to a static gradient
+   border if @property is unsupported. */
+/* Grave focused from a heatmap-dot click: a neutral lift + soft shadow (NOT the
+   hunt's neon gradient, so it can't be mistaken for the odd-one-out). It stays
+   raised until the visitor clicks the tile (opens detail) or clicks away. The
+   card already has `transition-all duration-300`, so this eases in and out. */
+.grave-highlight {
+  transform: translateY(-8px) scale(1.04) !important;
+  border-color: rgba(34, 211, 238, 0.7) !important;
+  box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.8), 0 0 20px -2px rgba(34, 211, 238, 0.45) !important;
+  z-index: 10;
+}

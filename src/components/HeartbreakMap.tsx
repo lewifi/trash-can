@@ -274,4 +274,67 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
           </div>
           </div>
 
-          {/* Comp
+          {/* Compass & Scale indicators */}
+          <div className="relative z-10 flex justify-between items-end text-[10px] font-mono-tech text-cyan-500/50 px-1 pt-2">
+            <div>
+              <span>LAT_GRID: [84.15° N - 84.15° S]</span>
+              <br />
+              <span>LON_GRID: [180.00° W - 180.00° E]</span>
+              {hoveredCountry && (
+                <span className="text-cyan-400 block mt-1 font-bold">GRID LOCATION: {hoveredCountry.toUpperCase()}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+              <span>RED = TRASH FIRE (SEVERE REJECTION)</span>
+              <span className="w-2 h-2 bg-cyan-400 rounded-full ml-2"></span>
+              <span>CYAN = ACTIVE GLITCH DETECTED</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Triage Console Sidebar */}
+        <div className="bg-[#060913] border border-cyan-500/10 rounded-lg p-4 flex flex-col justify-between depth-top">
+          <div>
+            <div className="flex items-center gap-2 mb-3 text-amber-400 font-mono-tech text-xs uppercase tracking-wide">
+              <Trophy className="w-4 h-4" />
+              <span>Hunt Leaderboard</span>
+            </div>
+            <div className="space-y-1.5">
+              {board.slice(0, 7).map((p, i) => {
+                const escaped = (p.status || "").toLowerCase() === "escaped";
+                return (
+                  <div key={i} className={`flex items-center justify-between px-3 py-2 rounded-lg ${escaped ? "bg-gray-900/60 border border-amber-500/25" : "bg-gray-900/40 border border-fuchsia-500/15"}`}>
+                    <span className={`text-xs font-mono-tech flex items-center gap-2 ${escaped ? "text-amber-300" : "text-fuchsia-200/90"}`}>
+                      <span className={`font-bold ${escaped ? "text-amber-500" : "text-fuchsia-400"}`}>#{i + 1}</span> {p.name}
+                    </span>
+                    <span className="text-[10px] text-gray-500 font-mono-tech">{p.status || "MIA"}</span>
+                  </div>
+                );
+              })}
+              {board.length === 0 && (
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
+                  <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#1</span> reading the headstones…</span>
+                </div>
+              )}
+              <p className="text-[10px] text-fuchsia-400/70 font-mono-tech pt-1">🗺️ a clue adventure is hidden here…</p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-cyan-500/10 text-xs text-gray-400">
+            {hoveredProject ? (
+              <div className="bg-cyan-950/20 p-2 rounded border border-cyan-500/20">
+                <div className="font-bold text-cyan-300">{hoveredProject.name}</div>
+                <p className="text-[10px] line-clamp-2 mt-1">{hoveredProject.description}</p>
+              </div>
+            ) : (
+              <p className="italic text-[10px] text-center text-gray-500">
+                Hurry! Click any dot on the heartbeat map to examine its files and salvage its memory.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

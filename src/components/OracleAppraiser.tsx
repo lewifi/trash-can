@@ -518,4 +518,15 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
             </div>
             <a
               href="/memorials"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuch
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-2.5 px-6 rounded-lg transition shadow-[0_0_18px_rgba(217,70,239,0.45)]"
+            >
+              To the Graveyard →
+            </a>
+            <p className="text-[10px] text-gray-500 font-mono-tech mt-3">No skipping. The trash remembers.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
