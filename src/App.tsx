@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import HeartbreakMap from "./components/HeartbreakMap";
 import OracleAppraiser from "./components/OracleAppraiser";
 import RescueRemix from "./components/RescueRemix";
@@ -1243,12 +1244,13 @@ export default function App() {
         {/* HEATMAP OF HEARTBREAK — GLOBAL LANDFILL GEOGRAPHY */}
         {(activeTab === "dump" || activeTab === "memorials") && (
           <div className="mb-8">
-            <HeartbreakMap 
-              projects={dumps} 
-              onSelectProject={(p) => { 
-                setSelectedDump(p); 
-                navTab("memorials"); 
-              }} 
+            <HeartbreakMap
+              projects={dumps}
+              selectedId={selectedDump?.id}
+              onSelectProject={(p) => {
+                setSelectedDump(p);
+                navTab("memorials");
+              }}
             />
           </div>
         )}
@@ -1492,8 +1494,10 @@ export default function App() {
 
             </div>
 
-            {/* DETAIL MODAL */}
-            {selectedDump && (
+            {/* DETAIL MODAL — portaled to <body> so `fixed` always overlays the
+                viewport. (A transformed/filtered ancestor would otherwise anchor
+                it in-flow, dropping it below the heatmap where it's easy to miss.) */}
+            {selectedDump && createPortal(
               <div
                 className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-8"
                 onClick={() => setSelectedDump(null)}
@@ -1575,7 +1579,17 @@ export default function App() {
                     {/* HIDDEN HUNT — Clue 2 lives inside the odd-one-out grave */}
                     {selectedDump.id === "hist-cloudflare" && (
                       <div className="rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center space-y-2">
-                        {!graveClueShown ? (
+                        {graveClueShown ? (
+                          <div className="text-left space-y-1.5">
+                            <p className="text-[10px] font-mono-tech tracking-[0.3em] text-fuchsia-300 uppercase">Clue 2 of ???</p>
+                            <p className="text-[11px] text-gray-200 leading-relaxed">
+                              This one's a fake &mdash; it never died, it just reroutes. To follow it, head to the <span className="text-red-300 font-bold">Vent</span> and <span className="text-red-300 font-bold">Break Containment Hatch</span>.
+                            </p>
+                            <p className="text-[11px] text-gray-200 leading-relaxed">
+                              The Containment Block Code is no great <span className="text-amber-200 font-bold">secret</span>. And the Hatch Password? It's simply the <span className="text-amber-200 font-bold">way in</span> &mdash; said quick, as one word.
+                            </p>
+                          </div>
+                        ) : appraiseResult && !appraiseResult.error ? (
                           <>
                             <p className="text-[11px] text-gray-200 leading-relaxed">
                               Something's off about this grave &mdash; it reads wrong because it never actually died. <span className="text-fuchsia-300 font-bold">Clue 2 is buried in here.</span>
@@ -1589,15 +1603,12 @@ export default function App() {
                             </button>
                           </>
                         ) : (
-                          <div className="text-left space-y-1.5">
-                            <p className="text-[10px] font-mono-tech tracking-[0.3em] text-fuchsia-300 uppercase">Clue 2 of ???</p>
+                          <>
                             <p className="text-[11px] text-gray-200 leading-relaxed">
-                              This one's a fake &mdash; it never died, it just reroutes. To follow it, head to the <span className="text-red-300 font-bold">Vent</span> and <span className="text-red-300 font-bold">Break Containment Hatch</span>.
+                              Something's off about this grave &mdash; it reads wrong because it never actually died.
                             </p>
-                            <p className="text-[11px] text-gray-200 leading-relaxed">
-                              The Containment Block Code is no great <span className="text-amber-200 font-bold">secret</span>. And the Hatch Password? It's simply the <span className="text-amber-200 font-bold">way in</span> &mdash; said quick, as one word.
-                            </p>
-                          </div>
+                            <p className="text-[11px] font-mono-tech text-fuchsia-300/80">🔒 Run the AI critique below first &mdash; it'll shake the clue loose.</p>
+                          </>
                         )}
                       </div>
                     )}
@@ -1714,7 +1725,8 @@ export default function App() {
 
                   </div>
                 </div>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         )}

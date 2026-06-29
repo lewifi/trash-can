@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Star, Compass, X, Sparkles } from "lucide-react";
 
 /**
@@ -14,16 +15,26 @@ export default function WelcomeModal({
   onRoast: () => void;
   onExplore: () => void;
 }) {
+  // Fade the dim layer in on mount, and out briefly before the parent unmounts us.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  const close = (action: () => void) => {
+    setShown(false);
+    window.setTimeout(action, 280);
+  };
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-fade-in"
+      className={`fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/30 transition-opacity duration-300 ${shown ? "opacity-100" : "opacity-0"}`}
       role="dialog"
       aria-modal="true"
     >
       <div className="relative w-full max-w-md rounded-2xl border border-cyan-500/30 bg-[#0b0f19] p-6 shadow-2xl neon-glow-cyan depth-top overflow-hidden">
         {/* close / skip */}
         <button
-          onClick={onExplore}
+          onClick={() => close(onExplore)}
           aria-label="Close"
           className="absolute top-3 right-3 p-1.5 rounded-lg border border-gray-700 text-gray-400 hover:text-gray-100 hover:bg-gray-900 transition"
         >
@@ -43,13 +54,13 @@ export default function WelcomeModal({
 
         {/* Primary + secondary CTAs */}
         <button
-          onClick={onRoast}
+          onClick={() => close(onRoast)}
           className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-mono-tech text-sm font-bold uppercase tracking-wider text-black bg-gradient-to-r from-fuchsia-400 to-amber-300 shadow-[0_0_24px_rgba(217,70,239,0.5)] hover:brightness-110 transition"
         >
           <Star className="w-4 h-4" /> Roast someone
         </button>
         <button
-          onClick={onExplore}
+          onClick={() => close(onExplore)}
           className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 mt-2 font-mono-tech text-xs uppercase tracking-wider text-gray-300 border border-gray-700 hover:bg-gray-900 hover:text-gray-100 transition"
         >
           <Compass className="w-4 h-4" /> Just wander the graveyard

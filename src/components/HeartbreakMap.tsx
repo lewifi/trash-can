@@ -5,9 +5,10 @@ import { DeadProject } from "../types";
 interface HeartbreakMapProps {
   projects: DeadProject[];
   onSelectProject: (project: DeadProject) => void;
+  selectedId?: string | null;
 }
 
-export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakMapProps) {
+export default function HeartbreakMap({ projects, onSelectProject, selectedId }: HeartbreakMapProps) {
   const [hoveredProject, setHoveredProject] = useState<DeadProject | null>(null);
   const [geoData, setGeoData] = useState<any>(null);
   const [mapLoading, setMapLoading] = useState(true);
@@ -177,12 +178,13 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
             {projects.map((project) => {
               const { x, y } = getCoordinates(project.latitude, project.longitude);
               const isTragic = project.emotionalTragedy >= 8;
-              
+              const isSelected = project.id === selectedId;
+
               return (
                 <div
                   key={project.id}
                   style={{ left: `${x}%`, top: `${y}%` }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 group ${isSelected ? "z-30" : "z-10"}`}
                 >
                   {/* Glowing core */}
                   <button
@@ -191,7 +193,11 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
                     onMouseLeave={() => setHoveredProject(null)}
                     aria-label={`Project: ${project.name}`}
                     className={`relative w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isTragic ? 'bg-red-500 hover:scale-150 shadow-lg shadow-red-500/50' : 'bg-cyan-400 hover:scale-150 shadow-lg shadow-cyan-400/50'
+                      isSelected
+                        ? 'bg-gradient-to-br from-fuchsia-500 via-cyan-400 to-amber-400 scale-150 ring-4 ring-fuchsia-400/70 shadow-[0_0_26px_9px_rgba(217,70,239,0.75)]'
+                        : isTragic
+                        ? 'bg-red-500 hover:scale-150 shadow-lg shadow-red-500/50'
+                        : 'bg-cyan-400 hover:scale-150 shadow-lg shadow-cyan-400/50'
                     }`}
                   >
                     {isTragic ? (
@@ -204,6 +210,14 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
                     <span className={`absolute -inset-2 rounded-full animate-ping opacity-25 ${
                       isTragic ? 'bg-red-500' : 'bg-cyan-400'
                     }`}></span>
+
+                    {/* Selected: thick blue radial pulse (two staggered rings) */}
+                    {isSelected && (
+                      <>
+                        <span className="absolute -inset-3 rounded-full bg-gradient-to-r from-fuchsia-400/50 via-cyan-400/50 to-amber-400/50 animate-ping"></span>
+                        <span className="absolute -inset-5 rounded-full border-2 border-cyan-400/70 animate-ping" style={{ animationDelay: "0.4s" }}></span>
+                      </>
+                    )}
                   </button>
 
                   {/* Desktop Tiny tooltip */}
@@ -252,18 +266,17 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
                 <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ???</span>
                 <span className="text-[10px] text-gray-500 font-mono-tech">escaped</span>
               </div>
-              {board.slice(0, 6).map((p, i) => (
-                <div key={i} className="flex items-center justify-between bg-gray-900/40 px-3 py-2 rounded-lg border border-fuchsia-500/15">
-                  <span className="text-xs font-mono-tech text-fuchsia-200/90 flex items-center gap-2"><span className="text-fuchsia-400 font-bold">#{i + 2}</span> {p.name}</span>
-                  <span className="text-[10px] text-gray-500 font-mono-tech">{p.status || "MIA"}</span>
-                </div>
-              ))}
-              {board.length === 0 && (
-                <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
-                  <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> nobody yet — be the first out</span>
-                  <span className="text-[10px] text-gray-700 font-mono-tech">missing</span>
-                </div>
-              )}
+              {(board.some((p) => (p.name || "").toLowerCase() === "smudge")
+                ? board
+                : [...board, { name: "smudge", status: "MIA" }]
+              )
+                .slice(0, 6)
+                .map((p, i) => (
+                  <div key={i} className="flex items-center justify-between bg-gray-900/40 px-3 py-2 rounded-lg border border-fuchsia-500/15">
+                    <span className="text-xs font-mono-tech text-fuchsia-200/90 flex items-center gap-2"><span className="text-fuchsia-400 font-bold">#{i + 2}</span> {p.name}</span>
+                    <span className="text-[10px] text-gray-500 font-mono-tech">{p.status || "MIA"}</span>
+                  </div>
+                ))}
               <p className="text-[10px] text-fuchsia-400/70 font-mono-tech pt-1">🗺️ a clue adventure is hidden here…</p>
             </div>
           </div>
