@@ -188,6 +188,7 @@ export default function HeartbreakMap({ projects, onSelectProject, selectedId }:
                 >
                   {/* Glowing core */}
                   <button
+                    data-heatmap-dot
                     onClick={() => onSelectProject(project)}
                     onMouseEnter={() => setHoveredProject(project)}
                     onMouseLeave={() => setHoveredProject(null)}

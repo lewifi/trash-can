@@ -292,12 +292,21 @@ export default function App() {
     return () => clearTimeout(t);
   }, [highlightedGraveId, filteredDumps, visibleCount]);
 
-  // The highlight is a transient "you landed here" pulse — clear it after ~2s so
-  // it can't be mistaken for a permanent marker (e.g. the hunt's odd-one-out).
+  // Keep the grave lifted until the visitor clicks it (opens detail) or clicks
+  // away. Clicks on a heatmap dot are ignored so picking another dot just
+  // re-targets instead of clearing.
   useEffect(() => {
     if (!highlightedGraveId) return;
-    const t = setTimeout(() => setHighlightedGraveId(null), 2300);
-    return () => clearTimeout(t);
+    const onDocClick = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (target?.closest?.("[data-heatmap-dot]")) return;
+      const tile = document.getElementById(`grave-${highlightedGraveId}`);
+      if (tile && tile.contains(target)) return;
+      setHighlightedGraveId(null);
+    };
+    // Defer so the click that set the highlight doesn't instantly clear it.
+    const id = window.setTimeout(() => document.addEventListener("click", onDocClick), 0);
+    return () => { window.clearTimeout(id); document.removeEventListener("click", onDocClick); };
   }, [highlightedGraveId]);
   // Reveal more grave cards as the sentinel scrolls into view (paginate on demand).
   useEffect(() => {
@@ -1433,7 +1442,7 @@ export default function App() {
                           handleAppraise(d);
                         }
                       }}
-                      className={`group p-5 bg-gray-950 border border-gray-800 hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px] ${d.id === highlightedGraveId ? "grave-highlight" : ""}`}
+                      className={`group p-5 bg-gray-950 ${d.id === "hist-cloudflare" ? "border-2 border-cyan-700/50" : "border border-gray-800"} hover:border-cyan-500/60 hover:bg-gray-900/60 transition-all duration-300 rounded-xl cursor-pointer relative overflow-hidden flex flex-col justify-between w-full depth-top [content-visibility:auto] [contain-intrinsic-size:auto_360px] ${d.id === highlightedGraveId ? "grave-highlight" : ""}`}
                     >
                       {/* Subtly animated decorative corner badges */}
                       <div className="absolute right-0 top-0 translate-x-2 -translate-y-2 w-8 h-8 rounded-full bg-cyan-400/5 group-hover:bg-cyan-400/10 transition-colors" />
