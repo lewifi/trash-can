@@ -243,9 +243,9 @@ export default function HeartbreakMap({ projects, onSelectProject }: HeartbreakM
                 <span className="text-xs font-mono-tech text-amber-300 flex items-center gap-2"><span className="text-amber-500 font-bold">#1</span> ???</span>
                 <span className="text-[10px] text-gray-500 font-mono-tech">escaped</span>
               </div>
-              <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-dashed border-gray-800">
-                <span className="text-xs font-mono-tech text-gray-600 flex items-center gap-2"><span className="text-gray-700 font-bold">#2</span> your name here?</span>
-                <span className="text-[10px] text-gray-700 font-mono-tech">unclaimed</span>
+              <div className="flex items-center justify-between bg-gray-900/60 px-3 py-2 rounded-lg border border-amber-500/15">
+                <span className="text-xs font-mono-tech text-amber-300/90 flex items-center gap-2"><span className="text-amber-500 font-bold">#2</span> smudge</span>
+                <span className="text-[10px] text-gray-500 font-mono-tech">closing in</span>
               </div>
               <p className="text-[10px] text-fuchsia-400/70 font-mono-tech pt-1">🗺️ a clue adventure is hidden here…</p>
             </div>

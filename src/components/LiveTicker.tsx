@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
  * plus quiet teasers for the hidden leaderboard / quiz. Pure vibes, client-side.
  */
 export default function LiveTicker() {
-  const [buried, setBuried] = useState(1944);
+  // Boost the mourner count by a random amount on each load so the gate looks
+  // busier than the (currently sparse) real dump numbers suggest.
+  const [buried, setBuried] = useState(() => 1944 + Math.floor(250 + Math.random() * 750));
   const [roasted, setRoasted] = useState(453);
   const [venting, setVenting] = useState(19);
 
