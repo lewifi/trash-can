@@ -93,7 +93,7 @@ const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = 
     date: "2026-06-27",
     tag: "FRONT GATE",
     title: "The Graveyard is the front door now",
-    body: "Walk in and you land right in the pile — no paperwork first. Burying a project or roasting a mate is one tap up top. We figured you'd rather gawk at other people's wreckage before filing your own.",
+    body: "Walk in and you land right among the graves — no paperwork first. Burying a project or roasting a mate is one tap up top. We figured you'd rather gawk at other people's wreckage before filing your own.",
   },
   {
     date: "2026-06-25",
@@ -105,13 +105,13 @@ const CRYPT_LOG: { date: string; title: string; body: string; tag: string }[] = 
     date: "2026-06-23",
     tag: "FRESH PAINT",
     title: "Your grave shows its true colours",
-    body: "Pick a category when you bury a project and its animated core now flickers to life right there in the form. The AI pile got a brand-new synapse that won't stop twitching. Prefer your own mockup? Drag one in and it takes over.",
+    body: "Pick a category when you bury a project and its animated core now flickers to life right there in the form. The AI plot got a brand-new synapse that won't stop twitching. Prefer your own mockup? Drag one in and it takes over.",
   },
   {
     date: "2026-06-19",
     tag: "NEW BINS",
-    title: "Three new piles opened in the yard",
-    body: "Web, Tech, and Entertainment (Fyre-Festival-grade disasters welcome) now have their own piles. No more cramming a doomed gadget or a scammy festival into 'Other' like a coward.",
+    title: "Three new plots opened in the yard",
+    body: "Web, Tech, and Entertainment (Fyre-Festival-grade disasters welcome) now have their own plots. No more cramming a doomed gadget or a scammy festival into 'Other' like a coward.",
   },
   {
     date: "2026-06-19",
@@ -152,7 +152,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.0.1";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -1371,7 +1371,7 @@ export default function App() {
                     <Search className="absolute left-3 top-2.5 w-4.5 h-4.5 text-gray-500" />
                     <input
                       type="text"
-                      placeholder="Sift through virtual garbage pile (name, stack, creator, tragedy)..."
+                      placeholder="Search the graveyard (name, stack, creator, tragedy)..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full bg-[#05070e] border border-gray-900 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-cyan-500 text-gray-200"
@@ -1519,7 +1519,7 @@ export default function App() {
                         onClick={() => setVisibleCount((c) => c + 12)}
                         className={`px-6 py-2.5 rounded-lg font-mono-tech text-xs uppercase tracking-wider border ${skin.accentBorder} ${skin.accentColor} ${skin.glowClass} hover:bg-gray-900/60 transition-all`}
                       >
-                        Dig deeper ({filteredDumps.length - visibleCount} more in the pile)
+                        Dig deeper ({filteredDumps.length - visibleCount} more graves to unearth)
                       </button>
                     </div>
                   )}
@@ -1614,7 +1614,7 @@ export default function App() {
                     {selectedDump.id === "hist-cloudflare" && (
                       <div className="rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center space-y-2">
                         {graveClueShown ? (
-                          <div className="text-left space-y-1.5">
+                          <div id="clue2-reveal" className="text-left space-y-1.5">
                             <p className="text-[10px] font-mono-tech tracking-[0.3em] text-fuchsia-300 uppercase">Clue 2 of ???</p>
                             <p className="text-[11px] text-gray-200 leading-relaxed">
                               This one's a fake &mdash; it never died, it just reroutes. To follow it, head to the <span className="text-red-300 font-bold">Vent</span> and <span className="text-red-300 font-bold">Break Containment Hatch</span>.
@@ -1630,7 +1630,7 @@ export default function App() {
                             </p>
                             <button
                               type="button"
-                              onClick={() => { setGraveClueShown(true); trackHunt("clue2"); window.dispatchEvent(new Event("hint-found")); }}
+                              onClick={() => { setGraveClueShown(true); trackHunt("clue2"); window.dispatchEvent(new Event("hint-found")); setTimeout(() => document.getElementById("clue2-reveal")?.scrollIntoView({ behavior: "smooth", block: "center" }), 90); }}
                               className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
                             >
                               <Sparkles className="w-3.5 h-3.5" /> Dig out Clue 2
@@ -1937,7 +1937,7 @@ export default function App() {
                 YARDMAN'S NOTES
               </h2>
               <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                What we've hauled in lately, and what got tossed this week. The pile never stops growing, and neither does the changelog.
+                What we've hauled in lately, and what got tossed this week. The graveyard never stops growing, and neither does the changelog.
               </p>
             </div>
 
