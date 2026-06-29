@@ -13,7 +13,8 @@
     "run_worker_first": [
       "/api/*",
       "/grave/*",
-      "/roast/*"
+      "/roast/*",
+      "/secretroom"
     ]
   },
   "send_email": [

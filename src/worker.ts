@@ -1289,6 +1289,11 @@ app.post("/api/leaderboard", async (c) => {
   return c.json({ ok: true, entry, total: arr.length }, 201);
 });
 
+// Pretty alias for the hidden world: /secretroom serves the secretworld.html
+// asset. The page itself gates access (needs the #letmein hash or the earned
+// localStorage flag), so this route just delivers the file.
+app.get("/secretroom", (c) => c.env.ASSETS.fetch(new URL("/secretworld.html", c.req.url)));
+
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)
 app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw));
