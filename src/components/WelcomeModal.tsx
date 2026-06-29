@@ -18,8 +18,11 @@ export default function WelcomeModal({
   // Fade the dim layer in on mount, and out briefly before the parent unmounts us.
   const [shown, setShown] = useState(false);
   useEffect(() => {
-    const id = requestAnimationFrame(() => setShown(true));
-    return () => cancelAnimationFrame(id);
+    // Double rAF so the browser paints the opacity-0 frame before we flip to
+    // opacity-100 — otherwise the fade-in gets skipped.
+    let inner = 0;
+    const outer = requestAnimationFrame(() => { inner = requestAnimationFrame(() => setShown(true)); });
+    return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
   }, []);
   const close = (action: () => void) => {
     setShown(false);
