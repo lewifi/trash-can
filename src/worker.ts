@@ -212,15 +212,17 @@ const OG_LOGO = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vc
 
 function ogImageHtml(name: string, appraisal: string, cause: string, score: number): string {
   return `
-  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:70px;font-family:'Space Grotesk', sans-serif;">
+  <div style="display:flex;flex-direction:column;justify-content:space-between;width:1200px;height:630px;background:#05070e;padding:60px 70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
-      <img src="${OG_LOGO}" width="72" height="72" style="margin-right:20px;" />
+      <img src="${OG_LOGO}" width="68" height="68" style="margin-right:20px;" />
       <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
     </div>
-    <div style="display:flex;margin-top:34px;color:#ffffff;font-size:70px;font-weight:700;line-height:1.05;">${name}</div>
-    <div style="display:flex;margin-top:14px;color:#f43f5e;font-size:28px;">Cause of death: ${cause}</div>
-    <div style="display:flex;margin-top:34px;color:#cbd5e1;font-size:34px;line-height:1.35;">${appraisal}</div>
-    <div style="display:flex;margin-top:auto;align-items:center;justify-content:space-between;">
+    <div style="display:flex;flex-direction:column;">
+      <div style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#ffffff;font-size:58px;font-weight:700;line-height:1.05;">${name}</div>
+      <div style="display:flex;margin-top:16px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
+      <div style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin-top:26px;color:#cbd5e1;font-size:31px;line-height:1.3;">${appraisal}</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
       <div style="display:flex;color:#f59e0b;font-size:26px;font-weight:700;">Glitch score ${score}/100</div>
     </div>
@@ -941,9 +943,9 @@ app.get("/api/og/:id", async (c) => {
     if (!text) text = dump.description || dump.causeOfDeath || "A project that did not make it.";
 
     const html = ogImageHtml(
-      esc(String(dump.name).slice(0, 70)),
-      esc(text.slice(0, 200)),
-      esc(String(dump.causeOfDeath || "Unknown").slice(0, 70)),
+      esc(String(dump.name).slice(0, 60)),
+      esc(text.slice(0, 150)),
+      esc(String(dump.causeOfDeath || "Unknown").slice(0, 60)),
       Number(dump.diagnosticScore) || 0
     );
     let fonts;
