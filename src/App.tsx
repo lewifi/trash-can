@@ -1647,36 +1647,6 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* SHARE */}
-                    <button
-                      onClick={() => shareGrave(selectedDump.id)}
-                      className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      {copiedShare ? "LINK COPIED \u2713" : "SHARE THIS GRAVE"}
-                    </button>
-
-                    {/* VOTE & MOURN ACTIONS */}
-                    <div className="grid grid-cols-2 gap-2 pt-2">
-                      <button
-                        onClick={() => handleAction(selectedDump.id, "like")}
-                        disabled={!!voted[selectedDump.id]?.like}
-                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.like ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white cursor-pointer"}`}
-                      >
-                        <Flame className={`w-4 h-4 ${voted[selectedDump.id]?.like ? "text-gray-600" : "text-red-400"}`} />
-                        {voted[selectedDump.id]?.like ? "MOURNED \u2713" : "MOURN (+1 VOTE)"}
-                      </button>
-
-                      <button
-                        onClick={() => handleAction(selectedDump.id, "flower")}
-                        disabled={!!voted[selectedDump.id]?.flower}
-                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.flower ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-pink-400 hover:text-pink-300 cursor-pointer"}`}
-                      >
-                        <Flower2 className={`w-4 h-4 ${voted[selectedDump.id]?.flower ? "text-gray-600" : ""}`} />
-                        {voted[selectedDump.id]?.flower ? `FLOWER LAID (${selectedDump.flowers})` : `LAY FLOWER (${selectedDump.flowers})`}
-                      </button>
-                    </div>
-
                     {/* AI LANDFILL APPRAISAL COMPONENT */}
                     <div className="border-t border-gray-900 pt-4 space-y-3">
                       <div className="space-y-2">
@@ -1758,6 +1728,36 @@ export default function App() {
                           Click <strong>RUN CRITIQUE</strong> above to command the Gemini Waste Chef to analyze this idea.
                         </div>
                       )}
+                    </div>
+
+                    {/* SHARE */}
+                    <button
+                      onClick={() => shareGrave(selectedDump.id)}
+                      className="w-full mb-2 py-2.5 bg-gray-900 hover:bg-gray-800 border border-cyan-500/30 hover:border-cyan-400 rounded-lg text-xs font-mono-tech font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      {copiedShare ? "LINK COPIED ✓" : "SHARE THIS GRAVE"}
+                    </button>
+
+                    {/* VOTE & MOURN ACTIONS */}
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <button
+                        onClick={() => handleAction(selectedDump.id, "like")}
+                        disabled={!!voted[selectedDump.id]?.like}
+                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.like ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-gray-300 hover:text-white cursor-pointer"}`}
+                      >
+                        <Flame className={`w-4 h-4 ${voted[selectedDump.id]?.like ? "text-gray-600" : "text-red-400"}`} />
+                        {voted[selectedDump.id]?.like ? "MOURNED ✓" : "MOURN (+1 VOTE)"}
+                      </button>
+
+                      <button
+                        onClick={() => handleAction(selectedDump.id, "flower")}
+                        disabled={!!voted[selectedDump.id]?.flower}
+                        className={`py-2.5 border rounded-lg text-xs font-mono-tech font-bold flex items-center justify-center gap-1.5 transition-colors ${voted[selectedDump.id]?.flower ? "bg-gray-900/40 border-gray-800 text-gray-600 cursor-not-allowed" : "bg-gray-900 hover:bg-gray-800 border-gray-800 text-pink-400 hover:text-pink-300 cursor-pointer"}`}
+                      >
+                        <Flower2 className={`w-4 h-4 ${voted[selectedDump.id]?.flower ? "text-gray-600" : ""}`} />
+                        {voted[selectedDump.id]?.flower ? `FLOWER LAID (${selectedDump.flowers})` : `LAY FLOWER (${selectedDump.flowers})`}
+                      </button>
                     </div>
 
                   </div>
