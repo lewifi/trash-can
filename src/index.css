@@ -183,3 +183,52 @@
   box-shadow: 0 18px 38px -10px rgba(0, 0, 0, 0.8), 0 0 20px -2px rgba(34, 211, 238, 0.45) !important;
   z-index: 10;
 }
+
+/* LED Marquee Ticker Styles */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+/* Sub-pixel dot matrix simulation overlay for LED look */
+.led-matrix-overlay {
+  background: radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+/* LED text glows for modern styling */
+.led-glow-emerald {
+  text-shadow: 0 0 5px rgba(52, 211, 153, 0.6), 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+.led-glow-sky {
+  text-shadow: 0 0 5px rgba(56, 189, 248, 0.6), 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.led-glow-cyan {
+  text-shadow: 0 0 5px rgba(34, 211, 238, 0.6), 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.led-glow-red {
+  text-shadow: 0 0 5px rgba(248, 113, 113, 0.6), 0 0 10px rgba(248, 113, 113, 0.3);
+}
+
+.led-glow-amber {
+  text-shadow: 0 0 5px rgba(245, 158, 11, 0.6), 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.led-glow-fuchsia {
+  text-shadow: 0 0 5px rgba(240, 119, 249, 0.6), 0 0 10px rgba(240, 119, 249, 0.3);
+}
+
+.led-glow-teal {
+  text-shadow: 0 0 5px rgba(45, 212, 191, 0.6), 0 0 10px rgba(45, 212, 191, 0.3);
+}

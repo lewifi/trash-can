@@ -85,30 +85,61 @@ export default function LiveTicker() {
   // like at least one soul got out.
   const escapedN = Math.max(1, escaped ?? 1);
 
+  const tickerContent = (
+    <>
+      <span className="flex items-center gap-1.5 text-emerald-400 font-mono-tech tracking-wider led-glow-emerald">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} MOURNERS THROUGH THE GATE
+      </span>
+      <span className="text-gray-800 font-mono-tech select-none">•</span>
+      {realRequests !== null && (
+        <>
+          <span className="text-sky-400 font-mono-tech tracking-wider led-glow-sky">
+            {fmt(realRequests)} REQUESTS SERVED{windowLabel && ` (${windowLabel})`}
+          </span>
+          <span className="text-gray-800 font-mono-tech select-none">•</span>
+        </>
+      )}
+      <span className="text-cyan-400 font-mono-tech tracking-wider led-glow-cyan">
+        {fmt(roasted)} ROASTED TODAY
+      </span>
+      <span className="text-gray-800 font-mono-tech select-none">•</span>
+      <span className="text-red-400 font-mono-tech tracking-wider led-glow-red">
+        {venting} SOULS VENTING NOW
+      </span>
+      <span className="text-gray-800 font-mono-tech select-none">•</span>
+      <span className="text-amber-400 font-mono-tech tracking-wider led-glow-amber">
+        🏆 {escapedN} {escapedN === 1 ? "HAS" : "HAVE"} ESCAPED THE HUNT
+      </span>
+      <span className="text-gray-800 font-mono-tech select-none">•</span>
+      <span className="text-fuchsia-400 font-mono-tech tracking-wider led-glow-fuchsia">
+        🗺️ A CLUE ADVENTURE IS HIDDEN SOMEWHERE…
+      </span>
+      <span className="text-gray-800 font-mono-tech select-none">•</span>
+      <span className="text-teal-400 font-mono-tech tracking-wider led-glow-teal">
+        🛠️ BUILT & UPDATED OBSESSIVELY — PEEK THE YARD NOTES
+      </span>
+    </>
+  );
+
   return (
-    <div className="border-b border-gray-900 bg-black/40">
-      <div className="max-w-7xl mx-auto flex items-center gap-3 px-4 py-2 overflow-x-auto no-scrollbar text-[11px] font-mono-tech text-gray-400 whitespace-nowrap">
-        <span className="flex items-center gap-1.5 text-emerald-300/90">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> {fmt(buried)} mourners through the gate
-        </span>
-        {realRequests !== null && (
-          <>
-            <span className="text-gray-700">•</span>
-            <span className="text-sky-400/80">
-              {fmt(realRequests)} requests served{windowLabel && ` (${windowLabel})`}
-            </span>
-          </>
-        )}
-        <span className="text-gray-700">•</span>
-        <span className="text-cyan-400/80">{fmt(roasted)} roasted today</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-red-400/80">{venting} souls venting now</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-amber-400/80">🏆 {escapedN} {escapedN === 1 ? "has" : "have"} escaped the hunt</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-fuchsia-400/70">🗺️ a clue adventure is hidden somewhere…</span>
-        <span className="text-gray-700">•</span>
-        <span className="text-teal-300/80">🛠️ built & updated obsessively — peek the Yard Notes</span>
+    <div className="relative border-y border-gray-950 bg-black/90 py-2.5 overflow-hidden select-none group w-full">
+      {/* LED dot matrix subpixel overlay */}
+      <div className="absolute inset-0 led-matrix-overlay pointer-events-none z-10 opacity-40" />
+      
+      {/* LED gloss reflection effect */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-white/10 pointer-events-none z-15" />
+      <div className="absolute inset-x-0 bottom-0 h-[1px] bg-white/5 pointer-events-none z-15" />
+
+      {/* Marquee tracks */}
+      <div className="flex w-full overflow-hidden whitespace-nowrap">
+        <div className="animate-marquee flex shrink-0 items-center gap-16 min-w-full pr-16 text-[11px] uppercase group-hover:[animation-play-state:paused] transition-all duration-300">
+          {tickerContent}
+          <span className="text-gray-800 font-mono-tech select-none">•</span>
+        </div>
+        <div className="animate-marquee flex shrink-0 items-center gap-16 min-w-full pr-16 text-[11px] uppercase group-hover:[animation-play-state:paused] transition-all duration-300" aria-hidden="true">
+          {tickerContent}
+          <span className="text-gray-800 font-mono-tech select-none">•</span>
+        </div>
       </div>
     </div>
   );
