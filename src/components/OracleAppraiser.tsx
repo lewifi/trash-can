@@ -6,6 +6,8 @@ import { AppraisalResult } from "../types";
 
 interface OracleAppraiserProps {
   onAddProjectDirectly: (newProject: any) => void;
+  autoplayAudio: boolean;
+  setAutoplayAudio: (val: boolean) => void;
 }
 
 const ROAST_PRESETS = [
@@ -16,7 +18,11 @@ const ROAST_PRESETS = [
   { label: "🚀 Seed-stage founder", category: "startup", good: "Raised a tidy seed round with real customers", embarrassing: "Calls a 4-person team 'the family' and is 'in stealth' on a to-do list app", fav: "their long-suffering cofounder" },
 ] as const;
 
-export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraiserProps) {
+export default function OracleAppraiser({
+  onAddProjectDirectly,
+  autoplayAudio,
+  setAutoplayAudio
+}: OracleAppraiserProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>("startup");
@@ -92,7 +98,9 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         recyclingPlan: data.recyclingPlan || "Sell keycaps and retire to a mountain."
       };
       setResult(resVal);
-      speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+      if (autoplayAudio) {
+        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+      }
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "An error occurred with the AI scanner.");
@@ -207,7 +215,9 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         recyclingPlan: data.recyclingPlan || "Lay low, then write a memoir.",
       };
       setResult(resVal);
-      speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+      if (autoplayAudio) {
+        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Exposé failed to print.");
     } finally {
@@ -317,7 +327,18 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
-              <p className="text-[10px] text-gray-500 mt-1">Sign it so they know the roast came from a mate.</p>
+              <div className="flex justify-between items-start mt-1">
+                <p className="text-[10px] text-gray-500">Sign it so they know the roast came from a mate.</p>
+                <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-mono-tech text-fuchsia-300 hover:text-fuchsia-200 select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoplayAudio}
+                    onChange={(e) => setAutoplayAudio(e.target.checked)}
+                    className="w-3.5 h-3.5 accent-fuchsia-500 rounded cursor-pointer"
+                  />
+                  <span>PLAYS AUDIO</span>
+                </label>
+              </div>
             </div>
             <button
               type="submit"
@@ -333,7 +354,6 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 <>
                   <Volume2 className="w-4 h-4 text-fuchsia-200" />
                   <span>Roast them</span>
-                  <span className="text-[10px] font-mono-tech font-normal normal-case text-fuchsia-200/80 ml-1">(PLAYS AUDIO)</span>
                 </>
               )}
             </button>
