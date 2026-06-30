@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { trackHunt } from "../lib/hunt";
 import { speakAppraisal, stopSpeaking } from "../lib/tts";
+import { TypewriterText } from "./TypewriterText";
 import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2, Volume2 } from "lucide-react";
 import { AppraisalResult } from "../types";
 
@@ -41,7 +42,16 @@ export default function OracleAppraiser({
   // Custom appraisal results
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AppraisalResult | null>(null);
+  const [step, setStep] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (result) {
+      setStep(1);
+    } else {
+      setStep(0);
+    }
+  }, [result]);
 
   // Advanced coordinates configuration
   const [latitude, setLatitude] = useState<number | "">("");
@@ -419,72 +429,102 @@ export default function OracleAppraiser({
                   <div className="flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 p-2.5 rounded">
                     <span className="font-mono-tech text-cyan-300 uppercase flex items-center gap-1.5">
                       Roast Rating:
-                      <button
-                        type="button"
-                        onClick={() => speakAppraisal(result.appraisal, result.postMortem, result.recyclingPlan)}
-                        title="Listen to Scrapyard Voice"
-                        className="p-1 hover:bg-cyan-900/40 rounded text-cyan-300 hover:text-white transition-colors cursor-pointer"
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                      </button>
+                      {step >= 4 && (
+                        <button
+                          type="button"
+                          onClick={() => speakAppraisal(result.appraisal, result.postMortem, result.recyclingPlan)}
+                          title="Listen to Scrapyard Voice"
+                          className="p-1 hover:bg-cyan-900/40 rounded text-cyan-300 hover:text-white transition-colors cursor-pointer animate-fade-in"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </span>
                     <span className="text-sm font-bold text-red-400 font-mono-tech">{Math.round(result.score)}/100</span>
                   </div>
 
-                  <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
-                    <span className="text-[10px] sm:text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
-                      The Verdict
-                    </span>
-                    <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-sm sm:text-[15px]">
-                      "{result.appraisal}"
-                    </p>
-                  </div>
+                  {step >= 1 && (
+                    <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
+                      <span className="text-[10px] sm:text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
+                        The Verdict
+                      </span>
+                      <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-[13px] sm:text-[14px]">
+                        "
+                        <TypewriterText
+                          text={result.appraisal}
+                          speed={8}
+                          onComplete={() => setStep(2)}
+                        />
+                        "
+                      </p>
+                    </div>
+                  )}
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] sm:text-xs font-mono-tech text-red-400 uppercase tracking-widest block">
-                      The Deep Cut
-                    </span>
-                    <p className="leading-relaxed text-gray-300 text-xs sm:text-[13px]">
-                      {result.postMortem}
-                    </p>
-                  </div>
+                  {step >= 2 && (
+                    <div className="space-y-1">
+                      <span className="text-[10px] sm:text-xs font-mono-tech text-red-400 uppercase tracking-widest block">
+                        The Deep Cut
+                      </span>
+                      <p className="leading-relaxed text-gray-300 text-[11px] sm:text-[12px]">
+                        <TypewriterText
+                          text={result.postMortem}
+                          speed={6}
+                          onComplete={() => {
+                            if (result.recyclingPlan) {
+                              setStep(3);
+                            } else {
+                              setStep(4);
+                            }
+                          }}
+                        />
+                      </p>
+                    </div>
+                  )}
 
-                  <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-200">
-                    <span className="text-[10px] sm:text-xs font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
-                      <Coins className="w-3.5 h-3.5" />
-                      Unsolicited Advice
-                    </span>
-                    <p className="leading-relaxed text-xs sm:text-[13px]">
-                      {result.recyclingPlan}
-                    </p>
-                  </div>
+                  {step >= 3 && result.recyclingPlan && (
+                    <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-200">
+                      <span className="text-[10px] sm:text-xs font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
+                        <Coins className="w-3.5 h-3.5" />
+                        Unsolicited Advice
+                      </span>
+                      <p className="leading-relaxed text-[11px] sm:text-[12px]">
+                        <TypewriterText
+                          text={result.recyclingPlan}
+                          speed={6}
+                          onComplete={() => setStep(4)}
+                        />
+                      </p>
+                    </div>
+                  )}
 
-                  <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
-                    <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">😈 Now pass it on: send it to <span className="text-fuchsia-300">{exposeFriend}</span> and dare them to roast someone too &mdash; the Oracle flips it straight onto THEM, exactly like it just did to you.</p>
-                    <button
-                      type="button"
-                      onClick={handleSaveAndShare}
-                      disabled={sharing}
-                      className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer disabled:opacity-60 shadow-[0_0_14px_rgba(217,70,239,0.4)]"
-                    >
-                      {sharing ? (
-                        <><span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Plating it…</>
-                      ) : shareUrl ? (
-                        <><Share2 className="w-3.5 h-3.5" /> Forward to {exposeFriend} again</>
-                      ) : (
-                        <><Share2 className="w-3.5 h-3.5" /> Send it to {exposeFriend}</>
-                      )}
-                    </button>
-                    <p className="text-[10px] text-gray-500 leading-relaxed">Makes a share card and opens your share sheet &mdash; pick {exposeFriend} and send. The link &amp; card appear below too.</p>
-                  </div>
+                  {step >= 4 && (
+                    <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2 animate-fade-in">
+                      <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">😈 Now pass it on: send it to <span className="text-fuchsia-300">{exposeFriend}</span> and dare them to roast someone too &mdash; the Oracle flips it straight onto THEM, exactly like it just did to you.</p>
+                      <button
+                        type="button"
+                        onClick={handleSaveAndShare}
+                        disabled={sharing}
+                        className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer disabled:opacity-60 shadow-[0_0_14px_rgba(217,70,239,0.4)]"
+                      >
+                        {sharing ? (
+                          <><span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Plating it…</>
+                        ) : shareUrl ? (
+                          <><Share2 className="w-3.5 h-3.5" /> Forward to {exposeFriend} again</>
+                        ) : (
+                          <><Share2 className="w-3.5 h-3.5" /> Send it to {exposeFriend}</>
+                        )}
+                      </button>
+                      <p className="text-[10px] text-gray-500 leading-relaxed">Makes a share card and opens your share sheet &mdash; pick {exposeFriend} and send. The link &amp; card appear below too.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {result && (
-              <div className="mt-6 pt-3 border-t border-cyan-500/10 space-y-2">
+            {result && step >= 4 && (
+              <div className="mt-6 pt-3 border-t border-cyan-500/10 space-y-2 animate-fade-in">
                 <div
                   id="next-clue"
                   className={`rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border p-3 text-center space-y-2 transition-all duration-300 ${highlightClue ? "border-fuchsia-400 ring-2 ring-fuchsia-400/70 shadow-[0_0_22px_rgba(217,70,239,0.55)] scale-[1.02]" : "border-fuchsia-500/30"}`}

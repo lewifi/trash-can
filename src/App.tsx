@@ -10,6 +10,7 @@ import GhostRating from "./components/GhostRating";
 import LiveTicker from "./components/LiveTicker";
 import { trackHunt } from "./lib/hunt";
 import { speakAppraisal, stopSpeaking } from "./lib/tts";
+import { TypewriterText } from "./components/TypewriterText";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
@@ -386,6 +387,7 @@ export default function App() {
 
   // AI Appraisal panel states (Independent submission or clicking audit)
   const [appraiseLoading, setAppraiseLoading] = useState(false);
+  const [appraiseStep, setAppraiseStep] = useState(0);
   const [appraiseResult, setAppraiseResult] = useState<{
     score?: number;
     appraisal?: string;
@@ -393,6 +395,14 @@ export default function App() {
     recyclingPlan?: string;
     error?: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (appraiseResult && !appraiseResult.error) {
+      setAppraiseStep(1);
+    } else {
+      setAppraiseStep(0);
+    }
+  }, [appraiseResult]);
 
   // Drag and drop image states
   const [isDragging, setIsDragging] = useState(false);
@@ -1752,32 +1762,60 @@ export default function App() {
                               <div className="flex justify-between items-center border-b border-purple-950/60 pb-2">
                                 <span className="text-[10px] font-mono-tech text-purple-400 flex items-center gap-1.5">
                                   TRAGIC GLITCH RATING:
-                                  <button
-                                    type="button"
-                                    onClick={() => speakAppraisal(appraiseResult.appraisal!, appraiseResult.postMortem!, appraiseResult.recyclingPlan)}
-                                    title="Listen to Scrapyard Voice"
-                                    className="p-1 hover:bg-purple-900/40 rounded text-purple-300 hover:text-white transition-colors cursor-pointer"
-                                  >
-                                    <Volume2 className="w-3.5 h-3.5" />
-                                  </button>
+                                  {appraiseStep >= 4 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => speakAppraisal(appraiseResult.appraisal!, appraiseResult.postMortem!, appraiseResult.recyclingPlan)}
+                                      title="Listen to Scrapyard Voice"
+                                      className="p-1 hover:bg-purple-900/40 rounded text-purple-300 hover:text-white transition-colors cursor-pointer animate-fade-in"
+                                    >
+                                      <Volume2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
                                 </span>
                                 <span className="text-xs font-mono-tech text-red-400 font-extrabold bg-red-450/20 px-2 py-0.5 rounded">
                                   {appraiseResult.score}/100
                                 </span>
                               </div>
-                              <p className="text-[13px] italic text-gray-200 font-medium leading-relaxed">
-                                "{appraiseResult.appraisal}"
-                              </p>
-                              <div className="text-xs sm:text-[13px] text-gray-300 border-l border-purple-500/30 pl-2 leading-relaxed">
-                                <strong className="text-purple-300">Cause Analysis:</strong> {appraiseResult.postMortem}
-                              </div>
-                              {appraiseResult.recyclingPlan && (
-                                <div className="text-xs sm:text-[13px] bg-cyan-950/20 text-cyan-200 p-2.5 rounded-lg border border-cyan-900/30">
-                                  💡 <strong className="text-cyan-200">Suggested Code Pivot:</strong> {appraiseResult.recyclingPlan}
+                              {appraiseStep >= 1 && (
+                                <p className="text-[12px] italic text-gray-200 font-medium leading-relaxed">
+                                  "
+                                  <TypewriterText
+                                    text={appraiseResult.appraisal!}
+                                    speed={8}
+                                    onComplete={() => setAppraiseStep(2)}
+                                  />
+                                  "
+                                </p>
+                              )}
+                              {appraiseStep >= 2 && (
+                                <div className="text-[11px] sm:text-[12px] text-gray-300 border-l border-purple-500/30 pl-2 leading-relaxed">
+                                  <strong className="text-purple-300">Cause Analysis:</strong>{" "}
+                                  <TypewriterText
+                                    text={appraiseResult.postMortem!}
+                                    speed={6}
+                                    onComplete={() => {
+                                      if (appraiseResult.recyclingPlan) {
+                                        setAppraiseStep(3);
+                                      } else {
+                                        setAppraiseStep(4);
+                                      }
+                                    }}
+                                  />
                                 </div>
                               )}
-                              {selectedDump.id !== "hist-cloudflare" && (
-                                <p className="text-[10px] text-fuchsia-300/80 font-mono-tech leading-relaxed border-t border-fuchsia-500/15 pt-2">
+                              {appraiseStep >= 3 && appraiseResult.recyclingPlan && (
+                                <div className="text-[11px] sm:text-[12px] bg-cyan-950/20 text-cyan-200 p-2.5 rounded-lg border border-cyan-900/30">
+                                  💡 <strong className="text-cyan-200">Suggested Code Pivot:</strong>{" "}
+                                  <TypewriterText
+                                    text={appraiseResult.recyclingPlan}
+                                    speed={6}
+                                    onComplete={() => setAppraiseStep(4)}
+                                  />
+                                </div>
+                              )}
+                              {appraiseStep >= 4 && selectedDump.id !== "hist-cloudflare" && (
+                                <p className="text-[10px] text-fuchsia-300/80 font-mono-tech leading-relaxed border-t border-fuchsia-500/15 pt-2 animate-fade-in">
                                   🗺️ New here? There's more buried in this place — the <strong className="text-fuchsia-200">Roast Oracle</strong> out front will torch anyone you name, and a hidden clue adventure runs through these graves.
                                 </p>
                               )}
@@ -1791,7 +1829,7 @@ export default function App() {
                             <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
                             <GhostRating score={selectedDump.diagnosticScore || 85} size={18} />
                           </div>
-                          <p className="text-xs sm:text-[13px] text-gray-200 leading-relaxed italic">
+                          <p className="text-[11px] sm:text-[12px] text-gray-200 leading-relaxed italic">
                             "{selectedDump.aiAppraisal}"
                           </p>
                           <p className="text-[10px] text-purple-400 font-mono-tech">
