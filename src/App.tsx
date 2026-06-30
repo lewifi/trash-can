@@ -235,6 +235,35 @@ export default function App() {
     } catch {}
   }, [autoplayAudio]);
 
+  const [showSecretRoom, setShowSecretRoom] = useState(false);
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const anchor = target.closest("a");
+        if (anchor && anchor.getAttribute("href") === "/secretroom") {
+          e.preventDefault();
+          try { localStorage.setItem("hg_world_unlocked", "1"); } catch {}
+          setShowSecretRoom(true);
+        }
+      }
+    };
+    
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data === "close-secretroom") {
+        setShowSecretRoom(false);
+      }
+    };
+
+    document.addEventListener("click", handleGlobalClick);
+    window.addEventListener("message", handleMessage);
+    return () => {
+      document.removeEventListener("click", handleGlobalClick);
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
   const [dumps, setDumps] = useState<DeadProject[]>([]);
   const [filteredDumps, setFilteredDumps] = useState<DeadProject[]>([]);
   const [selectedDump, setSelectedDump] = useState<DeadProject | null>(null);
@@ -2167,6 +2196,21 @@ export default function App() {
         </p>
       </footer>
 
+      {showSecretRoom && (
+        <iframe
+          src="/secretroom"
+          title="Secret Room"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            border: "none",
+            zIndex: 99999,
+          }}
+        />
+      )}
     </div>
   );
 }
