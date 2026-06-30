@@ -50,11 +50,13 @@ export default function RoastPage() {
     return () => window.clearTimeout(t);
   }, []);
 
+  // On the shared card the welcome only TEASES — closing it reveals the roast their
+  // mate got. The card's own featured "Let's go roast someone" button sends them off
+  // after, so the modal never yanks them away from the thing they came to see.
   const dismissWelcome = () => {
     setShowWelcome(false);
     try { localStorage.setItem("rg_welcome_seen", "1"); } catch {}
   };
-  const welcomeRoast = () => { dismissWelcome(); window.location.href = "/roastoracle"; };
 
   const copyLink = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -237,7 +239,14 @@ export default function RoastPage() {
         </div>
       )}
 
-      {showWelcome && <WelcomeModal onRoast={welcomeRoast} onExplore={dismissWelcome} />}
+      {showWelcome && (
+        <WelcomeModal
+          onRoast={dismissWelcome}
+          onExplore={dismissWelcome}
+          primaryLabel="See the roast →"
+          hideSecondary
+        />
+      )}
     </div>
   );
 }

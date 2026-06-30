@@ -11,9 +11,15 @@ import { Star, Compass, X, Sparkles } from "lucide-react";
 export default function WelcomeModal({
   onRoast,
   onExplore,
+  primaryLabel = "Roast someone",
+  hideSecondary = false,
 }: {
   onRoast: () => void;
   onExplore: () => void;
+  /** Label for the primary button (e.g. "See the roast →" on a shared card). */
+  primaryLabel?: string;
+  /** Hide the "wander the graveyard" secondary button (e.g. on the roast card). */
+  hideSecondary?: boolean;
 }) {
   // Fade the dim layer in on mount, and out briefly before the parent unmounts us.
   const [shown, setShown] = useState(false);
@@ -60,31 +66,49 @@ export default function WelcomeModal({
           onClick={() => close(onRoast)}
           className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-mono-tech text-sm font-bold uppercase tracking-wider text-black bg-gradient-to-r from-fuchsia-400 to-amber-300 shadow-[0_0_24px_rgba(217,70,239,0.5)] hover:brightness-110 transition"
         >
-          <Star className="w-4 h-4" /> Roast someone
+          <Star className="w-4 h-4" /> {primaryLabel}
         </button>
-        <button
-          onClick={() => close(onExplore)}
-          className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 mt-2 font-mono-tech text-xs uppercase tracking-wider text-gray-300 border border-gray-700 hover:bg-gray-900 hover:text-gray-100 transition"
-        >
-          <Compass className="w-4 h-4" /> Just wander the graveyard
-        </button>
+        {!hideSecondary && (
+          <button
+            onClick={() => close(onExplore)}
+            className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 mt-2 font-mono-tech text-xs uppercase tracking-wider text-gray-300 border border-gray-700 hover:bg-gray-900 hover:text-gray-100 transition"
+          >
+            <Compass className="w-4 h-4" /> Just wander the graveyard
+          </button>
+        )}
 
         {/* Mystery teaser: a blurred glimpse of the secret world + an obscured clue */}
         <div className="mt-5 pt-4 border-t border-gray-800">
           <div className="relative h-24 rounded-xl overflow-hidden border border-fuchsia-500/25">
-            {/* blurred neon "world" — evokes the secret WebGL graveyard without spoiling it */}
-            <div
-              className="absolute inset-0 scale-110"
-              style={{
-                filter: "blur(4px)",
-                background:
-                  "radial-gradient(circle at 22% 38%, #ff3df0 0, transparent 46%)," +
-                  "radial-gradient(circle at 78% 62%, #3df0ff 0, transparent 46%)," +
-                  "radial-gradient(circle at 55% 28%, #ffd23d 0, transparent 40%)," +
-                  "radial-gradient(circle at 40% 80%, #7dff8a 0, transparent 42%)," +
-                  "linear-gradient(#0b0616, #1a0b2e)",
-              }}
-            />
+            {/* Stylised glimpse of the secret world: neon sky, mountains and floating
+                squares — deliberately NO creatures or gravestones, so the spooky payoff
+                stays a surprise. Blurred to keep it a tease. */}
+            <svg
+              viewBox="0 0 200 96"
+              preserveAspectRatio="xMidYMid slice"
+              className="absolute inset-0 w-full h-full scale-110"
+              style={{ filter: "blur(4px)" }}
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="ws-sky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#0b1233" />
+                  <stop offset="0.62" stopColor="#2a1747" />
+                  <stop offset="1" stopColor="#e0602e" />
+                </linearGradient>
+              </defs>
+              <rect width="200" height="96" fill="url(#ws-sky)" />
+              {/* low sun glow near the horizon */}
+              <circle cx="150" cy="72" r="30" fill="#ffd23d" opacity="0.45" />
+              {/* far mountain range */}
+              <polygon points="0,74 40,46 80,70 120,40 160,66 200,44 200,96 0,96" fill="#1a1140" opacity="0.85" />
+              {/* near mountain range */}
+              <polygon points="0,84 30,64 70,84 110,60 150,82 200,62 200,96 0,96" fill="#0c0820" />
+              {/* floating squares (the "echoes") — no ghouls, no stones */}
+              <rect x="30" y="22" width="12" height="12" fill="#3df0ff" opacity="0.85" transform="rotate(45 36 28)" />
+              <rect x="92" y="13" width="10" height="10" fill="#ff3df0" opacity="0.85" transform="rotate(45 97 18)" />
+              <rect x="141" y="30" width="9" height="9" fill="#7dff8a" opacity="0.8" transform="rotate(45 145 34)" />
+            </svg>
             {/* faint neon floor grid, also blurred */}
             <div
               className="absolute inset-0"
