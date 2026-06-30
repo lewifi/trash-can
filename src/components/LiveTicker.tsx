@@ -122,7 +122,7 @@ export default function LiveTicker() {
   );
 
   return (
-    <div className="relative border-y border-gray-950 bg-black/90 py-2.5 overflow-hidden select-none group w-full">
+    <div className="relative border-y border-gray-950 bg-black/90 py-2.5 overflow-hidden select-none group w-full animate-subtle-flicker">
       {/* LED dot matrix subpixel overlay */}
       <div className="absolute inset-0 led-matrix-overlay pointer-events-none z-10 opacity-40" />
       

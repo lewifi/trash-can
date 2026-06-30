@@ -830,7 +830,7 @@ export default function App() {
                   key={id}
                   onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); }}
                   style={{
-                    animation: `flicker ${duration} linear infinite`,
+                    animation: `subtle-flicker ${duration} linear infinite`,
                     animationDelay: delay
                   }}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border ${
@@ -850,7 +850,7 @@ export default function App() {
               href="/incinerator"
               title="Incinerator (admin)"
               style={{
-                animation: `flicker 2.80s linear infinite`,
+                animation: `subtle-flicker 2.80s linear infinite`,
                 animationDelay: "0.65s"
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border border-red-500/30 text-red-400 hover:bg-red-950/30 hover:text-red-300"
@@ -882,7 +882,7 @@ export default function App() {
                   key={id}
                   onClick={() => { navTab(id as TabId); if (id === "dump") setSelectedDump(null); setMobileNavOpen(false); }}
                   style={{
-                    animation: `flicker ${duration} linear infinite`,
+                    animation: `subtle-flicker ${duration} linear infinite`,
                     animationDelay: delay
                   }}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm transition-all border ${
@@ -902,7 +902,7 @@ export default function App() {
             <a
               href="/incinerator"
               style={{
-                animation: `flicker 2.80s linear infinite`,
+                animation: `subtle-flicker 2.80s linear infinite`,
                 animationDelay: "0.65s"
               }}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono-tech text-sm text-red-400 border border-red-500/30 hover:bg-red-950/30 transition-all"
