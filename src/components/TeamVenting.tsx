@@ -208,7 +208,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                 <span>Enter public vent room</span>
               </button>
             </div>
-            
+
             {errorMsg && (
               <p className="text-xs text-red-400 font-mono-tech bg-red-950/20 p-2 border border-red-500/20 rounded animate-shake">
                 ⚠️ {errorMsg}
@@ -304,7 +304,7 @@ export default function TeamVenting({ onAddProjectDirectly }: TeamVentingProps) 
                       <a
                         href="/secretroom"
                         rel="noreferrer"
-                        onClick={(e) => { e.preventDefault(); try { localStorage.setItem("hg_world_unlocked", "1"); } catch {} }}
+                        onClick={(e) => { e.preventDefault(); try { localStorage.setItem("hg_world_unlocked", "1"); } catch { } }}
                         className="mt-3 flex items-center justify-center gap-2 w-full bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-black font-extrabold uppercase tracking-wider text-xs sm:text-sm py-3 px-4 rounded-lg transition shadow-[0_0_18px_rgba(245,200,60,0.45)]"
                       >
                         Enter the buried world →
