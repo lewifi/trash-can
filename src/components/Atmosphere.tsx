@@ -7,26 +7,26 @@
 const VPX = 500;
 const VPY = 300;
 
-// Floor lines receding to the vanishing point.
+// Floor lines receding to the vanishing point. Foreground lifted by 5% (700 -> 665)
 const verticals = Array.from({ length: 13 }, (_, i) => {
   const x = i * (1000 / 12);
-  return `M${x},700 L${VPX},${VPY}`;
+  return `M${x},665 L${VPX},${VPY}`;
 });
 // Perspective "depth" rails between the two outer floor lines.
 const depthRails = [0.18, 0.34, 0.5, 0.66, 0.82].map((f) => {
   const lx = 0 + (VPX - 0) * f;
   const rx = 1000 + (VPX - 1000) * f;
-  const y = 700 + (VPY - 700) * f;
+  const y = 665 + (VPY - 665) * f;
   return `M${lx},${y} L${rx},${y}`;
 });
 
 // Outlines of the side and back walls in perspective
 const roomEdges = [
   "M0,0 L240,150",
-  "M0,700 L240,560",
+  "M0,665 L240,560",
   "M240,150 L240,560",
   "M1000,0 L760,150",
-  "M1000,700 L760,560",
+  "M1000,665 L760,560",
   "M760,150 L760,560",
   "M240,150 L760,150",
   "M240,560 L760,560"
@@ -75,8 +75,8 @@ export default function Atmosphere() {
         preserveAspectRatio="xMidYMax slice"
       >
         {/* angled side walls */}
-        <polygon points="0,0 0,700 240,560 240,150" fill="rgba(217,70,239,0.08)" />
-        <polygon points="1000,0 1000,700 760,560 760,150" fill="rgba(34,211,238,0.08)" />
+        <polygon points="0,0 0,665 240,560 240,150" fill="rgba(217,70,239,0.08)" />
+        <polygon points="1000,0 1000,665 760,560 760,150" fill="rgba(34,211,238,0.08)" />
         {/* back wall panel */}
         <rect x="240" y="150" width="520" height="410" fill="rgba(148,163,184,0.045)" />
         {/* floor perspective */}
