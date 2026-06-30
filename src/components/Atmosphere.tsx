@@ -20,13 +20,39 @@ const depthRails = [0.18, 0.34, 0.5, 0.66, 0.82].map((f) => {
   return `M${lx},${y} L${rx},${y}`;
 });
 
-const MIST = [
-  { left: "8%", size: 120, delay: "0s", dur: "16s" },
-  { left: "26%", size: 90, delay: "4s", dur: "20s" },
-  { left: "47%", size: 150, delay: "8s", dur: "17s" },
-  { left: "68%", size: 100, delay: "2s", dur: "22s" },
-  { left: "86%", size: 130, delay: "11s", dur: "18s" },
+const PerspColors = [
+  { stroke: "rgba(34,211,238,0.22)", shadow: "rgba(34,211,238,0.2)" },    // Cyan
+  { stroke: "rgba(217,70,239,0.20)", shadow: "rgba(217,70,239,0.18)" },  // Fuchsia
+  { stroke: "rgba(52,211,153,0.18)", shadow: "rgba(52,211,153,0.15)" },   // Emerald
+  { stroke: "rgba(245,158,11,0.18)", shadow: "rgba(245,158,11,0.15)" },   // Amber
+  { stroke: "rgba(56,189,248,0.20)", shadow: "rgba(56,189,248,0.18)" },  // Sky
+  { stroke: "rgba(248,113,113,0.20)", shadow: "rgba(248,113,113,0.18)" }, // Red/Rose
 ];
+
+const getLineStyle = (idx: number, isVertical: boolean) => {
+  const seed = idx + (isVertical ? 5 : 12);
+  const colorIndex = seed % PerspColors.length;
+  const color = PerspColors[colorIndex];
+  
+  const duration = `${(3.0 + (seed * 1.13) % 4.5).toFixed(2)}s`;
+  const delay = `${((seed * 1.47) % 3.5).toFixed(2)}s`;
+  
+  return {
+    stroke: color.stroke,
+    filter: `drop-shadow(0 0 3px ${color.shadow})`,
+    animation: `subtle-flicker ${duration} linear infinite`,
+    animationDelay: delay,
+  };
+};
+
+const DUST_PARTICLES = Array.from({ length: 30 }, (_, i) => {
+  const left = `${((i * 17) % 95) + 2.5}%`; // Distributed horizontally
+  const size = `${((i * 7) % 5) + 3}px`;      // 3px to 7px
+  const delay = `${((i * 1.3) % 15).toFixed(1)}s`;
+  const duration = `${(((i * 2.7) % 10) + 12).toFixed(1)}s`;
+  const animationName = i % 2 === 0 ? "dust-float" : "dust-float-alt";
+  return { left, size, delay, duration, animationName };
+});
 
 export default function Atmosphere() {
   return (
@@ -42,21 +68,30 @@ export default function Atmosphere() {
         {/* back wall panel */}
         <rect x="240" y="150" width="520" height="410" fill="rgba(148,163,184,0.045)" />
         {/* floor perspective */}
-        <g stroke="rgba(34,211,238,0.16)" strokeWidth="1" fill="none">
+        <g strokeWidth="1" fill="none">
           {verticals.map((d, i) => (
-            <path key={`v${i}`} d={d} />
+            <path key={`v${i}`} d={d} style={getLineStyle(i, true)} />
           ))}
           {depthRails.map((d, i) => (
-            <path key={`r${i}`} d={d} stroke="rgba(217,70,239,0.14)" />
+            <path key={`r${i}`} d={d} style={getLineStyle(i, false)} />
           ))}
         </g>
       </svg>
 
-      {MIST.map((m, i) => (
+      {DUST_PARTICLES.map((d, i) => (
         <div
           key={i}
-          className="mist-particle"
-          style={{ left: m.left, width: m.size, height: m.size, animationDelay: m.delay, animationDuration: m.dur }}
+          className="dust-particle"
+          style={{
+            left: d.left,
+            width: d.size,
+            height: d.size,
+            animationName: d.animationName,
+            animationDuration: d.duration,
+            animationDelay: d.delay,
+            animationTimingFunction: "linear",
+            animationIterationCount: "infinite"
+          }}
         />
       ))}
     </div>
