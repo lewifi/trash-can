@@ -128,20 +128,58 @@
   }
 }
 
-/* Spooky rising mist (background atmosphere) */
-@keyframes mist-rise {
-  0%   { transform: translateY(40px) scale(0.9); opacity: 0; }
-  20%  { opacity: 0.75; }
-  100% { transform: translateY(-180px) scale(1.6); opacity: 0; }
+/* Spooky rising dust motes (background atmosphere) */
+@keyframes dust-float {
+  0% {
+    transform: translateY(110vh) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(50vh) translateX(25px) scale(1.1);
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(-15px) scale(0.8);
+    opacity: 0;
+  }
 }
-.mist-particle {
+
+@keyframes dust-float-alt {
+  0% {
+    transform: translateY(110vh) translateX(0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(45vh) translateX(-35px) scale(0.8);
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(20px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.dust-particle {
   position: absolute;
-  bottom: -60px;
+  bottom: -20px;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(56,189,248,0.22), rgba(217,70,239,0.13) 45%, transparent 70%);
-  filter: blur(22px);
-  animation: mist-rise linear infinite;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(34, 211, 238, 0.45) 45%, rgba(217, 70, 239, 0.15) 85%, transparent 100%);
+  box-shadow: 0 0 6px rgba(34, 211, 238, 0.6), 0 0 12px rgba(217, 70, 239, 0.3);
+  filter: blur(0.5px);
   will-change: transform, opacity;
+  pointer-events: none;
 }
 
 /* Gradient top edge (curves with the box corners) for a sense of depth.
