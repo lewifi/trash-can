@@ -141,8 +141,8 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       // Pop the OS share sheet straight away — the link unfurls into the roast's OG card.
       if (navigator.share) {
         const text = exposeFriend
-          ? `${exposeFriend}, you've been roasted 🔥 — open it and roast me back.`
-          : `${name || "Someone"} just got roasted 🔥`;
+          ? `Ha — the Roast Oracle got me 😈 Your turn, ${exposeFriend}: go roast someone.`
+          : `Your turn on the Roast Oracle 😈 — go roast someone.`;
         try { await navigator.share({ title: "Roast Graveyard", text, url }); } catch { /* cancelled / unsupported */ }
       }
     } catch (e) {
@@ -267,7 +267,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4 depth-top">
             {revengeTarget && (
               <p className="text-xs text-amber-200 leading-relaxed bg-amber-950/20 border border-amber-500/30 rounded px-2.5 py-2 font-mono-tech">
-                🔥 Revenge time &mdash; <span className="font-bold text-amber-300">{revengeTarget}</span> roasted you first. Sign your name and roast them right back.
+                😈 You've been dared. We've teed up <span className="font-bold text-amber-300">{revengeTarget}</span> &mdash; but roast anyone you like. Sign your name and let the Oracle cook.
               </p>
             )}
             <p className="text-xs text-gray-400 leading-relaxed">
@@ -402,7 +402,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
                     <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
                     <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Now flip it: forward the card to <span className="text-fuchsia-300">{exposeFriend}</span> and they can roast you right back.</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">😈 Now pass it on: send it to <span className="text-fuchsia-300">{exposeFriend}</span> and dare them to roast someone too &mdash; the Oracle flips it straight onto THEM, exactly like it just did to you.</p>
                     <button
                       type="button"
                       onClick={handleSaveAndShare}

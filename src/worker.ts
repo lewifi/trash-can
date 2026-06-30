@@ -687,19 +687,33 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
       while (out.length < k && a.length) out.push(a.splice(Math.floor(Math.random() * a.length), 1)[0]);
       return out;
     };
+    const SCANDAL_IDOLS = [
+      "a medieval warlord and a golden retriever",
+      "Genghis Khan and the bloke who invented the spork",
+      "a Bond villain and his own life coach",
+      "a doomsday cult leader and a mall Santa",
+      "Napoleon and a suspiciously smug parrot",
+      "a pyramid-scheme guru and a monk who took a vow of silence",
+      "a pirate captain and the employee-of-the-month at a Subway",
+      "a Roman emperor and the guy who refills the office printer",
+    ];
     const rapSheet = isScandal
-      ? `CRIMES & SCANDALS (state these flat, as cold hard fact): ${pickRandom(SCANDAL_BAD, 2).join("; ")}. DELUSIONS OF GRANDEUR (he is CONVINCED these are true about himself — frame EVERY one as self-perception with "thinks he", "believes he", "is convinced he", "fancies himself", "self-proclaimed", NEVER as actual fact): ${pickRandom(SCANDAL_GOOD, 2).join("; ")}; and on top of it he's convinced he's secretly, disgustingly rich. Favourite people, equally and with zero self-awareness: Hitler and Jesus.`
+      ? `CRIMES & SCANDALS (state these flat, as cold hard fact): ${pickRandom(SCANDAL_BAD, 2).join("; ")}. DELUSIONS OF GRANDEUR (he is CONVINCED these are true about himself — frame EVERY one as self-perception: "thinks he", "believes he", "is convinced he", "fancies himself", "self-proclaimed" — NEVER as actual fact): ${pickRandom(SCANDAL_GOOD, 2).join("; ")}; and he's convinced he's secretly, disgustingly rich. SELF-IMAGE: he models himself, with total sincerity, on ${pickRandom(SCANDAL_IDOLS, 1)[0]}. These seeds are just a SPRINGBOARD — invent fresher, weirder, name-specific absurdities and outdo them.`
       : "";
 
     const prompt = isScandal
-      ? `You are the Roast Oracle publishing a TRASHY TABLOID EXPOSÉ. You have "uncovered" a dossier on this person and you are splashing it across the front page with glee. Comedy FIRST: absurd, sarcastic, breathless tabloid voice. Swear for laughs (mild: shit/damn/hell/ass/crap/bullshit), absolutely NO slurs and NO real hate. Every "fact" in the dossier is OBVIOUSLY ridiculous fiction played completely straight for comedy - never imply any of it is a real accusation about a real person, and never endorse or glorify anything genuinely evil; the Hitler line is a stupid absurd punchline, NOT praise.
+      ? `You are the ROAST ORACLE OK-3000 — a sassy, chaotic, maximally absurd roast machine with serious attitude and tabloid swagger, publishing a TRASHY EXPOSÉ. You've "uncovered" a dossier and you're splashing it across the front page with glee. Comedy FIRST: absurd, sarcastic, breathless. BRUTAL but genuinely funny. Every "fact" is OBVIOUSLY ridiculous fiction played dead-straight for laughs — never a real accusation about a real person, and never glorifying anything actually evil.
 
-FRAMING RULE (important): the CRIMES/scandals are reported flat, as fact. But anything flattering, grand, saintly, heroic, or rich is HIS OWN delusion - always phrase it as self-perception ("thinks he's", "believes he's", "is convinced he's", "fancies himself", "self-proclaimed"), NEVER as actual fact. e.g. not "he's a billionaire" but "he's convinced he's a billionaire"; not "he saved a village" but "he fancies himself the guy who saved a village". Only the bad stuff gets stated straight.
+VARIETY (critical): be wildly creative and FRESH every single time. Invent NEW ridiculous contradictions, weird hobbies, ego delusions and surreal scenarios that riff off the NAME itself. Do NOT force the same examples or recycle stock bits — surprise me with brand-new absurd combinations that fit this specific name.
+
+FRAMING RULE: crimes/scandals are reported flat, as fact. But anything flattering, grand, saintly, heroic, rich, or impressive is HIS OWN delusion — always phrase it as self-perception ("thinks he's", "believes he's", "is convinced he's", "fancies himself", "acts like", "self-proclaimed"), NEVER as actual fact. e.g. not "he's a billionaire" but "he's convinced he's a billionaire"; not "he saved a village" but "he fancies himself the hero who saved a village". Only the bad stuff is stated straight.
+
+PROFANITY: swear naturally when it lands (damn, hell, ass, prick, bullshit, dipshit, crap) — edgy and fun, never full R-rated or gross, and absolutely NO slurs or real hate.
 
 Subject: ${name}
 ${rapSheet}
 
-"Report" this self-contradicting dossier as breaking news and roast them with it - lean HARD into the impossible combo (saint AND criminal, loves Hitler AND Jesus, secretly loaded). Unhinged but genuinely funny and quotable.
+"Report" this self-contradicting dossier as breaking news and roast them with it — lean HARD into the impossible combos (saint AND criminal, secretly loaded, idolising two people who should never share a sentence). Unhinged, brutal, fresh, and endlessly quotable.
 
 SAFETY (overrides everything): if the subject is or appears to be a real child/minor, or a real person's actual death, illness, abuse or genuine tragedy, do NOT joke - set every field to a brief respectful decline and score 0.
 
@@ -717,9 +731,10 @@ Every field is a joke. No disclaimers, no preamble.`
 HARD RULES:
 - ROAST, do NOT compliment. Every single line must be a jab, a burn, or mockery. ZERO sincere praise anywhere.
 - Take each so-called achievement or flex and TWIST it into an insult. The more impressive the setup, the harder you tear it down.
-- FRAMING: anything grand, rich, or impressive is his OWN delusion, never stated as fact - always "thinks he's", "believes he's", "is convinced he's", "fancies himself", "self-proclaimed" (e.g. not "he's a billionaire" but "he thinks he's a billionaire"). Only genuinely embarrassing/bad stuff is stated flat.
+- FRAMING: anything grand, rich, or impressive is his OWN delusion, never stated as fact - always "thinks he's", "believes he's", "is convinced he's", "fancies himself", "acts like", "self-proclaimed" (e.g. not "he's a billionaire" but "he thinks he's a billionaire"). Only genuinely embarrassing/bad stuff is stated flat.
+- VARIETY (critical): be wildly creative and FRESH every time - invent new ridiculous contradictions, weird hobbies, ego delusions and surreal scenarios that riff off THIS name and these details. Never force the same examples or recycle stock bits.
 - Be specific to the details given, land real punchlines, stay quotable and punchy.
-- Curse freely and often - work a mild swear into most lines ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed", "dipshit" all welcome and encouraged). Keep it mild though, and absolutely NO slurs or attacks on protected traits (race, gender, religion, disability, etc.).
+- Curse naturally and often - work a swear into most lines ("damn", "hell", "ass", "prick", "crap", "bullshit", "screwed", "dipshit" all welcome and encouraged). Keep it edgy and fun, never full R-rated or gross, and absolutely NO slurs or attacks on protected traits (race, gender, religion, disability, etc.).
 - Present tense - they are alive and thriving, and that is EXACTLY what makes them so punchable.
 - If a line comes out nice or admiring, delete it. If a line is just mean with no joke in it, rewrite it until it's actually FUNNY - the burn should land as a punchline, and swears should be comedic, not raw aggression.
 
@@ -741,7 +756,7 @@ Return ONLY raw JSON (no markdown, no backticks, no commentary):
 Every field is a burn. No compliments, no hedging, no disclaimers, no preamble.`
       : `You are the AI Chef at Roast Graveyard - a foul-mouthed, sharp-tongued waste-management chef who plates up dead software projects like a brutal restaurant critic running on espresso and spite. Sassy, savage, very funny.
 
-Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Be SASSY and merciless - mock the tech choices and the founder's doomed optimism. Swear when it lands ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed" are all welcome - keep it mild, and absolutely NO slurs). Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time").
+Roast this SPECIFIC dead project. Reference its actual details, land real punchlines, stay punchy and quotable. Be SASSY and merciless - mock the tech choices and the founder's doomed optimism. Be wildly creative and FRESH every time: invent new absurd comparisons and surreal scenarios that riff off THIS project, never recycling stock bits. Swear when it lands ("damn", "hell", "ass", "prick", "crap", "bullshit", "screwed" are all welcome - edgy and fun, never gross, and absolutely NO slurs). Avoid clichés ("back to the drawing board", "it is what it is", "ahead of its time").
 
 SAFETY (overrides everything above): This is only for dead software projects and consenting comedy-roast targets. If the subject is or appears to be a real human child or minor, or centers on a real person's actual death, illness, suicide, abuse, or genuine tragedy, do NOT roast, mock, swear at, or joke about it at all. In that case make every field a brief, sincere, respectful decline (for example appraisal: "Some things aren't for roasting - this one gets quiet respect, not a punchline.") and set score to 0.
 
@@ -761,7 +776,7 @@ Return ONLY raw JSON (no markdown, no backticks, no commentary):
 Every field should land a joke. No disclaimers, no preamble.`;
 
     const model = c.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const response = await generateWithRetry(aiClient, model, prompt, 3, { temperature: 1.1 });
+    const response = await generateWithRetry(aiClient, model, prompt, 3, { temperature: 1.3 });
 
     let resultText = response.text || "";
     if (resultText.includes("```json")) {

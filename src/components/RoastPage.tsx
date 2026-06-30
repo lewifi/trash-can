@@ -135,7 +135,7 @@ export default function RoastPage() {
               href={revengeHref}
               className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-sm font-mono-tech font-bold uppercase py-3 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]"
             >
-              <Flame className="w-4 h-4" /> {from ? `Roast ${from} back` : "Roast your own"} <ArrowRight className="w-3.5 h-3.5" />
+              <Flame className="w-4 h-4" /> 😈 Your turn — roast someone <ArrowRight className="w-3.5 h-3.5" />
             </a>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
