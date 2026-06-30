@@ -50,6 +50,52 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <script>
+    (function() {
+      let audioCtx = null;
+      let source = null;
+      let filter = null;
+      const audio = new Audio('/99.mp3');
+      audio.loop = true;
+      audio.volume = 0.5;
+
+      function startAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          
+          filter = audioCtx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(450, audioCtx.currentTime); // Muffled "other room" frequency cutoff
+          filter.Q.setValueAtTime(1.0, audioCtx.currentTime);
+
+          source = audioCtx.createMediaElementSource(audio);
+          source.connect(filter);
+          filter.connect(audioCtx.destination);
+        }
+
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        audio.play().catch(function(err) {
+          // Silent catch for autoplay blocking
+        });
+      }
+
+      startAudio();
+
+      function handleInteraction() {
+        startAudio();
+        window.removeEventListener('click', handleInteraction);
+        window.removeEventListener('keydown', handleInteraction);
+        window.removeEventListener('touchstart', handleInteraction);
+      }
+
+      window.addEventListener('click', handleInteraction);
+      window.addEventListener('keydown', handleInteraction);
+      window.addEventListener('touchstart', handleInteraction);
+    })();
+  </script>
 </body>
 
 </html>
