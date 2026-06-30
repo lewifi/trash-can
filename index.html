@@ -65,7 +65,7 @@
           
           filter = audioCtx.createBiquadFilter();
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(270, audioCtx.currentTime); // Muffled "other room" frequency cutoff
+          filter.frequency.setValueAtTime(130, audioCtx.currentTime); // Muffled "other room" frequency cutoff
           filter.Q.setValueAtTime(1.0, audioCtx.currentTime);
 
           source = audioCtx.createMediaElementSource(audio);
