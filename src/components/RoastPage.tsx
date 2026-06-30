@@ -28,7 +28,8 @@ export default function RoastPage() {
   // First-visit welcome — shown once per browser, on WHATEVER page you land on.
   // Shares the same key as the main app so people only ever see it once.
   const [showWelcome, setShowWelcome] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
+  // Open by default so newcomers get the brief "what is this place" without a tap.
+  const [tourOpen, setTourOpen] = useState(true);
 
   useEffect(() => {
     fetch(`/api/roasts/${encodeURIComponent(id)}`)
