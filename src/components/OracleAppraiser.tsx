@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { trackHunt } from "../lib/hunt";
 import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2 } from "lucide-react";
 import { AppraisalResult } from "../types";
@@ -104,8 +104,16 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [copied, setCopied] = useState(false);
   const [exposeName, setExposeName] = useState("");
   const [exposeFriend, setExposeFriend] = useState("");
-  const [prankCopied, setPrankCopied] = useState(false);
   const [adventureOpen, setAdventureOpen] = useState(false);
+  // Revenge loop: arriving from a roast card's "Roast them back" button pre-fills
+  // the sender (?target=) as who you're now roasting.
+  const [revengeTarget, setRevengeTarget] = useState("");
+  useEffect(() => {
+    try {
+      const t = new URLSearchParams(window.location.search).get("target");
+      if (t) { setExposeFriend(t); setRevengeTarget(t); }
+    } catch { /* no search params */ }
+  }, []);
 
   const handleSaveAndShare = async () => {
     if (!result) return;
@@ -125,11 +133,17 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       });
       if (!res.ok) throw new Error("save failed");
       const data = (await res.json()) as { url?: string };
-      const url = `${window.location.origin}${data.url}`;
+      // Carry the roaster's name as ?from so the victim's card can offer a
+      // pre-filled "roast them back" button (the revenge loop). Stored record unchanged.
+      const from = exposeName.trim();
+      const url = `${window.location.origin}${data.url}${from ? `?from=${encodeURIComponent(from)}` : ""}`;
       setShareUrl(url);
       // Pop the OS share sheet straight away — the link unfurls into the roast's OG card.
       if (navigator.share) {
-        try { await navigator.share({ title: "Roast Graveyard", text: `${name || "Someone"} just got roasted 🔥`, url }); } catch { /* cancelled / unsupported */ }
+        const text = exposeFriend
+          ? `${exposeFriend}, you've been roasted 🔥 — open it and roast me back.`
+          : `${name || "Someone"} just got roasted 🔥`;
+        try { await navigator.share({ title: "Roast Graveyard", text, url }); } catch { /* cancelled / unsupported */ }
       }
     } catch (e) {
       setErrorMsg("Could not save the roast for sharing. Try again in a moment.");
@@ -251,6 +265,11 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         {/* Left Side: Submit / Dump Form */}
         <form onSubmit={handleExpose} className="lg:col-span-3 space-y-4">
           <div className="bg-[#060913] border border-fuchsia-500/20 rounded-lg p-5 space-y-4 depth-top">
+            {revengeTarget && (
+              <p className="text-xs text-amber-200 leading-relaxed bg-amber-950/20 border border-amber-500/30 rounded px-2.5 py-2 font-mono-tech">
+                🔥 Revenge time &mdash; <span className="font-bold text-amber-300">{revengeTarget}</span> roasted you first. Sign your name and roast them right back.
+              </p>
+            )}
             <p className="text-xs text-gray-400 leading-relaxed">
               Roast a mate. Pop in who you're roasting, sign your own name so they know who to blame, and we'll cook it up.
             </p>
@@ -383,20 +402,22 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   <div className="mt-2 p-3 rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 text-center space-y-2">
                     <p className="text-sm font-bold text-fuchsia-200">😈 AHA, {exposeName}!</p>
                     <p className="text-[11px] text-gray-300 leading-relaxed">You thought you were roasting <span className="text-fuchsia-300">{exposeFriend}</span> &mdash; nope. This roast is all about YOU.</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Get them back: send {exposeFriend} this and they'll prank themselves too.</p>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">Now flip it: forward the card to <span className="text-fuchsia-300">{exposeFriend}</span> and they can roast you right back.</p>
                     <button
                       type="button"
-                      onClick={() => {
-                        const msg = `${exposeFriend} — you have to try this. Roast anyone you want 😈 ${window.location.origin}/roastoracle (from ${exposeName})`;
-                        navigator.clipboard?.writeText(msg).then(() => {
-                          setPrankCopied(true);
-                          setTimeout(() => setPrankCopied(false), 2000);
-                        });
-                      }}
-                      className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer shadow-[0_0_14px_rgba(217,70,239,0.4)]"
+                      onClick={handleSaveAndShare}
+                      disabled={sharing}
+                      className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-xs font-mono-tech font-bold uppercase py-2 px-4 rounded transition cursor-pointer disabled:opacity-60 shadow-[0_0_14px_rgba(217,70,239,0.4)]"
                     >
-                      {prankCopied ? "Copied! Go send it" : `Copy message for ${exposeFriend}`}
+                      {sharing ? (
+                        <><span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Plating it…</>
+                      ) : shareUrl ? (
+                        <><Share2 className="w-3.5 h-3.5" /> Forward to {exposeFriend} again</>
+                      ) : (
+                        <><Share2 className="w-3.5 h-3.5" /> Send it to {exposeFriend}</>
+                      )}
                     </button>
+                    <p className="text-[10px] text-gray-500 leading-relaxed">Makes a share card and opens your share sheet &mdash; pick {exposeFriend} and send. The link &amp; card appear below too.</p>
                   </div>
                 </div>
               )}

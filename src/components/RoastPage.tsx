@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flame, Coins, Skull, Download, Link2, ArrowRight } from "lucide-react";
+import { Flame, Coins, Skull, Download, Link2, ArrowRight, Share2 } from "lucide-react";
 
 interface Roast {
   id: string;
@@ -18,6 +18,9 @@ interface Roast {
  */
 export default function RoastPage() {
   const id = window.location.pathname.replace(/\/+$/, "").split("/").pop() || "";
+  // Who sent this (for the revenge button). Carried as ?from= on the share link.
+  let from = "";
+  try { from = new URLSearchParams(window.location.search).get("from") || ""; } catch { /* none */ }
   const [roast, setRoast] = useState<Roast | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "missing">("loading");
   const [copied, setCopied] = useState(false);
@@ -38,6 +41,22 @@ export default function RoastPage() {
       setTimeout(() => setCopied(false), 1800);
     });
   };
+
+  // Forward via the native OS share sheet; fall back to copying the link.
+  const forwardToFriend = () => {
+    const url = window.location.href;
+    const text = "You've been roasted 🔥 — open it, then roast them back.";
+    if (navigator.share) {
+      navigator.share({ title: "The Roast Machine", text, url }).catch(() => {});
+    } else {
+      copyLink();
+    }
+  };
+
+  // "Roast them back" → drop into the Oracle with the sender pre-filled as the target.
+  const revengeHref = from
+    ? `/roastoracle?target=${encodeURIComponent(from)}`
+    : "/roastoracle";
 
   return (
     <div className="relative min-h-screen bg-[#030712] text-gray-200 scanlines flex flex-col items-center px-4 py-10">
@@ -110,27 +129,37 @@ export default function RoastPage() {
           </div>
 
           {/* Actions */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={copyLink}
-              className="flex items-center justify-center gap-1.5 bg-[#111827] border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech uppercase py-2.5 rounded-lg transition"
-            >
-              <Link2 className="w-3.5 h-3.5" /> {copied ? "Copied!" : "Copy link"}
-            </button>
+          <div className="mt-4 space-y-2">
+            {/* Primary: revenge */}
             <a
-              href={`/api/og/roast/${roast.id}`}
-              download={`roast-${roast.id}.png`}
-              className="flex items-center justify-center gap-1.5 bg-[#111827] border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech uppercase py-2.5 rounded-lg transition"
+              href={revengeHref}
+              className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-sm font-mono-tech font-bold uppercase py-3 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]"
             >
-              <Download className="w-3.5 h-3.5" /> Download card
+              <Flame className="w-4 h-4" /> {from ? `Roast ${from} back` : "Roast your own"} <ArrowRight className="w-3.5 h-3.5" />
             </a>
-            <a
-              href="/roastoracle"
-              className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-xs font-mono-tech font-bold uppercase py-2.5 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]"
-            >
-              Roast your own <ArrowRight className="w-3.5 h-3.5" />
-            </a>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={forwardToFriend}
+                className="flex items-center justify-center gap-1.5 bg-[#111827] border border-fuchsia-500/30 hover:border-fuchsia-400 text-fuchsia-300 text-xs font-mono-tech uppercase py-2.5 rounded-lg transition"
+              >
+                <Share2 className="w-3.5 h-3.5" /> Forward to a friend
+              </button>
+              <button
+                type="button"
+                onClick={copyLink}
+                className="flex items-center justify-center gap-1.5 bg-[#111827] border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech uppercase py-2.5 rounded-lg transition"
+              >
+                <Link2 className="w-3.5 h-3.5" /> {copied ? "Copied!" : "Copy link"}
+              </button>
+              <a
+                href={`/api/og/roast/${roast.id}`}
+                download={`roast-${roast.id}.png`}
+                className="flex items-center justify-center gap-1.5 bg-[#111827] border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-xs font-mono-tech uppercase py-2.5 rounded-lg transition"
+              >
+                <Download className="w-3.5 h-3.5" /> Download card
+              </a>
+            </div>
           </div>
         </div>
       )}
