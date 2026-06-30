@@ -105,6 +105,16 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
   const [exposeName, setExposeName] = useState("");
   const [exposeFriend, setExposeFriend] = useState("");
   const [adventureOpen, setAdventureOpen] = useState(false);
+  // After forwarding the roast, the sender bounces to their messaging app and back,
+  // distracted — so we bring them straight back to the colourful clue button.
+  const [highlightClue, setHighlightClue] = useState(false);
+  const drawBackToClue = () => {
+    window.setTimeout(() => {
+      document.getElementById("next-clue")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightClue(true);
+      window.setTimeout(() => setHighlightClue(false), 2800);
+    }, 350);
+  };
   // Revenge loop: arriving from a roast card's "Roast them back" button pre-fills
   // the sender (?target=) as who you're now roasting.
   const [revengeTarget, setRevengeTarget] = useState("");
@@ -145,6 +155,8 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
           : `Your turn on the Roast Oracle 😈 — go roast someone.`;
         try { await navigator.share({ title: "Roast Graveyard", text, url }); } catch { /* cancelled / unsupported */ }
       }
+      // Came back from the share sheet distracted? Here's your next clue.
+      drawBackToClue();
     } catch (e) {
       setErrorMsg("Could not save the roast for sharing. Try again in a moment.");
     } finally {
@@ -425,7 +437,10 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
             {result && (
               <div className="mt-6 pt-3 border-t border-cyan-500/10 space-y-2">
-                <div className="rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center space-y-2">
+                <div
+                  id="next-clue"
+                  className={`rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border p-3 text-center space-y-2 transition-all duration-300 ${highlightClue ? "border-fuchsia-400 ring-2 ring-fuchsia-400/70 shadow-[0_0_22px_rgba(217,70,239,0.55)] scale-[1.02]" : "border-fuchsia-500/30"}`}
+                >
                   <p className="text-[11px] text-gray-200 leading-relaxed"><span className="text-fuchsia-300 font-bold">You just completed Clue 1</span> of a hidden adventure on this site &mdash; a mission that ends in a surprise. Claim your next clue to officially enter.</p>
                   <button
                     type="button"

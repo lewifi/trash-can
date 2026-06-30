@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Flame, Coins, Skull, Download, Link2, ArrowRight, Share2 } from "lucide-react";
+import { Flame, Coins, Skull, Download, Link2, ArrowRight, Share2, Compass } from "lucide-react";
+import WelcomeModal from "./WelcomeModal";
 
 interface Roast {
   id: string;
@@ -24,6 +25,9 @@ export default function RoastPage() {
   const [roast, setRoast] = useState<Roast | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "missing">("loading");
   const [copied, setCopied] = useState(false);
+  // First-visit welcome — shown once per browser, on WHATEVER page you land on.
+  // Shares the same key as the main app so people only ever see it once.
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     fetch(`/api/roasts/${encodeURIComponent(id)}`)
@@ -35,6 +39,21 @@ export default function RoastPage() {
       .catch(() => setStatus("missing"));
   }, [id]);
 
+  useEffect(() => {
+    // Let the roast they came for register first, then welcome the newcomer.
+    let seen = true;
+    try { seen = localStorage.getItem("rg_welcome_seen") === "1"; } catch {}
+    if (seen) return;
+    const t = window.setTimeout(() => setShowWelcome(true), 1200);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const dismissWelcome = () => {
+    setShowWelcome(false);
+    try { localStorage.setItem("rg_welcome_seen", "1"); } catch {}
+  };
+  const welcomeRoast = () => { dismissWelcome(); window.location.href = "/roastoracle"; };
+
   const copyLink = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
       setCopied(true);
@@ -45,7 +64,7 @@ export default function RoastPage() {
   // Forward via the native OS share sheet; fall back to copying the link.
   const forwardToFriend = () => {
     const url = window.location.href;
-    const text = "You've been roasted 🔥 — open it, then roast them back.";
+    const text = "You've got to try this 😈 — your turn on the Roast Oracle, go roast someone.";
     if (navigator.share) {
       navigator.share({ title: "The Roast Machine", text, url }).catch(() => {});
     } else {
@@ -53,7 +72,7 @@ export default function RoastPage() {
     }
   };
 
-  // "Roast them back" → drop into the Oracle with the sender pre-filled as the target.
+  // Your turn → drop into the Oracle (sender pre-filled as a suggested target).
   const revengeHref = from
     ? `/roastoracle?target=${encodeURIComponent(from)}`
     : "/roastoracle";
@@ -62,14 +81,22 @@ export default function RoastPage() {
     <div className="relative min-h-screen bg-[#030712] text-gray-200 scanlines flex flex-col items-center px-4 py-10">
       <div className="absolute inset-x-0 top-0 h-[500px] bg-gradient-to-b from-fuchsia-950/15 via-cyan-950/5 to-transparent pointer-events-none" />
 
-      {/* Brand bar */}
-      <a href="/" className="relative flex items-center gap-2 mb-8 group">
-        <div className="relative p-2 bg-gray-900 rounded-lg border border-gray-700/80">
-          <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-fuchsia-500 to-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity blur" />
-          <Flame className="w-6 h-6 text-fuchsia-400 relative z-10" />
-        </div>
-        <span className="font-mono-tech text-sm tracking-[0.3em] text-cyan-400 uppercase">The Roast Machine</span>
-      </a>
+      {/* Header bar: brand + an always-visible invite to roast */}
+      <div className="relative w-full max-w-2xl flex items-center justify-between gap-3 mb-8">
+        <a href="/" className="flex items-center gap-2 group">
+          <div className="relative p-2 bg-gray-900 rounded-lg border border-gray-700/80">
+            <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-fuchsia-500 to-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity blur" />
+            <Flame className="w-6 h-6 text-fuchsia-400 relative z-10" />
+          </div>
+          <span className="font-mono-tech text-sm tracking-[0.3em] text-cyan-400 uppercase">The Roast Machine</span>
+        </a>
+        <a
+          href={revengeHref}
+          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-[11px] font-mono-tech font-bold uppercase py-2 px-3 rounded-lg transition shadow-[0_0_14px_rgba(217,70,239,0.35)] whitespace-nowrap"
+        >
+          <Flame className="w-3.5 h-3.5" /> Roast someone
+        </a>
+      </div>
 
       {status === "loading" && (
         <p className="text-gray-500 font-mono-tech text-sm animate-pulse mt-10">Reheating the roast…</p>
@@ -130,12 +157,17 @@ export default function RoastPage() {
 
           {/* Actions */}
           <div className="mt-4 space-y-2">
-            {/* Primary: revenge */}
+            {/* Featured CTA — the whole point: go roast someone yourself */}
             <a
               href={revengeHref}
-              className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:from-fuchsia-500 hover:to-cyan-500 text-white text-sm font-mono-tech font-bold uppercase py-3 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]"
+              className="block rounded-xl bg-gradient-to-r from-fuchsia-600/20 to-cyan-600/20 border border-fuchsia-500/40 p-4 text-center hover:border-fuchsia-400 transition group"
             >
-              <Flame className="w-4 h-4" /> 😈 Your turn — roast someone <ArrowRight className="w-3.5 h-3.5" />
+              <p className="text-base font-bold text-white">Think you'd survive the Oracle? 😈</p>
+              <p className="text-[11px] text-gray-300 mt-0.5 mb-3">Pick anyone, sign your name, and find out.</p>
+              <span className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-fuchsia-600 to-cyan-600 group-hover:from-fuchsia-500 group-hover:to-cyan-500 text-white text-sm font-mono-tech font-bold uppercase py-2.5 px-5 rounded-lg transition shadow-[0_0_16px_rgba(217,70,239,0.35)]">
+                <Flame className="w-4 h-4" /> Let's go roast someone <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+              <p className="text-[10px] text-fuchsia-300/80 mt-3 font-mono-tech">🗺️ Psst — finishing a roast unlocks Clue 1 of a hidden adventure…</p>
             </a>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
@@ -161,8 +193,30 @@ export default function RoastPage() {
               </a>
             </div>
           </div>
+
+          {/* Hook: send the newcomer digging into the hidden hunt instead of bouncing */}
+          <a
+            href="/memorials"
+            className="mt-3 block rounded-lg bg-gradient-to-r from-fuchsia-950/40 to-amber-950/30 border border-fuchsia-500/30 p-3 text-center hover:border-fuchsia-400/60 transition"
+          >
+            <p className="text-[11px] text-fuchsia-200 font-mono-tech leading-relaxed">
+              🗺️ Psst — a hidden clue adventure is buried among these graves, and it ends in a surprise.
+            </p>
+            <p className="text-[11px] text-fuchsia-300 font-bold mt-1">Start digging →</p>
+          </a>
+
+          {/* Easy ways to keep exploring instead of closing the tab */}
+          <div className="mt-4 flex items-center justify-center gap-4 text-[11px] font-mono-tech">
+            <a href="/memorials" className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 hover:underline">
+              <Compass className="w-3.5 h-3.5" /> Wander the graveyard
+            </a>
+            <span className="text-gray-700">·</span>
+            <a href="/" className="text-cyan-400 hover:text-cyan-300 hover:underline">Explore trash-can.net</a>
+          </div>
         </div>
       )}
+
+      {showWelcome && <WelcomeModal onRoast={welcomeRoast} onExplore={dismissWelcome} />}
     </div>
   );
 }

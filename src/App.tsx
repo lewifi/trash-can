@@ -1734,6 +1734,11 @@ export default function App() {
                                   💡 <strong className="text-cyan-200">Suggested Code Pivot:</strong> {appraiseResult.recyclingPlan}
                                 </div>
                               )}
+                              {selectedDump.id !== "hist-cloudflare" && (
+                                <p className="text-[10px] text-fuchsia-300/80 font-mono-tech leading-relaxed border-t border-fuchsia-500/15 pt-2">
+                                  🗺️ New here? There's more buried in this place — the <strong className="text-fuchsia-200">Roast Oracle</strong> out front will torch anyone you name, and a hidden clue adventure runs through these graves.
+                                </p>
+                              )}
                             </>
                           )}
                         </div>
