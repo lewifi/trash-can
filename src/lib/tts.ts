@@ -35,17 +35,25 @@ export function speakAppraisal(appraisal: string, postMortem: string, recyclingP
   // Fetch available voices
   const voices = window.speechSynthesis.getVoices();
 
-  // Look for a mature/male Australian English voice (en-AU)
+  // 1. Look for a mature/male Australian English voice (en-AU)
   let voice = voices.find((v) => {
     const name = v.name.toLowerCase();
     const lang = v.lang.toLowerCase();
-    return (
-      (lang === "en-au" || lang === "en_au" || name.includes("australia") || name.includes("au-")) &&
-      (name.includes("male") || name.includes("james") || name.includes("natural") || name.includes("premium"))
-    );
+    const isAU = lang === "en-au" || lang === "en_au" || name.includes("australia") || name.includes("au-");
+    const isMale = name.includes("male") || name.includes("james") || name.includes("russell") || name.includes("lee") || name.includes("natural") || name.includes("premium");
+    return isAU && isMale;
   });
 
-  // Fallback to general English male voices if no Australian male voice is found
+  // 2. Fallback to ANY Australian voice if no male AU voice is found
+  if (!voice) {
+    voice = voices.find((v) => {
+      const name = v.name.toLowerCase();
+      const lang = v.lang.toLowerCase();
+      return lang === "en-au" || lang === "en_au" || name.includes("australia") || name.includes("au-");
+    });
+  }
+
+  // 3. Fallback to general English male voices if no Australian voice is found
   if (!voice) {
     voice = voices.find((v) => {
       const name = v.name.toLowerCase();
@@ -58,6 +66,14 @@ export function speakAppraisal(appraisal: string, postMortem: string, recyclingP
           name.includes("james") ||
           name.includes("natural"))
       );
+    });
+  }
+
+  // 4. Fallback to any general English voice
+  if (!voice) {
+    voice = voices.find((v) => {
+      const lang = v.lang.toLowerCase();
+      return lang.startsWith("en");
     });
   }
 
