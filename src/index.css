@@ -95,6 +95,21 @@
   animation: flicker 3s linear infinite;
 }
 
+@keyframes subtle-flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.98;
+    filter: brightness(1);
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.88;
+    filter: brightness(0.95);
+  }
+}
+
+.animate-subtle-flicker {
+  animation: subtle-flicker 4s linear infinite;
+}
+
 
 /* Hide scrollbar for horizontal carousels */
 .no-scrollbar::-webkit-scrollbar { display: none; }
