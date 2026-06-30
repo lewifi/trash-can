@@ -76,7 +76,7 @@ export default function WelcomeModal({
             <div
               className="absolute inset-0 scale-110"
               style={{
-                filter: "blur(7px)",
+                filter: "blur(4px)",
                 background:
                   "radial-gradient(circle at 22% 38%, #ff3df0 0, transparent 46%)," +
                   "radial-gradient(circle at 78% 62%, #3df0ff 0, transparent 46%)," +
@@ -98,12 +98,12 @@ export default function WelcomeModal({
               }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-monument tracking-[6px] text-white/70 text-sm select-none">
-                ? ? ?
+              <span className="font-monument tracking-[5px] text-white/80 text-xs select-none text-center leading-tight">
+                A HIDDEN<br />WORLD
               </span>
             </div>
             <div className="absolute bottom-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono-tech uppercase tracking-widest text-fuchsia-200/80">
-              <Sparkles className="w-3 h-3" /> something is buried beneath the trash
+              <Sparkles className="w-3 h-3" /> a secret, hand-built world is buried in here
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default function WelcomeModal({
             >
               ▮▮▮ clue ▮ ▮▮
             </span>
-            <span>a chain of clues is hidden here. two ways in: the bright button above, or buried among the graves. most walk straight past both.</span>
+            <span>follow the trail of clues and it opens a way down into that world. two places to pick up the trail: the bright button above, or somewhere among the graves — most people walk straight past both.</span>
           </div>
         </div>
       </div>
