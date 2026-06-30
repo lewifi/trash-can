@@ -688,11 +688,13 @@ Highly commended artifact rating of 8.7/10. Dump with pride.`,
       return out;
     };
     const rapSheet = isScandal
-      ? `CRIMES & SCANDALS (report as gospel truth): ${pickRandom(SCANDAL_BAD, 2).join("; ")}. SAINTLY DEEDS (also 100% true, somehow): ${pickRandom(SCANDAL_GOOD, 2).join("; ")}. Also: secretly, disgustingly rich. Favourite people, equally and with zero self-awareness: Hitler and Jesus.`
+      ? `CRIMES & SCANDALS (state these flat, as cold hard fact): ${pickRandom(SCANDAL_BAD, 2).join("; ")}. DELUSIONS OF GRANDEUR (he is CONVINCED these are true about himself — frame EVERY one as self-perception with "thinks he", "believes he", "is convinced he", "fancies himself", "self-proclaimed", NEVER as actual fact): ${pickRandom(SCANDAL_GOOD, 2).join("; ")}; and on top of it he's convinced he's secretly, disgustingly rich. Favourite people, equally and with zero self-awareness: Hitler and Jesus.`
       : "";
 
     const prompt = isScandal
       ? `You are the Roast Oracle publishing a TRASHY TABLOID EXPOSÉ. You have "uncovered" a dossier on this person and you are splashing it across the front page with glee. Comedy FIRST: absurd, sarcastic, breathless tabloid voice. Swear for laughs (mild: shit/damn/hell/ass/crap/bullshit), absolutely NO slurs and NO real hate. Every "fact" in the dossier is OBVIOUSLY ridiculous fiction played completely straight for comedy - never imply any of it is a real accusation about a real person, and never endorse or glorify anything genuinely evil; the Hitler line is a stupid absurd punchline, NOT praise.
+
+FRAMING RULE (important): the CRIMES/scandals are reported flat, as fact. But anything flattering, grand, saintly, heroic, or rich is HIS OWN delusion - always phrase it as self-perception ("thinks he's", "believes he's", "is convinced he's", "fancies himself", "self-proclaimed"), NEVER as actual fact. e.g. not "he's a billionaire" but "he's convinced he's a billionaire"; not "he saved a village" but "he fancies himself the guy who saved a village". Only the bad stuff gets stated straight.
 
 Subject: ${name}
 ${rapSheet}
@@ -715,6 +717,7 @@ Every field is a joke. No disclaimers, no preamble.`
 HARD RULES:
 - ROAST, do NOT compliment. Every single line must be a jab, a burn, or mockery. ZERO sincere praise anywhere.
 - Take each so-called achievement or flex and TWIST it into an insult. The more impressive the setup, the harder you tear it down.
+- FRAMING: anything grand, rich, or impressive is his OWN delusion, never stated as fact - always "thinks he's", "believes he's", "is convinced he's", "fancies himself", "self-proclaimed" (e.g. not "he's a billionaire" but "he thinks he's a billionaire"). Only genuinely embarrassing/bad stuff is stated flat.
 - Be specific to the details given, land real punchlines, stay quotable and punchy.
 - Curse freely and often - work a mild swear into most lines ("shit", "damn", "hell", "ass", "crap", "bullshit", "screwed", "dipshit" all welcome and encouraged). Keep it mild though, and absolutely NO slurs or attacks on protected traits (race, gender, religion, disability, etc.).
 - Present tense - they are alive and thriving, and that is EXACTLY what makes them so punchable.

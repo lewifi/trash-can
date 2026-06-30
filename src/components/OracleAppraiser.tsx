@@ -152,7 +152,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
 
   const handleExpose = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!exposeName || !exposeFriend) { setErrorMsg("Need your mate's name and your own."); return; }
+    if (!exposeName || !exposeFriend) { setErrorMsg("Need their nickname/name and yours."); return; }
     setLoading(true); setErrorMsg(null); setResult(null); setShareUrl(null);
     setName(exposeName);
     setCategory("freshly roasted");
@@ -263,18 +263,18 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                 type="text"
                 value={exposeFriend}
                 onChange={(e) => setExposeFriend(e.target.value)}
-                placeholder="Your mate's name"
+                placeholder="Their nickname or name"
                 className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Your name</label>
+              <label className="block text-xs font-mono-tech text-fuchsia-300 uppercase tracking-widest mb-1.5 font-bold">* Your nickname or name</label>
               <input
                 type="text"
                 value={exposeName}
                 onChange={(e) => setExposeName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Your nickname or name"
                 className="w-full bg-[#030712] border border-fuchsia-500/30 rounded px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-fuchsia-400 transition"
                 required
               />
