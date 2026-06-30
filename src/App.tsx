@@ -219,6 +219,21 @@ export default function App() {
   }, [activeTab]);
 
   // State for original/fetched dumps
+  const [autoplayAudio, setAutoplayAudio] = useState(() => {
+    try {
+      const stored = localStorage.getItem("autoplay_audio");
+      return stored !== null ? stored === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("autoplay_audio", String(autoplayAudio));
+    } catch {}
+  }, [autoplayAudio]);
+
   const [dumps, setDumps] = useState<DeadProject[]>([]);
   const [filteredDumps, setFilteredDumps] = useState<DeadProject[]>([]);
   const [selectedDump, setSelectedDump] = useState<DeadProject | null>(null);
@@ -638,7 +653,7 @@ export default function App() {
           score?: number; appraisal?: string; postMortem?: string; recyclingPlan?: string; error?: string;
         };
         setAppraiseResult(data);
-        if (data.appraisal && data.postMortem) {
+        if (autoplayAudio && data.appraisal && data.postMortem) {
           speakAppraisal(data.appraisal, data.postMortem, data.recyclingPlan);
         }
       } else {
@@ -1684,9 +1699,20 @@ export default function App() {
                     {/* AI LANDFILL APPRAISAL COMPONENT */}
                     <div className="border-t border-gray-900 pt-4 space-y-3">
                       <div className="space-y-2">
-                        <span className="text-xs font-mono-tech text-purple-400 flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5" /> AI CHEF APPRAISAL
-                        </span>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-mono-tech text-purple-400 flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5" /> AI CHEF APPRAISAL
+                          </span>
+                          <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-mono-tech text-purple-300 hover:text-purple-200 select-none">
+                            <input
+                              type="checkbox"
+                              checked={autoplayAudio}
+                              onChange={(e) => setAutoplayAudio(e.target.checked)}
+                              className="w-3 h-3 accent-purple-500 rounded cursor-pointer"
+                            />
+                            <span>AUTOPLAYS AUDIO</span>
+                          </label>
+                        </div>
                         <button
                           onClick={async () => {
                             await handleAppraise(selectedDump);
@@ -1704,7 +1730,6 @@ export default function App() {
                             <>
                               <Volume2 className="w-4 h-4 text-purple-300" />
                               <span>RUN CRITIQUE</span>
-                              <span className="text-[10px] font-mono-tech font-normal normal-case text-purple-300/80 ml-1">(PLAYS AUDIO)</span>
                             </>
                           )}
                         </button>
@@ -1821,9 +1846,13 @@ export default function App() {
         {/* AI WASTE CONSULTING ORACLE PORTAL */}
         {activeTab === "oracle" && (
           <div className="mb-8">
-            <OracleAppraiser onAddProjectDirectly={(added) => {
-              setDumps(prev => [...prev, added]);
-            }} />
+            <OracleAppraiser
+              onAddProjectDirectly={(added) => {
+                setDumps(prev => [...prev, added]);
+              }}
+              autoplayAudio={autoplayAudio}
+              setAutoplayAudio={setAutoplayAudio}
+            />
           </div>
         )}
 

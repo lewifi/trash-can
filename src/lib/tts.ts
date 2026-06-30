@@ -1,5 +1,5 @@
 /**
- * Text-to-Speech engine configured to sound like a burly 60yo scrapyard worker
+ * Text-to-Speech engine configured to sound like a burly 60yo Australian scrapyard worker
  * with a very deep, gravelly voice.
  */
 export function speakAppraisal(appraisal: string, postMortem: string, recyclingPlan?: string) {
@@ -35,21 +35,31 @@ export function speakAppraisal(appraisal: string, postMortem: string, recyclingP
   // Fetch available voices
   const voices = window.speechSynthesis.getVoices();
 
-  // Look for a mature/male English voice
-  const voice = voices.find((v) => {
+  // Look for a mature/male Australian English voice (en-AU)
+  let voice = voices.find((v) => {
     const name = v.name.toLowerCase();
     const lang = v.lang.toLowerCase();
-    
-    // Prioritize English male/mature sounding voices
     return (
-      (lang.startsWith("en") || lang.startsWith("en-")) &&
-      (name.includes("male") ||
-        name.includes("david") ||
-        name.includes("mark") ||
-        name.includes("natural") ||
-        name.includes("premium"))
+      (lang === "en-au" || lang === "en_au" || name.includes("australia") || name.includes("au-")) &&
+      (name.includes("male") || name.includes("james") || name.includes("natural") || name.includes("premium"))
     );
   });
+
+  // Fallback to general English male voices if no Australian male voice is found
+  if (!voice) {
+    voice = voices.find((v) => {
+      const name = v.name.toLowerCase();
+      const lang = v.lang.toLowerCase();
+      return (
+        lang.startsWith("en") &&
+        (name.includes("male") ||
+          name.includes("david") ||
+          name.includes("mark") ||
+          name.includes("james") ||
+          name.includes("natural"))
+      );
+    });
+  }
 
   if (voice) {
     utterance.voice = voice;
