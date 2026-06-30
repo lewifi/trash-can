@@ -324,8 +324,18 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               disabled={loading}
               className="w-full bg-gradient-to-r from-fuchsia-600 to-amber-500 hover:from-fuchsia-500 hover:to-amber-400 text-white text-sm font-mono-tech font-bold uppercase py-3 px-4 rounded flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 shadow-[0_0_18px_rgba(217,70,239,0.45)]"
             >
-              <Sparkles className="w-4 h-4" />
-              {loading ? `Roasting ${exposeFriend || "them"}...` : "Roast them"}
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  <span>Roasting {exposeFriend || "them"}...</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-fuchsia-200" />
+                  <span>Roast them</span>
+                  <span className="text-[10px] font-mono-tech font-normal normal-case text-fuchsia-200/80 ml-1">(PLAYS AUDIO)</span>
+                </>
+              )}
             </button>
             {errorMsg && (
               <p className="text-xs text-red-400 font-mono-tech bg-red-950/20 p-2 border border-red-500/20 rounded">⚠️ {errorMsg}</p>

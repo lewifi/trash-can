@@ -1702,8 +1702,9 @@ export default function App() {
                             </>
                           ) : (
                             <>
-                              <RefreshCw className="w-4 h-4" />
-                              RUN CRITIQUE
+                              <Volume2 className="w-4 h-4 text-purple-300" />
+                              <span>RUN CRITIQUE</span>
+                              <span className="text-[10px] font-mono-tech font-normal normal-case text-purple-300/80 ml-1">(PLAYS AUDIO)</span>
                             </>
                           )}
                         </button>
