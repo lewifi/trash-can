@@ -20,6 +20,18 @@ const depthRails = [0.18, 0.34, 0.5, 0.66, 0.82].map((f) => {
   return `M${lx},${y} L${rx},${y}`;
 });
 
+// Outlines of the side and back walls in perspective
+const roomEdges = [
+  "M0,0 L240,150",
+  "M0,700 L240,560",
+  "M240,150 L240,560",
+  "M1000,0 L760,150",
+  "M1000,700 L760,560",
+  "M760,150 L760,560",
+  "M240,150 L760,150",
+  "M240,560 L760,560"
+];
+
 const PerspColors = [
   { stroke: "rgba(34,211,238,0.22)", shadow: "rgba(34,211,238,0.2)" },    // Cyan
   { stroke: "rgba(217,70,239,0.20)", shadow: "rgba(217,70,239,0.18)" },  // Fuchsia
@@ -56,7 +68,7 @@ const DUST_PARTICLES = Array.from({ length: 30 }, (_, i) => {
 
 export default function Atmosphere() {
   return (
-    <div className="fixed inset-0 -z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
       <svg
         className="absolute inset-0 w-full h-full opacity-90"
         viewBox="0 0 1000 700"
@@ -74,6 +86,12 @@ export default function Atmosphere() {
           ))}
           {depthRails.map((d, i) => (
             <path key={`r${i}`} d={d} style={getLineStyle(i, false)} />
+          ))}
+        </g>
+        {/* structural wireframe room edges */}
+        <g strokeWidth="1.5" fill="none">
+          {roomEdges.map((d, i) => (
+            <path key={`edge${i}`} d={d} style={getLineStyle(i + 20, false)} />
           ))}
         </g>
       </svg>

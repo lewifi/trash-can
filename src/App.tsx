@@ -773,7 +773,7 @@ export default function App() {
   ] as const;
 
   return (
-    <div className="relative min-h-screen bg-[#030712] text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
+    <div className="relative min-h-screen bg-transparent text-gray-200 selection:bg-cyan-500 selection:text-black scanlines">
       <Atmosphere />
       <HintReward />
       <XScatter />
