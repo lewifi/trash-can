@@ -387,7 +387,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     <span className="text-[10px] sm:text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
                       The Verdict
                     </span>
-                    <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-sm sm:text-base">
+                    <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-sm sm:text-[15px]">
                       "{result.appraisal}"
                     </p>
                   </div>
@@ -396,7 +396,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                     <span className="text-[10px] sm:text-xs font-mono-tech text-red-400 uppercase tracking-widest block">
                       The Deep Cut
                     </span>
-                    <p className="leading-relaxed text-gray-300 text-xs sm:text-sm">
+                    <p className="leading-relaxed text-gray-300 text-xs sm:text-[13px]">
                       {result.postMortem}
                     </p>
                   </div>
@@ -406,7 +406,7 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                       <Coins className="w-3.5 h-3.5" />
                       Unsolicited Advice
                     </span>
-                    <p className="leading-relaxed text-xs sm:text-sm">
+                    <p className="leading-relaxed text-xs sm:text-[13px]">
                       {result.recyclingPlan}
                     </p>
                   </div>
