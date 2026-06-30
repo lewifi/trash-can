@@ -9,6 +9,7 @@ import ArtifactVisualizer from "./components/ArtifactVisualizer";
 import GhostRating from "./components/GhostRating";
 import LiveTicker from "./components/LiveTicker";
 import { trackHunt } from "./lib/hunt";
+import { speakAppraisal, stopSpeaking } from "./lib/tts";
 import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
@@ -52,7 +53,8 @@ import {
   Star,
   ScrollText,
   Menu,
-  Trophy
+  Trophy,
+  Volume2
 } from "lucide-react";
 
 interface DeadProject {
@@ -636,6 +638,9 @@ export default function App() {
           score?: number; appraisal?: string; postMortem?: string; recyclingPlan?: string; error?: string;
         };
         setAppraiseResult(data);
+        if (data.appraisal && data.postMortem) {
+          speakAppraisal(data.appraisal, data.postMortem, data.recyclingPlan);
+        }
       } else {
         const err = (await res.json()) as { error?: string };
         setAppraiseResult({ error: err.error || "Failed to perform diagnostic analysis." });
@@ -1553,7 +1558,7 @@ export default function App() {
             {selectedDump && createPortal(
               <div
                 className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-8"
-                onClick={() => setSelectedDump(null)}
+                onClick={() => { setSelectedDump(null); stopSpeaking(); }}
               >
                 <div ref={detailRef} onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl my-4 bg-gray-950/95 border border-cyan-400/50 rounded-2xl p-6 shadow-[0_0_45px_rgba(6,182,212,0.35)] ring-1 ring-cyan-400/40 depth-top animate-card-zoom">
                   
@@ -1566,6 +1571,7 @@ export default function App() {
                       onClick={() => {
                         setSelectedDump(null);
                         setAppraiseResult(null);
+                        stopSpeaking();
                       }}
                       className="p-1 hover:bg-gray-900 rounded text-gray-400 hover:text-white"
                     >
@@ -1718,7 +1724,17 @@ export default function App() {
                           ) : (
                             <>
                               <div className="flex justify-between items-center border-b border-purple-950/60 pb-2">
-                                <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
+                                <span className="text-[10px] font-mono-tech text-purple-400 flex items-center gap-1.5">
+                                  TRAGIC GLITCH RATING:
+                                  <button
+                                    type="button"
+                                    onClick={() => speakAppraisal(appraiseResult.appraisal!, appraiseResult.postMortem!, appraiseResult.recyclingPlan)}
+                                    title="Listen to Scrapyard Voice"
+                                    className="p-1 hover:bg-purple-900/40 rounded text-purple-300 hover:text-white transition-colors cursor-pointer"
+                                  >
+                                    <Volume2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </span>
                                 <span className="text-xs font-mono-tech text-red-400 font-extrabold bg-red-450/20 px-2 py-0.5 rounded">
                                   {appraiseResult.score}/100
                                 </span>

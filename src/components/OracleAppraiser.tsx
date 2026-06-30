@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { trackHunt } from "../lib/hunt";
-import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2 } from "lucide-react";
+import { speakAppraisal, stopSpeaking } from "../lib/tts";
+import { AlertCircle, HelpCircle, Activity, ShieldAlert, Sparkles, Archive, Coins, Share2, Trash2, Volume2 } from "lucide-react";
 import { AppraisalResult } from "../types";
 
 interface OracleAppraiserProps {
@@ -84,12 +85,14 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       }
 
       const data = await response.json();
-      setResult({
+      const resVal = {
         score: Number(data.score) || 75,
         appraisal: data.appraisal || "Decent effort, horrible alignment.",
         postMortem: data.postMortem || "A standard disaster. Reevaluate life.",
         recyclingPlan: data.recyclingPlan || "Sell keycaps and retire to a mountain."
-      });
+      };
+      setResult(resVal);
+      speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "An error occurred with the AI scanner.");
@@ -123,6 +126,9 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
       const t = new URLSearchParams(window.location.search).get("target");
       if (t) { setExposeFriend(t); setRevengeTarget(t); }
     } catch { /* no search params */ }
+    return () => {
+      stopSpeaking();
+    };
   }, []);
 
   const handleSaveAndShare = async () => {
@@ -194,12 +200,14 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
         throw new Error(detail || "The Oracle's printing press jammed. Try again.");
       }
       const data = await response.json();
-      setResult({
+      const resVal = {
         score: Number(data.score) || 50,
         appraisal: data.appraisal || "No comment.",
         postMortem: data.postMortem || "Details mysteriously redacted.",
         recyclingPlan: data.recyclingPlan || "Lay low, then write a memoir.",
-      });
+      };
+      setResult(resVal);
+      speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
     } catch (err: any) {
       setErrorMsg(err.message || "Exposé failed to print.");
     } finally {
@@ -379,7 +387,17 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
               {result && (
                 <div className="space-y-4 animate-fade-in text-xs text-gray-300">
                   <div className="flex justify-between items-center bg-cyan-950/20 border border-cyan-500/20 p-2.5 rounded">
-                    <span className="font-mono-tech text-cyan-300 uppercase">Roast Rating:</span>
+                    <span className="font-mono-tech text-cyan-300 uppercase flex items-center gap-1.5">
+                      Roast Rating:
+                      <button
+                        type="button"
+                        onClick={() => speakAppraisal(result.appraisal, result.postMortem, result.recyclingPlan)}
+                        title="Listen to Scrapyard Voice"
+                        className="p-1 hover:bg-cyan-900/40 rounded text-cyan-300 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
                     <span className="text-sm font-bold text-red-400 font-mono-tech">{Math.round(result.score)}/100</span>
                   </div>
 
