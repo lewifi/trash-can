@@ -384,29 +384,29 @@ export default function OracleAppraiser({ onAddProjectDirectly }: OracleAppraise
                   </div>
 
                   <div className="border border-cyan-500/10 p-3 rounded bg-cyan-950/5">
-                    <span className="text-[10px] font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
+                    <span className="text-[10px] sm:text-xs font-mono-tech text-cyan-400 uppercase tracking-widest block mb-1">
                       The Verdict
                     </span>
-                    <p className="italic text-gray-300 leading-relaxed font-sans font-medium text-sm">
+                    <p className="italic text-gray-200 leading-relaxed font-sans font-medium text-sm sm:text-base">
                       "{result.appraisal}"
                     </p>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono-tech text-red-400 uppercase tracking-widest block">
+                    <span className="text-[10px] sm:text-xs font-mono-tech text-red-400 uppercase tracking-widest block">
                       The Deep Cut
                     </span>
-                    <p className="leading-relaxed text-gray-400 text-[11px]">
+                    <p className="leading-relaxed text-gray-300 text-xs sm:text-sm">
                       {result.postMortem}
                     </p>
                   </div>
 
-                  <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-300">
-                    <span className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
+                  <div className="space-y-1 pt-2 border-t border-cyan-500/10 text-amber-200">
+                    <span className="text-[10px] sm:text-xs font-mono-tech text-amber-400 uppercase tracking-widest block flex items-center gap-1">
                       <Coins className="w-3.5 h-3.5" />
                       Unsolicited Advice
                     </span>
-                    <p className="leading-relaxed text-[11px]">
+                    <p className="leading-relaxed text-xs sm:text-sm">
                       {result.recyclingPlan}
                     </p>
                   </div>

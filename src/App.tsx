@@ -1603,34 +1603,34 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="p-3 bg-[#070b14] border border-gray-900 rounded-xl space-y-1 text-xs">
+                    <div className="p-3 bg-[#070b14] border border-gray-900 rounded-xl space-y-2 text-xs sm:text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Category:</span>
-                        <span className="font-mono-tech text-cyan-400 uppercase">{catLabel(selectedDump.category)}</span>
+                        <span className="text-gray-400">Category:</span>
+                        <span className="font-mono-tech text-cyan-400 uppercase tracking-wide">{catLabel(selectedDump.category)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Cause of Death:</span>
-                        <span className="font-mono-tech text-red-400 font-bold">{selectedDump.causeOfDeath}</span>
+                        <span className="text-gray-400">Cause of Death:</span>
+                        <span className="font-mono-tech text-red-400 font-bold tracking-wide">{selectedDump.causeOfDeath}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Technology stack:</span>
-                        <span className="font-mono-tech text-gray-300">{selectedDump.techStack}</span>
+                        <span className="text-gray-400">Technology stack:</span>
+                        <span className="font-mono-tech text-gray-200 tracking-wide">{selectedDump.techStack}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Date Logged:</span>
-                        <span className="font-mono-tech text-gray-500">{new Date(selectedDump.createdAt).toLocaleDateString()}</span>
+                        <span className="text-gray-400">Date Logged:</span>
+                        <span className="font-mono-tech text-gray-500 tracking-wide">{new Date(selectedDump.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
 
                     <div>
-                      <h5 className="text-xs font-mono-tech text-gray-400 mb-1 uppercase">Post-Mortem Tragedy Logs</h5>
-                      <div className="bg-[#0c0d12] border border-gray-900 p-3 rounded-lg text-xs leading-relaxed text-gray-300">
+                      <h5 className="text-xs font-mono-tech text-gray-400 mb-1 uppercase tracking-widest">Post-Mortem Tragedy Logs</h5>
+                      <div className="bg-[#0c0d12] border border-gray-900 p-3 rounded-lg text-xs sm:text-sm leading-relaxed text-gray-200">
                         <p className={logExpanded ? "" : "line-clamp-2"}>"{selectedDump.description}"</p>
                         {selectedDump.description && selectedDump.description.length > 140 && (
                           <button
                             type="button"
                             onClick={() => setLogExpanded((v) => !v)}
-                            className="mt-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-purple-400 hover:text-purple-300"
+                            className="mt-1.5 text-[10px] sm:text-xs font-mono-tech uppercase tracking-wider text-purple-400 hover:text-purple-300 cursor-pointer"
                           >
                             {logExpanded ? "Show less ▲" : "Show more ▼"}
                           </button>
@@ -1723,14 +1723,14 @@ export default function App() {
                                   {appraiseResult.score}/100
                                 </span>
                               </div>
-                              <p className="text-xs italic text-gray-300 font-medium">
+                              <p className="text-sm italic text-gray-200 font-medium leading-relaxed">
                                 "{appraiseResult.appraisal}"
                               </p>
-                              <div className="text-[11px] text-gray-400 border-l border-purple-500/30 pl-2 leading-relaxed">
+                              <div className="text-xs sm:text-sm text-gray-300 border-l border-purple-500/30 pl-2 leading-relaxed">
                                 <strong className="text-purple-300">Cause Analysis:</strong> {appraiseResult.postMortem}
                               </div>
                               {appraiseResult.recyclingPlan && (
-                                <div className="text-[11px] bg-cyan-950/20 text-cyan-300 p-2 rounded-lg border border-cyan-900/30">
+                                <div className="text-xs sm:text-sm bg-cyan-950/20 text-cyan-200 p-2.5 rounded-lg border border-cyan-900/30">
                                   💡 <strong className="text-cyan-200">Suggested Code Pivot:</strong> {appraiseResult.recyclingPlan}
                                 </div>
                               )}
@@ -1749,7 +1749,7 @@ export default function App() {
                             <span className="text-[10px] font-mono-tech text-purple-400">TRAGIC GLITCH RATING:</span>
                             <GhostRating score={selectedDump.diagnosticScore || 85} size={18} />
                           </div>
-                          <p className="text-xs text-gray-300 leading-relaxed italic">
+                          <p className="text-xs sm:text-sm text-gray-200 leading-relaxed italic">
                             "{selectedDump.aiAppraisal}"
                           </p>
                           <p className="text-[10px] text-purple-400 font-mono-tech">

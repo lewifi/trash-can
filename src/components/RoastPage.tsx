@@ -142,19 +142,19 @@ export default function RoastPage() {
 
             {roast.postMortem && (
               <div className="mb-5">
-                <span className="text-[10px] font-mono-tech text-red-400 uppercase tracking-widest block mb-1">
+                <span className="text-[10px] sm:text-xs font-mono-tech text-red-400 uppercase tracking-widest block mb-1">
                   The Deep Cut
                 </span>
-                <p className="text-sm text-gray-400 leading-relaxed">{roast.postMortem}</p>
+                <p className="text-sm text-gray-200 leading-relaxed">{roast.postMortem}</p>
               </div>
             )}
 
             {roast.recyclingPlan && (
               <div className="bg-amber-950/15 border border-amber-500/20 rounded-lg p-4">
-                <span className="text-[10px] font-mono-tech text-amber-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                <span className="text-[10px] sm:text-xs font-mono-tech text-amber-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
                   <Coins className="w-3.5 h-3.5" /> The Pivot
                 </span>
-                <p className="text-sm text-amber-200/90 leading-relaxed">{roast.recyclingPlan}</p>
+                <p className="text-sm text-amber-200 leading-relaxed">{roast.recyclingPlan}</p>
               </div>
             )}
           </div>
