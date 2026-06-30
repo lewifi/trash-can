@@ -28,6 +28,7 @@ export default function RoastPage() {
   // First-visit welcome — shown once per browser, on WHATEVER page you land on.
   // Shares the same key as the main app so people only ever see it once.
   const [showWelcome, setShowWelcome] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/roasts/${encodeURIComponent(id)}`)
@@ -212,6 +213,25 @@ export default function RoastPage() {
             </a>
             <span className="text-gray-700">·</span>
             <a href="/" className="text-cyan-400 hover:text-cyan-300 hover:underline">Explore trash-can.net</a>
+          </div>
+
+          {/* Persistent intro — dangles the tech-roast graveyard as the thing to explore after roasting */}
+          <div className="mt-4 rounded-xl border border-gray-800 bg-[#0a0e17] overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setTourOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left text-xs font-mono-tech uppercase tracking-wider text-cyan-300 hover:bg-gray-900/40 transition"
+            >
+              <span className="inline-flex items-center gap-2"><Compass className="w-4 h-4" /> New here? What is this place?</span>
+              <span className="text-gray-500">{tourOpen ? "−" : "+"}</span>
+            </button>
+            {tourOpen && (
+              <div className="px-4 pb-4 pt-1 space-y-2.5 text-[12px] text-gray-300 leading-relaxed border-t border-gray-800">
+                <p>🔥 <strong className="text-fuchsia-200">The Roast Oracle</strong> — name anyone and it cooks them alive. You just saw what it does to a mate.</p>
+                <a href="/memorials" className="block hover:text-cyan-200 transition">⚰️ <strong className="text-cyan-200">The Graveyard</strong> — a cemetery of dead software projects, each one handed a brutal AI autopsy. Read the tech roasts and gawk at the wreckage →</a>
+                <p>🗺️ <strong className="text-amber-200">A hidden clue adventure</strong> threads quietly through the site — and it ends somewhere most people never find.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
