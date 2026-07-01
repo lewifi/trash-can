@@ -55,7 +55,8 @@ import {
   ScrollText,
   Menu,
   Trophy,
-  Volume2
+  Volume2,
+  VolumeX
 } from "lucide-react";
 
 interface DeadProject {
@@ -238,6 +239,17 @@ export default function App() {
     try { localStorage.setItem("rg_welcome_seen", "1"); } catch {}
   };
   const welcomeRoast = () => { dismissWelcome(); navTab("oracle"); };
+
+  // Background-music toggle. The muffled loop lives in index.html and exposes
+  // window.__setBgMusicMuted; we just mirror the saved preference here.
+  const [musicMuted, setMusicMuted] = useState<boolean>(() => {
+    try { return localStorage.getItem("rg_music_muted") === "1"; } catch { return false; }
+  });
+  const toggleMusic = () => {
+    const next = !musicMuted;
+    setMusicMuted(next);
+    (window as any).__setBgMusicMuted?.(next);
+  };
 
   const detailRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -913,6 +925,15 @@ export default function App() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={toggleMusic}
+              title={musicMuted ? "Unmute music" : "Mute music"}
+              aria-label={musicMuted ? "Unmute music" : "Mute music"}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono-tech text-xs whitespace-nowrap transition-all border border-cyan-500/30 text-cyan-300 hover:bg-cyan-950/30 hover:text-cyan-100"
+            >
+              {musicMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
             <a
               href="/incinerator"
               title="Incinerator (admin)"

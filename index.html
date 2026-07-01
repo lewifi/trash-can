@@ -58,6 +58,17 @@
       const audio = new Audio('/99.mp3');
       audio.loop = true;
       audio.volume = 0.5;
+      try { audio.muted = localStorage.getItem('rg_music_muted') === '1'; } catch (e) {}
+      // Exposed so the app header's music toggle can mute/unmute the muffled loop.
+      window.__bgAudio = audio;
+      window.__setBgMusicMuted = function (m) {
+        audio.muted = !!m;
+        try { localStorage.setItem('rg_music_muted', m ? '1' : '0'); } catch (e) {}
+        if (!m) {
+          try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {}
+          audio.play().catch(function () {});
+        }
+      };
 
       function startAudio() {
         if (!audioCtx) {
