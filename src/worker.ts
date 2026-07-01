@@ -218,17 +218,23 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
   const n = name.length;
   const titleSize = n > 44 ? 44 : n > 30 ? 52 : 60;
   return `
-  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background:#05070e;padding:56px 70px;font-family:'Space Grotesk', sans-serif;">
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background-color:#05070e;background-image:linear-gradient(180deg, rgba(5,7,14,0) 52%, rgba(42,23,71,0.55) 84%, rgba(120,52,46,0.6) 100%);padding:56px 70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
       <img src="${OG_LOGO}" width="64" height="64" style="margin-right:20px;" />
       <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
     </div>
-    <div style="display:flex;flex-direction:column;margin-top:40px;">
+    <div style="display:flex;flex-direction:column;margin-top:34px;">
       <div style="display:flex;color:#ffffff;font-size:${titleSize}px;font-weight:700;line-height:1.05;">${name}</div>
-      <div style="display:flex;margin-top:18px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
-      <div style="display:flex;margin-top:22px;color:#cbd5e1;font-size:30px;line-height:1.3;">${appraisal}</div>
+      <div style="display:flex;margin-top:16px;color:#f43f5e;font-size:26px;">Cause of death: ${cause}</div>
+      <div style="display:flex;margin-top:18px;color:#cbd5e1;font-size:29px;line-height:1.3;">${appraisal}</div>
     </div>
-    <div style="display:flex;margin-top:auto;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;margin-top:auto;">
+      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#3df0ff;box-shadow:0 0 14px #3df0ff;margin-right:9px;"></div>
+      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#ff3df0;box-shadow:0 0 14px #ff3df0;margin-right:9px;"></div>
+      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#7dff8a;box-shadow:0 0 14px #7dff8a;margin-right:14px;"></div>
+      <div style="display:flex;color:#c4b5fd;font-size:21px;">a hidden world is buried in here — find the way in</div>
+    </div>
+    <div style="display:flex;margin-top:15px;align-items:center;justify-content:space-between;">
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
       <div style="display:flex;color:#f59e0b;font-size:26px;font-weight:700;">Glitch score ${score}/100</div>
     </div>

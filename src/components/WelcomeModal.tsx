@@ -79,55 +79,74 @@ export default function WelcomeModal({
 
         {/* Mystery teaser: a blurred glimpse of the secret world + an obscured clue */}
         <div className="mt-5 pt-4 border-t border-gray-800">
-          <div className="relative h-24 rounded-xl overflow-hidden border border-fuchsia-500/25">
-            {/* Stylised glimpse of the secret world: neon sky, mountains and floating
-                squares — deliberately NO creatures or gravestones, so the spooky payoff
-                stays a surprise. Blurred to keep it a tease. */}
+          <div className="relative h-32 rounded-xl overflow-hidden border border-fuchsia-500/25">
+            {/* A clear look at the buried world — a neon graveyard at sunrise: mountains,
+                a haunted sea, a glowing floor grid, the old church, and the three echoes. */}
             <svg
-              viewBox="0 0 200 96"
+              viewBox="0 0 200 128"
               preserveAspectRatio="xMidYMid slice"
-              className="absolute inset-0 w-full h-full scale-110"
-              style={{ filter: "blur(4px)" }}
+              className="absolute inset-0 w-full h-full"
               aria-hidden="true"
             >
               <defs>
                 <linearGradient id="ws-sky" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#0b1233" />
-                  <stop offset="0.62" stopColor="#2a1747" />
+                  <stop offset="0" stopColor="#0a1030" />
+                  <stop offset="0.5" stopColor="#2a1747" />
+                  <stop offset="0.82" stopColor="#7a2e52" />
                   <stop offset="1" stopColor="#e0602e" />
                 </linearGradient>
+                <radialGradient id="ws-sun" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stopColor="#ffe8a0" />
+                  <stop offset="0.5" stopColor="#ffd23d" stopOpacity="0.55" />
+                  <stop offset="1" stopColor="#ffd23d" stopOpacity="0" />
+                </radialGradient>
               </defs>
-              <rect width="200" height="96" fill="url(#ws-sky)" />
-              {/* low sun glow near the horizon */}
-              <circle cx="150" cy="72" r="30" fill="#ffd23d" opacity="0.45" />
-              {/* far mountain range */}
-              <polygon points="0,74 40,46 80,70 120,40 160,66 200,44 200,96 0,96" fill="#1a1140" opacity="0.85" />
-              {/* near mountain range */}
-              <polygon points="0,84 30,64 70,84 110,60 150,82 200,62 200,96 0,96" fill="#0c0820" />
-              {/* floating squares (the "echoes") — no ghouls, no stones */}
-              <rect x="30" y="22" width="12" height="12" fill="#3df0ff" opacity="0.85" transform="rotate(45 36 28)" />
-              <rect x="92" y="13" width="10" height="10" fill="#ff3df0" opacity="0.85" transform="rotate(45 97 18)" />
-              <rect x="141" y="30" width="9" height="9" fill="#7dff8a" opacity="0.8" transform="rotate(45 145 34)" />
+              <rect width="200" height="128" fill="url(#ws-sky)" />
+              {/* sun */}
+              <circle cx="150" cy="88" r="42" fill="url(#ws-sun)" />
+              <circle cx="150" cy="88" r="11" fill="#ffe8a0" />
+              {/* mountains */}
+              <polygon points="0,88 34,58 70,84 108,52 150,80 200,56 200,128 0,128" fill="#241a3a" />
+              <polygon points="0,98 40,76 82,96 120,72 165,94 200,76 200,128 0,128" fill="#140c26" />
+              {/* haunted sea */}
+              <rect y="98" width="200" height="10" fill="#0a1f3a" opacity="0.92" />
+              <rect y="98" width="200" height="1.5" fill="#3df0ff" opacity="0.3" />
+              {/* neon ground + perspective grid */}
+              <rect y="108" width="200" height="20" fill="#0c0716" />
+              <g stroke="#ff3df0" strokeWidth="0.4" opacity="0.5">
+                <line x1="-10" y1="128" x2="78" y2="108" /><line x1="38" y1="128" x2="90" y2="108" />
+                <line x1="100" y1="128" x2="100" y2="108" /><line x1="162" y1="128" x2="110" y2="108" />
+                <line x1="210" y1="128" x2="122" y2="108" />
+              </g>
+              <g stroke="#3df0ff" strokeWidth="0.4" opacity="0.4">
+                <line x1="0" y1="114" x2="200" y2="114" /><line x1="0" y1="121" x2="200" y2="121" />
+              </g>
+              {/* old church silhouette with lit door + steeple + cross */}
+              <g transform="translate(84,68)" fill="#0a0614">
+                <rect x="0" y="14" width="30" height="26" />
+                <polygon points="-2,14 15,2 32,14" />
+                <rect x="12" y="-6" width="6" height="20" />
+                <polygon points="11,-6 15,-14 19,-6" />
+                <rect x="14.2" y="-20" width="1.6" height="6" /><rect x="12" y="-18" width="6" height="1.6" />
+                <rect x="12.5" y="24" width="5" height="16" fill="#ffcf6a" opacity="0.9" />
+              </g>
+              {/* the three glowing echoes */}
+              <g>
+                <circle cx="34" cy="54" r="9" fill="#3df0ff" opacity="0.35" />
+                <rect x="30" y="50" width="8" height="8" fill="#3df0ff" transform="rotate(45 34 54)" />
+                <circle cx="120" cy="42" r="8" fill="#ff3df0" opacity="0.35" />
+                <rect x="116.5" y="38.5" width="7" height="7" fill="#ff3df0" transform="rotate(45 120 42)" />
+                <circle cx="176" cy="60" r="7" fill="#7dff8a" opacity="0.35" />
+                <rect x="173" y="57" width="6" height="6" fill="#7dff8a" transform="rotate(45 176 60)" />
+              </g>
+              {/* fireflies */}
+              <g fill="#ffd23d" opacity="0.85">
+                <circle cx="60" cy="46" r="0.8" /><circle cx="96" cy="62" r="0.8" /><circle cx="140" cy="54" r="0.8" />
+                <circle cx="20" cy="72" r="0.8" /><circle cx="186" cy="42" r="0.8" /><circle cx="74" cy="90" r="0.8" />
+              </g>
             </svg>
-            {/* faint neon floor grid, also blurred */}
-            <div
-              className="absolute inset-0"
-              style={{
-                opacity: 0.35,
-                filter: "blur(1.5px)",
-                backgroundImage:
-                  "linear-gradient(rgba(255,61,240,.25) 1px, transparent 1px)," +
-                  "linear-gradient(90deg, rgba(61,240,255,.25) 1px, transparent 1px)",
-                backgroundSize: "20px 20px",
-              }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-monument tracking-[5px] text-white/80 text-xs select-none text-center leading-tight">
-                A HIDDEN<br />WORLD
-              </span>
-            </div>
-            <div className="absolute bottom-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono-tech uppercase tracking-widest text-fuchsia-200/80">
-              <Sparkles className="w-3 h-3" /> a secret, hand-built world is buried in here
+            <div className="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono-tech uppercase tracking-widest text-fuchsia-100/90 drop-shadow">
+              <Sparkles className="w-3 h-3" /> the buried world — find your way in
             </div>
           </div>
 
