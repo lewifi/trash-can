@@ -156,7 +156,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.3.0";
+const APP_VERSION = "2.4.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -185,6 +185,44 @@ export default function App() {
     const onPop = () => setActiveTab(tabFromPath());
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Map a pathname to a tab, or null for routes that are their own entry point
+  // (/incinerator, /secretroom, /roast/*, /grave/*) and must do a real navigation.
+  const pathToTab = (pathname: string): TabId | null => {
+    const p = pathname.replace(/\/+$/, "");
+    if (p === "" ) return "oracle";
+    if (p === "/memorials") return "memorials";
+    if (p === "/oracle" || p === "/roastoracle") return "oracle";
+    if (p === "/disposal") return "disposal";
+    if (p === "/contracts") return "contracts";
+    if (p === "/log") return "log";
+    if (p === "/dump") return "dump";
+    return null;
+  };
+  // Intercept clicks on internal links so moving between areas NEVER does a full
+  // page reload (which would restart the background music). External links, new-tab
+  // links, downloads and separate-entry routes fall through to the browser.
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      const a = el && el.closest ? (el.closest("a") as HTMLAnchorElement | null) : null;
+      if (!a) return;
+      if (a.target === "_blank" || a.hasAttribute("download") || a.getAttribute("rel") === "external") return;
+      const href = a.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+      let url: URL;
+      try { url = new URL(href, window.location.href); } catch { return; }
+      if (url.origin !== window.location.origin) return;
+      const tab = pathToTab(url.pathname);
+      if (!tab) return; // separate entry point — let the browser navigate for real
+      e.preventDefault();
+      navTab(tab);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
   }, []);
 
   // First-visit welcome (shown once per browser): points newcomers at the
@@ -693,7 +731,7 @@ export default function App() {
         };
         setAppraiseResult(data);
         if (autoplayAudio && data.appraisal && data.postMortem) {
-          speakAppraisal(data.appraisal, data.postMortem, data.recyclingPlan);
+          speakAppraisal(data.appraisal, data.postMortem, data.recyclingPlan, data.score);
         }
       } else {
         const err = (await res.json()) as { error?: string };
@@ -1818,7 +1856,7 @@ export default function App() {
                                   {appraiseStep >= 4 && (
                                     <button
                                       type="button"
-                                      onClick={() => speakAppraisal(appraiseResult.appraisal!, appraiseResult.postMortem!, appraiseResult.recyclingPlan)}
+                                      onClick={() => speakAppraisal(appraiseResult.appraisal!, appraiseResult.postMortem!, appraiseResult.recyclingPlan, appraiseResult.score)}
                                       title="Listen to Scrapyard Voice"
                                       className="p-1 hover:bg-purple-900/40 rounded text-purple-300 hover:text-white transition-colors cursor-pointer animate-fade-in"
                                     >

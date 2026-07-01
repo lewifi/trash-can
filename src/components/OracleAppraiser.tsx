@@ -109,7 +109,7 @@ export default function OracleAppraiser({
       };
       setResult(resVal);
       if (autoplayAudio) {
-        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan, resVal.score);
       }
     } catch (err: any) {
       console.error(err);
@@ -226,7 +226,7 @@ export default function OracleAppraiser({
       };
       setResult(resVal);
       if (autoplayAudio) {
-        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan);
+        speakAppraisal(resVal.appraisal, resVal.postMortem, resVal.recyclingPlan, resVal.score);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Exposé failed to print.");
@@ -432,7 +432,7 @@ export default function OracleAppraiser({
                       {step >= 4 && (
                         <button
                           type="button"
-                          onClick={() => speakAppraisal(result.appraisal, result.postMortem, result.recyclingPlan)}
+                          onClick={() => speakAppraisal(result.appraisal, result.postMortem, result.recyclingPlan, result.score)}
                           title="Listen to Scrapyard Voice"
                           className="p-1 hover:bg-cyan-900/40 rounded text-cyan-300 hover:text-white transition-colors cursor-pointer animate-fade-in"
                         >

@@ -2,7 +2,12 @@
  * Text-to-Speech engine configured to sound like a burly 60yo scrapyard worker
  * with a very deep, gravelly voice.
  */
-export function speakAppraisal(appraisal: string, postMortem: string, recyclingPlan?: string) {
+export function speakAppraisal(
+  appraisal: string,
+  postMortem: string,
+  recyclingPlan?: string,
+  score?: number
+) {
   if (typeof window === "undefined" || !window.speechSynthesis) return;
 
   // Cancel any ongoing speaking first to avoid queue buildup
@@ -19,6 +24,20 @@ export function speakAppraisal(appraisal: string, postMortem: string, recyclingP
   }
   if (recyclingPlan) {
     segments.push(recyclingPlan);
+  }
+
+  // Spoken verdict at the very end — a funny out-of-ten rating read aloud.
+  if (typeof score === "number" && !Number.isNaN(score)) {
+    const outOf10 = Math.max(1, Math.min(10, Math.round(score / 10)));
+    const labels = [
+      "And the final dumpster level",
+      "Official tragedy rating",
+      "Stink score",
+      "Trash-tier verdict",
+      "Landfill rating",
+    ];
+    const label = labels[Math.floor(Math.random() * labels.length)];
+    segments.push(`${label}: ${outOf10} out of 10`);
   }
 
   const fullText = segments.join(". ");
