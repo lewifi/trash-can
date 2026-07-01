@@ -15,6 +15,7 @@ import XScatter from "./components/XScatter";
 import Atmosphere from "./components/Atmosphere";
 import HintReward from "./components/HintReward";
 import WelcomeModal from "./components/WelcomeModal";
+import BuriedWorldPreview from "./components/BuriedWorldPreview";
 import {
   Trash2,
   Skull,
@@ -1793,6 +1794,7 @@ export default function App() {
                             <p className="text-[11px] text-gray-200 leading-relaxed">
                               The Containment Block Code is no great <span className="text-amber-200 font-bold">secret</span>. And the Hatch Password? It's simply the <span className="text-amber-200 font-bold">way in</span> &mdash; said quick, as one word.
                             </p>
+                            <BuriedWorldPreview className="mt-2" />
                           </div>
                         ) : appraiseResult && !appraiseResult.error ? (
                           <>

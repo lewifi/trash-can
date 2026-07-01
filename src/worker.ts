@@ -218,7 +218,7 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
   const n = name.length;
   const titleSize = n > 44 ? 44 : n > 30 ? 52 : 60;
   return `
-  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background-color:#05070e;background-image:linear-gradient(180deg, rgba(5,7,14,0) 52%, rgba(42,23,71,0.55) 84%, rgba(120,52,46,0.6) 100%);padding:56px 70px;font-family:'Space Grotesk', sans-serif;">
+  <div style="display:flex;flex-direction:column;width:1200px;height:630px;background-color:#05070e;background-image:linear-gradient(180deg, rgba(5,7,14,0) 62%, rgba(38,22,58,0.32) 88%, rgba(70,38,44,0.32) 100%);padding:56px 70px;font-family:'Space Grotesk', sans-serif;">
     <div style="display:flex;align-items:center;">
       <img src="${OG_LOGO}" width="64" height="64" style="margin-right:20px;" />
       <div style="display:flex;color:#22d3ee;font-size:30px;font-weight:700;letter-spacing:2px;">ROAST GRAVEYARD</div>
@@ -229,10 +229,10 @@ function ogImageHtml(name: string, appraisal: string, cause: string, score: numb
       <div style="display:flex;margin-top:18px;color:#cbd5e1;font-size:29px;line-height:1.3;">${appraisal}</div>
     </div>
     <div style="display:flex;align-items:center;margin-top:auto;">
-      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#3df0ff;box-shadow:0 0 14px #3df0ff;margin-right:9px;"></div>
-      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#ff3df0;box-shadow:0 0 14px #ff3df0;margin-right:9px;"></div>
-      <div style="display:flex;width:15px;height:15px;border-radius:8px;background:#7dff8a;box-shadow:0 0 14px #7dff8a;margin-right:14px;"></div>
-      <div style="display:flex;color:#c4b5fd;font-size:21px;">a hidden world is buried in here — find the way in</div>
+      <div style="display:flex;width:8px;height:8px;border-radius:5px;background:#2c5f6b;margin-right:7px;"></div>
+      <div style="display:flex;width:8px;height:8px;border-radius:5px;background:#5f2c54;margin-right:7px;"></div>
+      <div style="display:flex;width:8px;height:8px;border-radius:5px;background:#345a3e;margin-right:11px;"></div>
+      <div style="display:flex;color:#453f52;font-size:15px;">not everything here is dead</div>
     </div>
     <div style="display:flex;margin-top:15px;align-items:center;justify-content:space-between;">
       <div style="display:flex;color:#22d3ee;font-size:26px;font-weight:700;">trash-can.net</div>
