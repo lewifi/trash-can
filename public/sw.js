@@ -32,7 +32,7 @@
  * Keep VERSION in step with APP_VERSION in src/App.tsx.
  */
 
-var VERSION = "2.10.0";
+var VERSION = "2.10.1";
 var SHELL = "shell-" + VERSION;   // pages and the app shell
 var STATIC = "static-" + VERSION; // hashed bundles, icons, cursors, the CDN copy of three
 
