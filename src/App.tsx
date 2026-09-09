@@ -158,7 +158,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.5.0";
+const APP_VERSION = "2.10.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -287,6 +287,9 @@ export default function App() {
   }, [autoplayAudio]);
 
   const [showSecretRoom, setShowSecretRoom] = useState(false);
+  // A white sheet held over the page while the buried world hands the player
+  // out into the memorials. "hold" is opaque, "fade" transitions it away.
+  const [exitFlash, setExitFlash] = useState<null | "hold" | "fade">(null);
 
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -302,8 +305,28 @@ export default function App() {
     };
     
     const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
       if (e.data === "close-secretroom") {
         setShowSecretRoom(false);
+        return;
+      }
+      // The buried world hands the player out through the sewer blow-out to
+      // white. Hold a matching white sheet over the page, swap the world for
+      // the memorials underneath it, then fade the sheet away: one continuous
+      // walk out into daylight rather than a page flash.
+      const msg = e.data as { type?: string; axe?: boolean } | null;
+      if (msg && typeof msg === "object" && msg.type === "graveyard-exit") {
+        // Walked out holding the axe: it carries through as the cursor here.
+        if (msg.axe) {
+          try { localStorage.setItem("hg_axe_carried", "1"); } catch { /* ignore */ }
+          document.documentElement.classList.add("carries-axe");
+        }
+        setExitFlash("hold");
+        setShowSecretRoom(false);
+        navTab("memorials");
+        window.scrollTo({ top: 0 });
+        window.setTimeout(() => setExitFlash("fade"), 80);
+        window.setTimeout(() => setExitFlash(null), 1600);
       }
     };
 
@@ -2256,6 +2279,21 @@ export default function App() {
           "Everything in this system is dedicated to developers who bought domains while drinking coffee at 3:00 AM and never built on them."
         </p>
       </footer>
+
+      {exitFlash && (
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#ffffff",
+            zIndex: 100000,
+            pointerEvents: "none",
+            opacity: exitFlash === "hold" ? 1 : 0,
+            transition: "opacity 1.2s ease-out",
+          }}
+        />
+      )}
 
       {showSecretRoom && (
         <iframe

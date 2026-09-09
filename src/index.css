@@ -285,3 +285,28 @@
 .led-glow-teal {
   text-shadow: 0 0 5px rgba(45, 212, 191, 0.6), 0 0 10px rgba(45, 212, 191, 0.3);
 }
+
+/* Carried out of the buried world.
+   Anyone who took the axe off the church floor and smashed their way out keeps
+   it: it becomes their cursor on the flat pages. The class is set on <html> in
+   main.tsx, and live by App.tsx the moment the world hands the player over.
+   The second, cocked variant fires over anything clickable, so the affordance
+   a pointer would have given is kept rather than thrown away for a joke. */
+html.carries-axe,
+html.carries-axe body {
+  cursor: url("/axe-cursor.png") 5 4, default;
+}
+html.carries-axe a,
+html.carries-axe button,
+html.carries-axe summary,
+html.carries-axe label,
+html.carries-axe [role="button"],
+html.carries-axe [role="tab"],
+html.carries-axe select {
+  cursor: url("/axe-cursor-active.png") 5 4, pointer;
+}
+/* Typing beats the joke: text entry keeps a real caret. */
+html.carries-axe input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+html.carries-axe textarea {
+  cursor: text;
+}
