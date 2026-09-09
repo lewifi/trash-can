@@ -158,7 +158,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
-const APP_VERSION = "2.8.1";
+const APP_VERSION = "2.9.0";
 const catLabel = (c: string): string => (c === "web3" ? "Cloud Native" : c);
 
 export default function App() {
@@ -314,8 +314,13 @@ export default function App() {
       // white. Hold a matching white sheet over the page, swap the world for
       // the memorials underneath it, then fade the sheet away: one continuous
       // walk out into daylight rather than a page flash.
-      const msg = e.data as { type?: string } | null;
+      const msg = e.data as { type?: string; axe?: boolean } | null;
       if (msg && typeof msg === "object" && msg.type === "graveyard-exit") {
+        // Walked out holding the axe: it carries through as the cursor here.
+        if (msg.axe) {
+          try { localStorage.setItem("hg_axe_carried", "1"); } catch { /* ignore */ }
+          document.documentElement.classList.add("carries-axe");
+        }
         setExitFlash("hold");
         setShowSecretRoom(false);
         navTab("memorials");
