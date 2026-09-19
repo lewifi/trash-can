@@ -40,7 +40,8 @@ var STATIC = "static-" + VERSION; // hashed bundles, icons, cursors, the CDN cop
 // bundles are not listed because their names are only known at build time, and
 // they populate themselves on first visit anyway.
 var PRECACHE = [
-  "/",
+  "/",        // the buried world: the landing page
+  "/oracle",  // the app shell, and the offline fallback for unknown routes
   "/site.webmanifest",
   "/favicon.svg",
   "/icon-192.png",
@@ -100,8 +101,9 @@ function networkFirst(request, cacheName) {
     .catch(function () {
       return caches.match(request).then(function (hit) {
         // An unknown path offline still deserves the app shell rather than the
-        // browser's error page: the SPA can render from there.
-        return hit || caches.match("/");
+        // browser's error page: the SPA can render from there. That is /oracle,
+        // not "/" — the root is the buried world.
+        return hit || caches.match("/oracle");
       });
     });
 }

@@ -1328,10 +1328,13 @@ app.post("/api/leaderboard", async (c) => {
   return c.json({ ok: true, entry, total: arr.length }, 201);
 });
 
-// Pretty alias for the hidden world: /secretroom serves the secretworld.html
-// asset. The page itself gates access (needs the #letmein hash or the earned
-// localStorage flag), so this route just delivers the file.
-app.get("/secretroom", (c) => c.env.ASSETS.fetch(new URL("/secretworld.html", c.req.url)));
+// The buried world is the landing page: "/" and the older /secretroom alias both
+// serve the secretworld.html asset. Nothing gates it any more, so these routes
+// just hand back the file. Both paths need an entry in assets.run_worker_first,
+// or the asset worker answers first and serves the SPA shell instead.
+const buriedWorld = (c: any) => c.env.ASSETS.fetch(new URL("/secretworld.html", c.req.url));
+app.get("/", buriedWorld);
+app.get("/secretroom", buriedWorld);
 
 // Safety net: anything non-API that reaches the Worker is served from static assets.
 // (With run_worker_first: ["/api/*"], assets are normally served before the Worker runs.)

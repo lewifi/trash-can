@@ -87,7 +87,7 @@ export default function RoastPage() {
 
       {/* Header bar: brand + an always-visible invite to roast */}
       <div className="relative w-full max-w-2xl flex items-center justify-between gap-3 mb-8">
-        <a href="/" className="flex items-center gap-2 group">
+        <a href="/oracle" className="flex items-center gap-2 group">
           <div className="relative p-2 bg-gray-900 rounded-lg border border-gray-700/80">
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-fuchsia-500 to-cyan-500 opacity-30 group-hover:opacity-100 transition-opacity blur" />
             <Flame className="w-6 h-6 text-fuchsia-400 relative z-10" />

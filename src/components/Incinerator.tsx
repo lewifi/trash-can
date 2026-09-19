@@ -239,7 +239,7 @@ export default function Incinerator() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/"
+            <a href="/oracle"
               className="flex items-center gap-2 bg-gray-900 border border-gray-700 hover:border-cyan-400 text-gray-300 text-xs font-mono uppercase px-3 py-2 rounded transition">
               <ChevronLeft className="w-4 h-4" /> Back to site
             </a>

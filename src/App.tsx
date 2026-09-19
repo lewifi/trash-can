@@ -173,14 +173,16 @@ export default function App() {
     if (pth === "/log") return "log";
     if (pth === "/dump") return "dump";
     if (pth.startsWith("/grave/")) return "memorials";
-    return "oracle"; // root "/" lands on the Roast Oracle
+    return "oracle"; // anything unrecognised falls back to the Roast Oracle
   };
   const [activeTab, setActiveTab] = useState<TabId>(tabFromPath());
 
   // Tab navigation with clean URLs, so refresh / back-button stay on the page.
+  // "/" is deliberately not one of them: the root is the buried world now, so
+  // the Roast Oracle lives at its own /oracle URL.
   const navTab = (tab: TabId) => {
     setActiveTab(tab);
-    const path = tab === "oracle" ? "/" : `/${tab}`;
+    const path = `/${tab}`;
     if (window.location.pathname !== path) window.history.pushState({}, "", path);
   };
   useEffect(() => {
@@ -190,10 +192,11 @@ export default function App() {
   }, []);
 
   // Map a pathname to a tab, or null for routes that are their own entry point
-  // (/incinerator, /secretroom, /roast/*, /grave/*) and must do a real navigation.
+  // ("/", /incinerator, /secretroom, /roast/*, /grave/*) and must do a real
+  // navigation. "/" is the buried world now, so it deliberately returns null.
   const pathToTab = (pathname: string): TabId | null => {
     const p = pathname.replace(/\/+$/, "");
-    if (p === "" ) return "oracle";
+    if (p === "") return null;
     if (p === "/memorials") return "memorials";
     if (p === "/oracle" || p === "/roastoracle") return "oracle";
     if (p === "/disposal") return "disposal";

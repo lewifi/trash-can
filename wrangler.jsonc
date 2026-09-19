@@ -11,6 +11,9 @@
     "directory": "./dist",
     "not_found_handling": "single-page-application",
     "run_worker_first": [
+      // "/" is the buried world, not the SPA shell, so the Worker has to answer
+      // the root before the asset worker serves dist/index.html.
+      "/",
       "/api/*",
       "/grave/*",
       "/roast/*",
